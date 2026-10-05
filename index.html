@@ -2,216 +2,318 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHINMAI HUD V3.1</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>SHINMAI HUD V4</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 html,body{
   margin:0;
+  padding:0;
   width:100%;
   height:100%;
   background:#000;
+  overflow:hidden;
 }
 
 body{
   color:#fff;
   font-family:-apple-system,"Noto Sans JP","Hiragino Sans",
               "Yu Gothic",sans-serif;
-  overflow:hidden;
 }
 
 main{
-  width:min(100vw,600px);
-  height:min(100vh,600px);
-  margin:auto;
-  padding:24px;
-  background:radial-gradient(circle at top,#0b2a38,#02090d 55%,#000);
+  width:100vw;
+  height:100vh;
+  max-width:600px;
+  max-height:600px;
+
+  margin:0 auto;
+
+  /* 新米の安全領域を意識 */
+  padding:18px 24px;
+
+  overflow:hidden;
+
+  background:
+    radial-gradient(circle at top,#0b2835,#02090d 58%,#000);
 }
+
+
+/* SHINMAI */
 
 .label{
-  color:#b8d0da;
-  font-size:13px;
+  font-size:11px;
   font-weight:700;
   letter-spacing:2px;
+  color:#b9d0d9;
 }
+
+
+/* 時刻 */
 
 .clock{
-  margin-top:8px;
-  font-size:76px;
+  margin-top:5px;
+
+  font-size:62px;
   font-weight:800;
+
   line-height:1;
+
+  letter-spacing:1px;
 }
 
+
+/* 日付 */
+
 .date{
-  margin-top:10px;
-  color:#fff;
-  font-size:28px;
+  margin-top:7px;
+
+  font-size:22px;
   font-weight:800;
+
   line-height:1.2;
 }
 
+
+/* メインパネル */
+
 .panel{
-  margin-top:20px;
-  padding:18px;
-  border:1px solid #7b9eab;
-  border-radius:18px;
+  margin-top:15px;
+
+  padding:16px 18px;
+
+  border:1px solid #7896a1;
+
+  border-radius:16px;
+
   background:#07151c;
 }
 
+
+/* 場所 */
+
 .location{
-  font-size:22px;
-  font-weight:800;
-  line-height:1.35;
-}
-
-.weather{
-  margin-top:14px;
-  font-size:30px;
-  font-weight:800;
-}
-
-.details{
-  margin-top:10px;
-  color:#d9e5ea;
-  font-size:16px;
-  font-weight:600;
-  line-height:1.5;
-}
-
-.enable{
-  margin-top:14px;
-  padding:13px 10px;
-  width:100%;
-  border:2px solid #fff;
-  border-radius:13px;
-  background:#102832;
-  color:#fff;
-  font-size:19px;
-  font-weight:800;
-}
-
-.errorBox{
-  margin-top:12px;
-  padding:12px;
-  border:2px solid #fff;
-  border-radius:12px;
   font-size:20px;
   font-weight:800;
+
+  line-height:1.25;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+
+/* 天気 */
+
+.weather{
+  margin-top:11px;
+
+  font-size:29px;
+  font-weight:850;
+
+  line-height:1.15;
+}
+
+
+/* 補助情報 */
+
+.details{
+  margin-top:9px;
+
+  font-size:15px;
+  font-weight:650;
+
+  color:#d8e5e9;
+
   line-height:1.4;
 }
 
-.errorCode{
-  font-size:30px;
-  font-weight:900;
-}
+
+/* LIVE */
 
 .status{
-  margin-top:12px;
-  color:#bdd0d8;
-  font-size:13px;
+  margin-top:10px;
+
+  font-size:12px;
   font-weight:700;
+
+  color:#b9d0d9;
 }
 
-.hidden{
+
+/* 再試行 */
+
+.retry{
   display:none;
+
+  margin-top:10px;
+
+  width:100%;
+
+  padding:9px;
+
+  border:1px solid #fff;
+
+  border-radius:10px;
+
+  background:#102832;
+
+  color:#fff;
+
+  font-size:15px;
+  font-weight:800;
+}
+
+.retry.show{
+  display:block;
 }
 </style>
 </head>
+
 
 <body>
 
 <main>
 
-<div class="label">SHINMAI HUD V3.1</div>
+<div class="label">
+  SHINMAI
+</div>
 
-<div id="clock" class="clock">--:--</div>
+<div id="clock" class="clock">
+  --:--
+</div>
 
-<div id="date" class="date">--</div>
+<div id="date" class="date">
+  --
+</div>
+
 
 <div class="panel">
 
   <div id="location" class="location">
-    現在地：未取得
+    現在地を確認中
   </div>
 
   <div id="weather" class="weather">
-    天気：待機中
+    --
   </div>
 
-  <div id="details" class="details"></div>
-
-  <div id="errorBox" class="errorBox hidden"></div>
+  <div id="details" class="details">
+  </div>
 
   <button
-    id="enableLocation"
-    class="enable"
+    id="retry"
+    class="retry"
     type="button"
-    autofocus
   >
-    位置情報を有効にする
+    再試行
   </button>
 
 </div>
 
+
 <div id="status" class="status">
-  決定して現在地を取得
+  STARTING
 </div>
 
 </main>
 
+
 <script>
 
-/* CLOCK */
+/* ============================
+   CLOCK
+============================ */
 
 function updateClock(){
 
   const d = new Date();
 
   document.getElementById("clock").textContent =
-    d.toLocaleTimeString("ja-JP",{
-      hour:"2-digit",
-      minute:"2-digit",
-      hour12:false
-    });
+    d.toLocaleTimeString(
+      "ja-JP",
+      {
+        hour:"2-digit",
+        minute:"2-digit",
+        hour12:false
+      }
+    );
+
 
   const week =
     ["日","月","火","水","木","金","土"];
 
+
   document.getElementById("date").textContent =
-    `${d.getMonth()+1}月${d.getDate()}日 ${week[d.getDay()]}曜日`;
+    `${d.getMonth()+1}月${d.getDate()}日 ${week[d.getDay()]}`;
+
 }
 
+
 updateClock();
-setInterval(updateClock,1000);
+
+setInterval(
+  updateClock,
+  1000
+);
 
 
-/* WEATHER */
+
+/* ============================
+   WEATHER
+============================ */
 
 const weatherCodes = {
+
   0:"快晴",
+
   1:"晴れ",
-  2:"一部くもり",
+
+  2:"晴/曇",
+
   3:"くもり",
+
   45:"霧",
+
   48:"霧",
+
   51:"霧雨",
+
   53:"霧雨",
-  55:"強い霧雨",
+
+  55:"霧雨",
+
   61:"小雨",
+
   63:"雨",
+
   65:"強い雨",
+
   71:"小雪",
+
   73:"雪",
+
   75:"大雪",
+
   80:"にわか雨",
+
   81:"にわか雨",
-  82:"激しい雨",
+
+  82:"豪雨",
+
   95:"雷雨",
+
   96:"雷雨",
-  99:"激しい雷雨"
+
+  99:"雷雨"
+
 };
+
 
 
 const locationText =
@@ -226,48 +328,49 @@ const details =
 const status =
   document.getElementById("status");
 
-const button =
-  document.getElementById("enableLocation");
+const retry =
+  document.getElementById("retry");
 
-const errorBox =
-  document.getElementById("errorBox");
 
-let locationEnabled = false;
 let requesting = false;
 
 
-/* LOCATION */
 
-function requestLocation(){
+/* ============================
+   LOCATION
+============================ */
 
-  if(requesting) return;
+function getLocation(){
+
+  if(requesting){
+    return;
+  }
+
 
   if(!navigator.geolocation){
 
-    errorBox.classList.remove("hidden");
+    locationText.textContent =
+      "位置情報非対応";
 
-    errorBox.innerHTML =
-      '<div class="errorCode">GEO UNSUPPORTED</div>' +
-      '位置情報APIが利用できません';
+    status.textContent =
+      "GEO UNSUPPORTED";
 
     return;
   }
 
+
   requesting = true;
 
-  errorBox.classList.add("hidden");
 
-  button.disabled = true;
-  button.textContent = "現在地を取得中…";
+  retry.classList.remove("show");
+
 
   locationText.textContent =
-    "現在地を取得中…";
+    "現在地を確認中";
 
-  weatherText.textContent =
-    "天気情報待ち";
 
   status.textContent =
-    "PHONE GPS CONNECTING";
+    "GPS";
 
 
   navigator.geolocation.getCurrentPosition(
@@ -275,7 +378,7 @@ function requestLocation(){
     async position => {
 
       requesting = false;
-      locationEnabled = true;
+
 
       const lat =
         position.coords.latitude;
@@ -283,53 +386,73 @@ function requestLocation(){
       const lon =
         position.coords.longitude;
 
-      button.classList.add("hidden");
-      errorBox.classList.add("hidden");
+
+      /* まず座標 */
 
       locationText.textContent =
-        `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-
-      status.textContent =
-        "LOCATION OK";
+        `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
 
 
       /* 地名 */
 
       try{
 
-        const url =
+        const reverse =
           "https://api.bigdatacloud.net/data/reverse-geocode-client" +
+
           `?latitude=${lat}` +
+
           `&longitude=${lon}` +
+
           "&localityLanguage=ja";
 
-        const response =
-          await fetch(url);
+
+        const r =
+          await fetch(reverse);
+
 
         const data =
-          await response.json();
+          await r.json();
+
 
         const pref =
           data.principalSubdivision || "";
+
 
         const city =
           data.locality ||
           data.city ||
           "";
 
-        if(pref || city){
+
+        /*
+          表示領域節約のため
+          市区町村を優先
+        */
+
+        if(city){
 
           locationText.textContent =
-            [pref,city]
-              .filter(Boolean)
-              .join(" ");
+            city;
 
         }
 
-      }catch(e){}
+        else if(pref){
+
+          locationText.textContent =
+            pref;
+
+        }
+
+      }
+
+      catch(e){}
 
 
-      await loadWeather(lat,lon);
+      loadWeather(
+        lat,
+        lon
+      );
 
     },
 
@@ -338,167 +461,214 @@ function requestLocation(){
 
       requesting = false;
 
-      button.disabled = false;
-
-      button.textContent =
-        "位置情報を再試行";
-
-
-      const names = {
-        1:"PERMISSION DENIED",
-        2:"POSITION UNAVAILABLE",
-        3:"TIMEOUT"
-      };
-
-      const name =
-        names[error.code] ||
-        "UNKNOWN ERROR";
-
 
       locationText.textContent =
         "現在地を取得できません";
 
+
       weatherText.textContent =
-        "位置情報待ち";
+        "--";
 
 
-      /* ★中央にエラーを大表示 */
-
-      errorBox.classList.remove("hidden");
-
-      errorBox.innerHTML =
-        `<div class="errorCode">GEO ERROR ${error.code}</div>` +
-        `${name}`;
+      details.textContent =
+        "";
 
 
       status.textContent =
-        "LOCATION FAILED";
+        `GEO ${error.code}`;
+
+
+      retry.classList.add("show");
 
     },
 
 
     {
+
       enableHighAccuracy:true,
+
       timeout:30000,
+
       maximumAge:300000
+
     }
 
   );
+
 }
 
 
-/* WEATHER */
 
-async function loadWeather(lat,lon){
+/* ============================
+   WEATHER API
+============================ */
+
+async function loadWeather(
+  lat,
+  lon
+){
 
   try{
 
     weatherText.textContent =
-      "天気を取得中…";
+      "天気取得中";
+
 
     const url =
+
       "https://api.open-meteo.com/v1/forecast" +
+
       `?latitude=${lat}` +
+
       `&longitude=${lon}` +
+
       "&current=" +
+
       "temperature_2m," +
+
       "apparent_temperature," +
+
       "weather_code," +
-      "precipitation," +
-      "wind_speed_10m" +
+
+      "precipitation" +
+
       "&timezone=auto";
 
-    const response =
+
+    const r =
       await fetch(url);
 
-    if(!response.ok)
+
+    if(!r.ok){
+
       throw new Error();
 
+    }
+
+
     const data =
-      await response.json();
+      await r.json();
+
 
     const w =
       data.current;
 
+
     const description =
+
       weatherCodes[w.weather_code] ||
+
       "現在の天気";
 
 
     weatherText.textContent =
-      `${w.temperature_2m}℃　${description}`;
+
+      `${w.temperature_2m}℃  ${description}`;
 
 
-    details.innerHTML =
-      `体感　${w.apparent_temperature}℃<br>` +
-      `降水　${w.precipitation} mm<br>` +
-      `風速　${w.wind_speed_10m} km/h`;
+    /*
+      1行に圧縮
+    */
+
+    details.textContent =
+
+      `体感 ${w.apparent_temperature}℃　降水 ${w.precipitation}mm`;
 
 
     const now =
       new Date();
 
+
     status.textContent =
-      "LIVE　" +
-      String(now.getHours()).padStart(2,"0") +
-      ":" +
-      String(now.getMinutes()).padStart(2,"0") +
-      " 更新";
+
+      "● LIVE  " +
+
+      String(
+        now.getHours()
+      ).padStart(2,"0")
+
+      + ":" +
+
+      String(
+        now.getMinutes()
+      ).padStart(2,"0");
+
 
   }
 
   catch(e){
 
     weatherText.textContent =
-      "天気取得エラー";
+      "天気取得失敗";
+
 
     status.textContent =
       "WEATHER ERROR";
 
   }
+
 }
 
 
-/* USER ACTION */
 
-button.addEventListener(
+/* ============================
+   RETRY
+============================ */
+
+retry.addEventListener(
   "click",
-  requestLocation
+  getLocation
 );
 
 
-/* 新米の決定キー対策 */
 
 document.addEventListener(
   "keydown",
   event => {
 
     if(
-      !locationEnabled &&
-      !requesting &&
+      retry.classList.contains("show") &&
       (
         event.key === "Enter" ||
         event.key === " "
       )
     ){
+
       event.preventDefault();
-      requestLocation();
+
+      getLocation();
+
     }
 
   }
 );
 
 
-/* 成功後10分ごとに更新 */
+
+/* ============================
+   START
+============================ */
+
+/*
+  すでに権限取得済みなので
+  起動時に取得を試す
+*/
+
+getLocation();
+
+
+
+/* ============================
+   AUTO UPDATE
+============================ */
+
+/*
+  10分ごとに
+  GPS＋天気を更新
+*/
 
 setInterval(
-  () => {
-
-    if(locationEnabled){
-      requestLocation();
-    }
-
-  },
+  getLocation,
   600000
 );
 
