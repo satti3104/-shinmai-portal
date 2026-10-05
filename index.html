@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHINMAI HUD V4.2</title>
+<title>SHINMAI HUD V4.3 COLOR</title>
 
 <style>
 *{box-sizing:border-box}
@@ -39,7 +39,7 @@ main{
   font-size:11px;
   font-weight:700;
   letter-spacing:2px;
-  color:#b9d0d9;
+  color:#68e7ff;
 }
 
 .clock{
@@ -48,6 +48,7 @@ main{
   font-weight:800;
   line-height:1;
   letter-spacing:1px;
+  color:#fff;
 }
 
 .date{
@@ -55,6 +56,7 @@ main{
   font-size:22px;
   font-weight:800;
   line-height:1.2;
+  color:#b9eaff;
 }
 
 .panel{
@@ -72,6 +74,7 @@ main{
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  color:#5de8ff;
 }
 
 .weather{
@@ -79,6 +82,7 @@ main{
   font-size:29px;
   font-weight:850;
   line-height:1.15;
+  color:#fff;
 }
 
 .details{
@@ -88,6 +92,26 @@ main{
   color:#d8e5e9;
   line-height:1.4;
   white-space:nowrap;
+}
+
+.feels{
+  color:#d8e5e9;
+}
+
+.rain-low{
+  color:#61d9ff;
+}
+
+.rain-mid{
+  color:#ffe66d;
+}
+
+.rain-high{
+  color:#ff6464;
+}
+
+.rain-none{
+  color:#8ff0b3;
 }
 
 .retry{
@@ -133,11 +157,7 @@ main{
     天気情報を取得中
   </div>
 
-  <button
-    id="retry"
-    class="retry"
-    type="button"
-  >
+  <button id="retry" class="retry" type="button">
     再試行
   </button>
 
@@ -147,9 +167,7 @@ main{
 
 <script>
 
-/* ========================
-   CLOCK
-======================== */
+/* CLOCK */
 
 function updateClock(){
 
@@ -176,41 +194,31 @@ updateClock();
 setInterval(updateClock,1000);
 
 
-/* ========================
-   WEATHER CODES
-======================== */
+/* WEATHER */
 
 const weatherCodes = {
-
   0:"快晴",
   1:"晴れ",
   2:"晴/曇",
   3:"くもり",
-
   45:"霧",
   48:"霧",
-
   51:"霧雨",
   53:"霧雨",
   55:"霧雨",
-
   61:"小雨",
   63:"雨",
   65:"強い雨",
-
   71:"小雪",
   73:"雪",
   75:"大雪",
-
   80:"にわか雨",
   81:"にわか雨",
   82:"豪雨",
-
   95:"雷雨",
   96:"雷雨",
   99:"雷雨"
 };
-
 
 const locationText =
   document.getElementById("location");
@@ -227,9 +235,52 @@ const retry =
 let requesting = false;
 
 
-/* ========================
-   LOCATION
-======================== */
+/* WEATHER COLOR */
+
+function setWeatherColor(code){
+
+  /* 晴れ */
+
+  if(code === 0 || code === 1){
+
+    weatherText.style.color =
+      "#ffe66d";
+
+    return;
+  }
+
+  /* 雨・雷 */
+
+  if(
+    (code >= 51 && code <= 65) ||
+    (code >= 80 && code <= 82) ||
+    (code >= 95)
+  ){
+
+    weatherText.style.color =
+      "#61d9ff";
+
+    return;
+  }
+
+  /* 雪 */
+
+  if(code >= 71 && code <= 75){
+
+    weatherText.style.color =
+      "#d9f4ff";
+
+    return;
+  }
+
+  /* 曇り・霧 */
+
+  weatherText.style.color =
+    "#ffffff";
+}
+
+
+/* LOCATION */
 
 function getLocation(){
 
@@ -250,6 +301,7 @@ function getLocation(){
   locationText.textContent =
     "現在地を確認中";
 
+
   navigator.geolocation.getCurrentPosition(
 
     async position => {
@@ -266,8 +318,6 @@ function getLocation(){
       locationText.textContent =
         `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
 
-
-      /* 地名取得 */
 
       try{
 
@@ -340,9 +390,7 @@ function getLocation(){
 }
 
 
-/* ========================
-   WEATHER
-======================== */
+/* WEATHER API */
 
 async function loadWeather(lat,lon){
 
@@ -350,6 +398,9 @@ async function loadWeather(lat,lon){
 
     weatherText.textContent =
       "天気取得中";
+
+    weatherText.style.color =
+      "#ffffff";
 
     details.textContent =
       "降水予報を確認中";
@@ -392,8 +443,6 @@ async function loadWeather(lat,lon){
       data.current;
 
 
-    /* 現在の天気 */
-
     const description =
       weatherCodes[w.weather_code] ||
       "現在の天気";
@@ -403,10 +452,13 @@ async function loadWeather(lat,lon){
       `${w.temperature_2m}℃  ${description}`;
 
 
+    /* 天候で色変更 */
 
-    /* ========================
-       NEXT RAIN
-    ======================== */
+    setWeatherColor(w.weather_code);
+
+
+
+    /* NEXT RAIN */
 
     const times =
       data.hourly?.time || [];
@@ -424,6 +476,9 @@ async function loadWeather(lat,lon){
     let rainForecast =
       "雨予想なし";
 
+    let rainClass =
+      "rain-none";
+
 
     for(let i=0;i<times.length;i++){
 
@@ -437,14 +492,10 @@ async function loadWeather(lat,lon){
 
 
       const probability =
-        Number(
-          probabilities[i] ?? 0
-        );
+        Number(probabilities[i] ?? 0);
 
       const amount =
-        Number(
-          amounts[i] ?? 0
-        );
+        Number(amounts[i] ?? 0);
 
 
       if(
@@ -457,11 +508,6 @@ async function loadWeather(lat,lon){
             forecastTime.getHours()
           ).padStart(2,"0");
 
-
-        /*
-          日付まで比較して
-          今日/明日を判定
-        */
 
         const sameDay =
           forecastTime.getFullYear() === now.getFullYear() &&
@@ -478,19 +524,39 @@ async function loadWeather(lat,lon){
         rainForecast =
           `雨 ${day}${hour}:00〜 ${probability}%`;
 
+
+        /* 降水確率で色変更 */
+
+        if(probability >= 70){
+
+          rainClass =
+            "rain-high";
+
+        }else if(probability >= 50){
+
+          rainClass =
+            "rain-mid";
+
+        }else{
+
+          rainClass =
+            "rain-low";
+
+        }
+
+
         break;
       }
 
     }
 
 
-    /*
-      ★ V4.2
-      ここを1行に統合
-    */
+    /* 1行レイアウト維持 */
 
-    details.textContent =
-      `体感 ${w.apparent_temperature}℃　${rainForecast}`;
+    details.innerHTML =
+      `<span class="feels">体感 ${w.apparent_temperature}℃</span>` +
+      `　` +
+      `<span class="${rainClass}">${rainForecast}</span>`;
 
 
   }
@@ -500,6 +566,9 @@ async function loadWeather(lat,lon){
     weatherText.textContent =
       "天気取得失敗";
 
+    weatherText.style.color =
+      "#ff6464";
+
     details.textContent =
       "予報取得失敗";
 
@@ -508,9 +577,7 @@ async function loadWeather(lat,lon){
 }
 
 
-/* ========================
-   RETRY
-======================== */
+/* RETRY */
 
 retry.addEventListener(
   "click",
@@ -540,9 +607,7 @@ document.addEventListener(
 );
 
 
-/* ========================
-   START
-======================== */
+/* START */
 
 getLocation();
 
