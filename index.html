@@ -1,586 +1,130 @@
-<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHINMAI HUD V4</title>
-
-<style>
-*{
-  box-sizing:border-box;
-}
-
-html,body{
-  margin:0;
-  padding:0;
-  width:100%;
-  height:100%;
-  background:#000;
-  overflow:hidden;
-}
-
-body{
-  color:#fff;
-  font-family:-apple-system,"Noto Sans JP","Hiragino Sans",
-              "Yu Gothic",sans-serif;
-}
-
-main{
-  width:100vw;
-  height:100vh;
-  max-width:600px;
-  max-height:600px;
-
-  margin:0 auto;
-
-  /* 新米の安全領域を意識 */
-  padding:18px 24px;
-
-  overflow:hidden;
-
-  background:
-    radial-gradient(circle at top,#0b2835,#02090d 58%,#000);
-}
-
-
-/* SHINMAI */
-
-.label{
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:2px;
-  color:#b9d0d9;
-}
-
-
-/* 時刻 */
-
-.clock{
-  margin-top:5px;
-
-  font-size:62px;
-  font-weight:800;
-
-  line-height:1;
-
-  letter-spacing:1px;
-}
-
-
-/* 日付 */
-
-.date{
-  margin-top:7px;
-
-  font-size:22px;
-  font-weight:800;
-
-  line-height:1.2;
-}
-
-
-/* メインパネル */
-
-.panel{
-  margin-top:15px;
-
-  padding:16px 18px;
-
-  border:1px solid #7896a1;
-
-  border-radius:16px;
-
-  background:#07151c;
-}
-
-
-/* 場所 */
-
-.location{
-  font-size:20px;
-  font-weight:800;
-
-  line-height:1.25;
-
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-
-/* 天気 */
-
-.weather{
-  margin-top:11px;
-
-  font-size:29px;
-  font-weight:850;
-
-  line-height:1.15;
-}
-
-
-/* 補助情報 */
-
-.details{
-  margin-top:9px;
-
-  font-size:15px;
-  font-weight:650;
-
-  color:#d8e5e9;
-
-  line-height:1.4;
-}
-
-
-/* LIVE */
-
-.status{
-  margin-top:10px;
-
-  font-size:12px;
-  font-weight:700;
-
-  color:#b9d0d9;
-}
-
-
-/* 再試行 */
-
-.retry{
-  display:none;
-
-  margin-top:10px;
-
-  width:100%;
-
-  padding:9px;
-
-  border:1px solid #fff;
-
-  border-radius:10px;
-
-  background:#102832;
-
-  color:#fff;
-
-  font-size:15px;
-  font-weight:800;
-}
-
-.retry.show{
-  display:block;
-}
-</style>
-</head>
-
-
-<body>
-
-<main>
-
-<div class="label">
-  SHINMAI
-</div>
-
-<div id="clock" class="clock">
-  --:--
-</div>
-
-<div id="date" class="date">
-  --
-</div>
-
-
-<div class="panel">
-
-  <div id="location" class="location">
-    現在地を確認中
-  </div>
-
-  <div id="weather" class="weather">
-    --
-  </div>
-
-  <div id="details" class="details">
-  </div>
-
-  <button
-    id="retry"
-    class="retry"
-    type="button"
-  >
-    再試行
-  </button>
-
-</div>
-
-
-<div id="status" class="status">
-  STARTING
-</div>
-
-</main>
-
-
 <script>
-
-/* ============================
-   CLOCK
-============================ */
-
-function updateClock(){
-
-  const d = new Date();
-
-  document.getElementById("clock").textContent =
-    d.toLocaleTimeString(
-      "ja-JP",
-      {
-        hour:"2-digit",
-        minute:"2-digit",
-        hour12:false
-      }
-    );
-
-
-  const week =
-    ["日","月","火","水","木","金","土"];
-
-
-  document.getElementById("date").textContent =
-    `${d.getMonth()+1}月${d.getDate()}日 ${week[d.getDay()]}`;
-
-}
-
-
-updateClock();
-
-setInterval(
-  updateClock,
-  1000
-);
-
-
-
-/* ============================
-   WEATHER
-============================ */
-
-const weatherCodes = {
-
-  0:"快晴",
-
-  1:"晴れ",
-
-  2:"晴/曇",
-
-  3:"くもり",
-
-  45:"霧",
-
-  48:"霧",
-
-  51:"霧雨",
-
-  53:"霧雨",
-
-  55:"霧雨",
-
-  61:"小雨",
-
-  63:"雨",
-
-  65:"強い雨",
-
-  71:"小雪",
-
-  73:"雪",
-
-  75:"大雪",
-
-  80:"にわか雨",
-
-  81:"にわか雨",
-
-  82:"豪雨",
-
-  95:"雷雨",
-
-  96:"雷雨",
-
-  99:"雷雨"
-
-};
-
-
-
-const locationText =
-  document.getElementById("location");
-
-const weatherText =
-  document.getElementById("weather");
-
-const details =
-  document.getElementById("details");
-
-const status =
-  document.getElementById("status");
-
-const retry =
-  document.getElementById("retry");
-
-
-let requesting = false;
-
-
-
-/* ============================
-   LOCATION
-============================ */
-
-function getLocation(){
-
-  if(requesting){
-    return;
-  }
-
-
-  if(!navigator.geolocation){
-
-    locationText.textContent =
-      "位置情報非対応";
-
-    status.textContent =
-      "GEO UNSUPPORTED";
-
-    return;
-  }
-
-
-  requesting = true;
-
-
-  retry.classList.remove("show");
-
-
-  locationText.textContent =
-    "現在地を確認中";
-
-
-  status.textContent =
-    "GPS";
-
-
-  navigator.geolocation.getCurrentPosition(
-
-    async position => {
-
-      requesting = false;
-
-
-      const lat =
-        position.coords.latitude;
-
-      const lon =
-        position.coords.longitude;
-
-
-      /* まず座標 */
-
-      locationText.textContent =
-        `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
-
-
-      /* 地名 */
-
-      try{
-
-        const reverse =
-          "https://api.bigdatacloud.net/data/reverse-geocode-client" +
-
-          `?latitude=${lat}` +
-
-          `&longitude=${lon}` +
-
-          "&localityLanguage=ja";
-
-
-        const r =
-          await fetch(reverse);
-
-
-        const data =
-          await r.json();
-
-
-        const pref =
-          data.principalSubdivision || "";
-
-
-        const city =
-          data.locality ||
-          data.city ||
-          "";
-
-
-        /*
-          表示領域節約のため
-          市区町村を優先
-        */
-
-        if(city){
-
-          locationText.textContent =
-            city;
-
-        }
-
-        else if(pref){
-
-          locationText.textContent =
-            pref;
-
-        }
-
-      }
-
-      catch(e){}
-
-
-      loadWeather(
-        lat,
-        lon
-      );
-
-    },
-
-
-    error => {
-
-      requesting = false;
-
-
-      locationText.textContent =
-        "現在地を取得できません";
-
-
-      weatherText.textContent =
-        "--";
-
-
-      details.textContent =
-        "";
-
-
-      status.textContent =
-        `GEO ${error.code}`;
-
-
-      retry.classList.add("show");
-
-    },
-
-
-    {
-
-      enableHighAccuracy:true,
-
-      timeout:30000,
-
-      maximumAge:300000
-
-    }
-
-  );
-
-}
-
-
-
-/* ============================
-   WEATHER API
-============================ */
-
-async function loadWeather(
-  lat,
-  lon
-){
+async function loadWeather(lat, lon){
 
   try{
 
-    weatherText.textContent =
-      "天気取得中";
-
+    weatherText.textContent = "天気取得中";
 
     const url =
-
       "https://api.open-meteo.com/v1/forecast" +
 
       `?latitude=${lat}` +
-
       `&longitude=${lon}` +
 
       "&current=" +
-
       "temperature_2m," +
-
       "apparent_temperature," +
-
       "weather_code," +
-
       "precipitation" +
 
+      "&hourly=" +
+      "precipitation_probability," +
+      "precipitation" +
+
+      "&forecast_days=2" +
       "&timezone=auto";
 
 
-    const r =
-      await fetch(url);
-
+    const r = await fetch(url);
 
     if(!r.ok){
-
       throw new Error();
+    }
+
+    const data = await r.json();
+
+    const w = data.current;
+
+    const description =
+      weatherCodes[w.weather_code] ||
+      "現在の天気";
+
+
+    /* 現在の天気 */
+
+    weatherText.textContent =
+      `${w.temperature_2m}℃  ${description}`;
+
+
+    /* =========================
+       次の降雨予想を検索
+    ========================= */
+
+    let rainText = "雨予想なし";
+
+    const times =
+      data.hourly.time;
+
+    const probabilities =
+      data.hourly.precipitation_probability;
+
+    const precipitation =
+      data.hourly.precipitation;
+
+
+    const now = new Date();
+
+
+    for(let i = 0; i < times.length; i++){
+
+      const forecastTime =
+        new Date(times[i]);
+
+
+      /* 過去の予報は無視 */
+
+      if(forecastTime <= now){
+        continue;
+      }
+
+
+      const probability =
+        probabilities[i] ?? 0;
+
+      const amount =
+        precipitation[i] ?? 0;
+
+
+      /*
+        雨判定
+
+        ・降水確率30%以上
+        または
+        ・予想降水量0.1mm以上
+      */
+
+      if(
+        probability >= 30 ||
+        amount >= 0.1
+      ){
+
+        const hour =
+          String(
+            forecastTime.getHours()
+          ).padStart(2,"0");
+
+
+        rainText =
+          `雨 ${hour}:00〜 ${probability}%`;
+
+        break;
+      }
 
     }
 
 
-    const data =
-      await r.json();
+    /* =========================
+       補助情報
+    ========================= */
+
+    details.innerHTML =
+      `体感 ${w.apparent_temperature}℃　降水 ${w.precipitation}mm<br>` +
+      `${rainText}`;
 
 
-    const w =
-      data.current;
-
-
-    const description =
-
-      weatherCodes[w.weather_code] ||
-
-      "現在の天気";
-
-
-    weatherText.textContent =
-
-      `${w.temperature_2m}℃  ${description}`;
-
-
-    /*
-      1行に圧縮
-    */
-
-    details.textContent =
-
-      `体感 ${w.apparent_temperature}℃　降水 ${w.precipitation}mm`;
-
-
-    const now =
-      new Date();
-
+    /* LIVE */
 
     status.textContent =
-
       "● LIVE  " +
 
       String(
@@ -601,78 +145,10 @@ async function loadWeather(
     weatherText.textContent =
       "天気取得失敗";
 
-
     status.textContent =
       "WEATHER ERROR";
 
   }
 
 }
-
-
-
-/* ============================
-   RETRY
-============================ */
-
-retry.addEventListener(
-  "click",
-  getLocation
-);
-
-
-
-document.addEventListener(
-  "keydown",
-  event => {
-
-    if(
-      retry.classList.contains("show") &&
-      (
-        event.key === "Enter" ||
-        event.key === " "
-      )
-    ){
-
-      event.preventDefault();
-
-      getLocation();
-
-    }
-
-  }
-);
-
-
-
-/* ============================
-   START
-============================ */
-
-/*
-  すでに権限取得済みなので
-  起動時に取得を試す
-*/
-
-getLocation();
-
-
-
-/* ============================
-   AUTO UPDATE
-============================ */
-
-/*
-  10分ごとに
-  GPS＋天気を更新
-*/
-
-setInterval(
-  getLocation,
-  600000
-);
-
 </script>
-
-</body>
-</html>
