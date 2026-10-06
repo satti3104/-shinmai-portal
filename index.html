@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHINMAI HUD V4.3 COLOR</title>
+<title>SHINMAI HUD V4.4 COLOR</title>
 
 <style>
 *{box-sizing:border-box}
@@ -24,16 +24,31 @@ body{
 }
 
 main{
+  position:relative;
   width:100vw;
   height:100vh;
   max-width:600px;
   max-height:600px;
   margin:0 auto;
-  padding:18px 24px;
   overflow:hidden;
   background:
     radial-gradient(circle at top,#0b2835,#02090d 58%,#000);
 }
+
+/* PAGES */
+
+.page{
+  display:none;
+  width:100%;
+  height:100%;
+  padding:18px 24px 42px;
+}
+
+.page.active{
+  display:block;
+}
+
+/* COMMON */
 
 .label{
   font-size:11px;
@@ -41,6 +56,8 @@ main{
   letter-spacing:2px;
   color:#68e7ff;
 }
+
+/* HOME */
 
 .clock{
   margin-top:5px;
@@ -98,6 +115,8 @@ main{
   color:#d8e5e9;
 }
 
+/* RAIN COLORS */
+
 .rain-low{
   color:#61d9ff;
 }
@@ -130,6 +149,116 @@ main{
 .retry.show{
   display:block;
 }
+
+/* WEEKLY */
+
+.week-title{
+  margin-top:5px;
+  font-size:28px;
+  font-weight:850;
+  color:#fff;
+}
+
+.week-location{
+  margin-top:5px;
+  margin-bottom:12px;
+  font-size:17px;
+  font-weight:800;
+  color:#5de8ff;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.week-panel{
+  padding:7px 14px;
+  border:1px solid #7896a1;
+  border-radius:16px;
+  background:#07151c;
+}
+
+.day-row{
+  display:grid;
+  grid-template-columns:88px 1fr 135px 55px;
+  align-items:center;
+  min-height:51px;
+  border-bottom:1px solid #19333e;
+  font-weight:800;
+}
+
+.day-row:last-child{
+  border-bottom:none;
+}
+
+.day-date{
+  font-size:16px;
+  color:#d8e5e9;
+}
+
+.day-weather{
+  font-size:18px;
+  white-space:nowrap;
+}
+
+.day-temp{
+  font-size:17px;
+  white-space:nowrap;
+  text-align:right;
+}
+
+.temp-high{
+  color:#ff9d72;
+}
+
+.temp-low{
+  color:#61d9ff;
+}
+
+.day-rain{
+  font-size:16px;
+  text-align:right;
+}
+
+/* WEATHER COLORS */
+
+.weather-sun{
+  color:#ffe66d;
+}
+
+.weather-rain{
+  color:#61d9ff;
+}
+
+.weather-snow{
+  color:#d9f4ff;
+}
+
+.weather-cloud{
+  color:#ffffff;
+}
+
+/* PAGE INDICATOR */
+
+.indicator{
+  position:absolute;
+  bottom:13px;
+  left:0;
+  width:100%;
+  text-align:center;
+  font-size:14px;
+  letter-spacing:7px;
+  color:#68e7ff;
+  pointer-events:none;
+}
+
+.page-hint{
+  position:absolute;
+  right:19px;
+  bottom:13px;
+  font-size:11px;
+  font-weight:700;
+  color:#7896a1;
+}
 </style>
 </head>
 
@@ -137,37 +266,117 @@ main{
 
 <main>
 
-<div class="label">SHINMAI</div>
+<!-- PAGE 1 : HOME -->
 
-<div id="clock" class="clock">--:--</div>
+<section id="page-home" class="page active">
 
-<div id="date" class="date">--</div>
+  <div class="label">SHINMAI</div>
 
-<div class="panel">
+  <div id="clock" class="clock">--:--</div>
 
-  <div id="location" class="location">
-    現在地を確認中
+  <div id="date" class="date">--</div>
+
+  <div class="panel">
+
+    <div id="location" class="location">
+      現在地を確認中
+    </div>
+
+    <div id="weather" class="weather">
+      --
+    </div>
+
+    <div id="details" class="details">
+      天気情報を取得中
+    </div>
+
+    <button id="retry" class="retry" type="button">
+      再試行
+    </button>
+
   </div>
 
-  <div id="weather" class="weather">
-    --
+</section>
+
+
+<!-- PAGE 2 : WEEKLY -->
+
+<section id="page-weekly" class="page">
+
+  <div class="label">SHINMAI / WEATHER</div>
+
+  <div class="week-title">
+    7日間予報
   </div>
 
-  <div id="details" class="details">
-    天気情報を取得中
+  <div id="week-location" class="week-location">
+    現在地
   </div>
 
-  <button id="retry" class="retry" type="button">
-    再試行
-  </button>
+  <div id="week-panel" class="week-panel">
 
+    <div class="day-row">
+      <div class="day-date">--</div>
+      <div class="day-weather">取得中</div>
+      <div class="day-temp">-- / --</div>
+      <div class="day-rain">--</div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<div id="indicator" class="indicator">
+  ● ○
+</div>
+
+<div class="page-hint">
+  ◀ ▶
 </div>
 
 </main>
 
+
 <script>
 
-/* CLOCK */
+/* =========================
+   ELEMENTS
+========================= */
+
+const locationText =
+  document.getElementById("location");
+
+const weatherText =
+  document.getElementById("weather");
+
+const details =
+  document.getElementById("details");
+
+const retry =
+  document.getElementById("retry");
+
+const weekLocation =
+  document.getElementById("week-location");
+
+const weekPanel =
+  document.getElementById("week-panel");
+
+const indicator =
+  document.getElementById("indicator");
+
+const pages =
+  document.querySelectorAll(".page");
+
+
+let requesting = false;
+
+let currentPage = 0;
+
+
+/* =========================
+   CLOCK
+========================= */
 
 function updateClock(){
 
@@ -188,103 +397,187 @@ function updateClock(){
 
   document.getElementById("date").textContent =
     `${d.getMonth()+1}月${d.getDate()}日 ${week[d.getDay()]}`;
+
 }
 
 updateClock();
-setInterval(updateClock,1000);
+
+setInterval(
+  updateClock,
+  1000
+);
 
 
-/* WEATHER */
+/* =========================
+   WEATHER CODES
+========================= */
 
 const weatherCodes = {
+
   0:"快晴",
   1:"晴れ",
   2:"晴/曇",
   3:"くもり",
+
   45:"霧",
   48:"霧",
+
   51:"霧雨",
   53:"霧雨",
   55:"霧雨",
+
   61:"小雨",
   63:"雨",
   65:"強い雨",
+
   71:"小雪",
   73:"雪",
   75:"大雪",
+
   80:"にわか雨",
   81:"にわか雨",
   82:"豪雨",
+
   95:"雷雨",
   96:"雷雨",
   99:"雷雨"
+
 };
 
-const locationText =
-  document.getElementById("location");
 
-const weatherText =
-  document.getElementById("weather");
+/* =========================
+   WEATHER COLOR
+========================= */
 
-const details =
-  document.getElementById("details");
+function getWeatherClass(code){
 
-const retry =
-  document.getElementById("retry");
-
-let requesting = false;
-
-
-/* WEATHER COLOR */
-
-function setWeatherColor(code){
-
-  /* 晴れ */
-
-  if(code === 0 || code === 1){
-
-    weatherText.style.color =
-      "#ffe66d";
-
-    return;
+  if(
+    code === 0 ||
+    code === 1
+  ){
+    return "weather-sun";
   }
-
-  /* 雨・雷 */
 
   if(
     (code >= 51 && code <= 65) ||
     (code >= 80 && code <= 82) ||
-    (code >= 95)
+    code >= 95
   ){
-
-    weatherText.style.color =
-      "#61d9ff";
-
-    return;
+    return "weather-rain";
   }
 
-  /* 雪 */
-
-  if(code >= 71 && code <= 75){
-
-    weatherText.style.color =
-      "#d9f4ff";
-
-    return;
+  if(
+    code >= 71 &&
+    code <= 75
+  ){
+    return "weather-snow";
   }
 
-  /* 曇り・霧 */
-
-  weatherText.style.color =
-    "#ffffff";
+  return "weather-cloud";
 }
 
 
-/* LOCATION */
+function setWeatherColor(code){
+
+  const weatherClass =
+    getWeatherClass(code);
+
+  const colors = {
+    "weather-sun":"#ffe66d",
+    "weather-rain":"#61d9ff",
+    "weather-snow":"#d9f4ff",
+    "weather-cloud":"#ffffff"
+  };
+
+  weatherText.style.color =
+    colors[weatherClass];
+
+}
+
+
+/* =========================
+   RAIN COLOR
+========================= */
+
+function getRainClass(probability){
+
+  if(probability >= 70){
+    return "rain-high";
+  }
+
+  if(probability >= 50){
+    return "rain-mid";
+  }
+
+  if(probability >= 30){
+    return "rain-low";
+  }
+
+  return "rain-none";
+
+}
+
+
+/* =========================
+   PAGE CONTROL
+========================= */
+
+function showPage(index){
+
+  if(index < 0){
+    index = pages.length - 1;
+  }
+
+  if(index >= pages.length){
+    index = 0;
+  }
+
+  currentPage = index;
+
+  pages.forEach(
+    (page,i) => {
+      page.classList.toggle(
+        "active",
+        i === currentPage
+      );
+    }
+  );
+
+  indicator.textContent =
+    currentPage === 0
+      ? "● ○"
+      : "○ ●";
+
+}
+
+
+function nextPage(){
+
+  showPage(
+    currentPage + 1
+  );
+
+}
+
+
+function previousPage(){
+
+  showPage(
+    currentPage - 1
+  );
+
+}
+
+
+/* =========================
+   LOCATION
+========================= */
 
 function getLocation(){
 
-  if(requesting) return;
+  if(requesting){
+    return;
+  }
 
   if(!navigator.geolocation){
 
@@ -293,6 +586,7 @@ function getLocation(){
 
     return;
   }
+
 
   requesting = true;
 
@@ -315,8 +609,14 @@ function getLocation(){
         position.coords.longitude;
 
 
-      locationText.textContent =
+      const coordinate =
         `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+
+      locationText.textContent =
+        coordinate;
+
+      weekLocation.textContent =
+        coordinate;
 
 
       try{
@@ -327,37 +627,49 @@ function getLocation(){
           `&longitude=${lon}` +
           "&localityLanguage=ja";
 
+
         const r =
           await fetch(reverse);
 
-        const data =
-          await r.json();
 
-        const city =
-          data.locality ||
-          data.city ||
-          "";
+        if(r.ok){
 
-        const pref =
-          data.principalSubdivision ||
-          "";
+          const data =
+            await r.json();
 
-        if(city){
+
+          const city =
+            data.locality ||
+            data.city ||
+            "";
+
+
+          const pref =
+            data.principalSubdivision ||
+            "";
+
+
+          const place =
+            city ||
+            pref ||
+            coordinate;
+
 
           locationText.textContent =
-            city;
+            place;
 
-        }else if(pref){
-
-          locationText.textContent =
-            pref;
+          weekLocation.textContent =
+            place;
 
         }
 
       }catch(e){}
 
 
-      await loadWeather(lat,lon);
+      await loadWeather(
+        lat,
+        lon
+      );
 
     },
 
@@ -367,6 +679,9 @@ function getLocation(){
       requesting = false;
 
       locationText.textContent =
+        "現在地を取得できません";
+
+      weekLocation.textContent =
         "現在地を取得できません";
 
       weatherText.textContent =
@@ -387,10 +702,13 @@ function getLocation(){
     }
 
   );
+
 }
 
 
-/* WEATHER API */
+/* =========================
+   WEATHER API
+========================= */
 
 async function loadWeather(lat,lon){
 
@@ -423,7 +741,13 @@ async function loadWeather(lat,lon){
       "precipitation_probability," +
       "precipitation" +
 
-      "&forecast_days=2" +
+      "&daily=" +
+      "weather_code," +
+      "temperature_2m_max," +
+      "temperature_2m_min," +
+      "precipitation_probability_max" +
+
+      "&forecast_days=7" +
 
       "&timezone=auto";
 
@@ -431,133 +755,21 @@ async function loadWeather(lat,lon){
     const r =
       await fetch(url);
 
+
     if(!r.ok){
-      throw new Error();
+      throw new Error(
+        "Weather API error"
+      );
     }
 
 
     const data =
       await r.json();
 
-    const w =
-      data.current;
 
+    renderCurrentWeather(data);
 
-    const description =
-      weatherCodes[w.weather_code] ||
-      "現在の天気";
-
-
-    weatherText.textContent =
-      `${w.temperature_2m}℃  ${description}`;
-
-
-    /* 天候で色変更 */
-
-    setWeatherColor(w.weather_code);
-
-
-
-    /* NEXT RAIN */
-
-    const times =
-      data.hourly?.time || [];
-
-    const probabilities =
-      data.hourly?.precipitation_probability || [];
-
-    const amounts =
-      data.hourly?.precipitation || [];
-
-    const now =
-      new Date();
-
-
-    let rainForecast =
-      "雨予想なし";
-
-    let rainClass =
-      "rain-none";
-
-
-    for(let i=0;i<times.length;i++){
-
-      const forecastTime =
-        new Date(times[i]);
-
-
-      if(forecastTime <= now){
-        continue;
-      }
-
-
-      const probability =
-        Number(probabilities[i] ?? 0);
-
-      const amount =
-        Number(amounts[i] ?? 0);
-
-
-      if(
-        probability >= 30 ||
-        amount >= 0.1
-      ){
-
-        const hour =
-          String(
-            forecastTime.getHours()
-          ).padStart(2,"0");
-
-
-        const sameDay =
-          forecastTime.getFullYear() === now.getFullYear() &&
-          forecastTime.getMonth() === now.getMonth() &&
-          forecastTime.getDate() === now.getDate();
-
-
-        const day =
-          sameDay
-          ? ""
-          : "明日 ";
-
-
-        rainForecast =
-          `雨 ${day}${hour}:00〜 ${probability}%`;
-
-
-        /* 降水確率で色変更 */
-
-        if(probability >= 70){
-
-          rainClass =
-            "rain-high";
-
-        }else if(probability >= 50){
-
-          rainClass =
-            "rain-mid";
-
-        }else{
-
-          rainClass =
-            "rain-low";
-
-        }
-
-
-        break;
-      }
-
-    }
-
-
-    /* 1行レイアウト維持 */
-
-    details.innerHTML =
-      `<span class="feels">体感 ${w.apparent_temperature}℃</span>` +
-      `　` +
-      `<span class="${rainClass}">${rainForecast}</span>`;
-
+    renderWeeklyWeather(data);
 
   }
 
@@ -572,12 +784,261 @@ async function loadWeather(lat,lon){
     details.textContent =
       "予報取得失敗";
 
+    weekPanel.innerHTML =
+      '<div class="day-row">' +
+      '<div class="day-date">--</div>' +
+      '<div class="day-weather weather-rain">取得失敗</div>' +
+      '<div class="day-temp">--</div>' +
+      '<div class="day-rain">--</div>' +
+      '</div>';
+
   }
 
 }
 
 
-/* RETRY */
+/* =========================
+   CURRENT WEATHER
+========================= */
+
+function renderCurrentWeather(data){
+
+  const w =
+    data.current;
+
+
+  const description =
+    weatherCodes[w.weather_code] ||
+    "現在の天気";
+
+
+  weatherText.textContent =
+    `${Math.round(w.temperature_2m)}℃  ${description}`;
+
+
+  setWeatherColor(
+    w.weather_code
+  );
+
+
+  const times =
+    data.hourly?.time || [];
+
+  const probabilities =
+    data.hourly?.precipitation_probability || [];
+
+  const amounts =
+    data.hourly?.precipitation || [];
+
+
+  const now =
+    new Date();
+
+
+  let rainForecast =
+    "雨予想なし";
+
+  let rainClass =
+    "rain-none";
+
+
+  for(
+    let i = 0;
+    i < times.length;
+    i++
+  ){
+
+    const forecastTime =
+      new Date(times[i]);
+
+
+    if(
+      forecastTime <= now
+    ){
+      continue;
+    }
+
+
+    const probability =
+      Number(
+        probabilities[i] ?? 0
+      );
+
+
+    const amount =
+      Number(
+        amounts[i] ?? 0
+      );
+
+
+    if(
+      probability >= 30 ||
+      amount >= 0.1
+    ){
+
+      const hour =
+        String(
+          forecastTime.getHours()
+        ).padStart(
+          2,
+          "0"
+        );
+
+
+      const sameDay =
+        forecastTime.getFullYear() === now.getFullYear() &&
+        forecastTime.getMonth() === now.getMonth() &&
+        forecastTime.getDate() === now.getDate();
+
+
+      const day =
+        sameDay
+          ? ""
+          : "明日 ";
+
+
+      rainForecast =
+        `雨 ${day}${hour}:00〜 ${probability}%`;
+
+
+      rainClass =
+        getRainClass(
+          probability
+        );
+
+
+      break;
+
+    }
+
+  }
+
+
+  details.innerHTML =
+    `<span class="feels">体感 ${Math.round(w.apparent_temperature)}℃</span>` +
+    `　` +
+    `<span class="${rainClass}">${rainForecast}</span>`;
+
+}
+
+
+/* =========================
+   WEEKLY WEATHER
+========================= */
+
+function renderWeeklyWeather(data){
+
+  const daily =
+    data.daily;
+
+
+  if(
+    !daily ||
+    !daily.time
+  ){
+    return;
+  }
+
+
+  const weekNames =
+    ["日","月","火","水","木","金","土"];
+
+
+  let html = "";
+
+
+  for(
+    let i = 0;
+    i < daily.time.length;
+    i++
+  ){
+
+    const d =
+      new Date(
+        daily.time[i] + "T12:00:00"
+      );
+
+
+    const dateText =
+      `${d.getMonth()+1}/${d.getDate()} ${weekNames[d.getDay()]}`;
+
+
+    const code =
+      Number(
+        daily.weather_code[i]
+      );
+
+
+    const description =
+      weatherCodes[code] ||
+      "--";
+
+
+    const high =
+      Math.round(
+        daily.temperature_2m_max[i]
+      );
+
+
+    const low =
+      Math.round(
+        daily.temperature_2m_min[i]
+      );
+
+
+    const rain =
+      Math.round(
+        daily.precipitation_probability_max[i] ?? 0
+      );
+
+
+    const weatherClass =
+      getWeatherClass(
+        code
+      );
+
+
+    const rainClass =
+      getRainClass(
+        rain
+      );
+
+
+    html +=
+      `<div class="day-row">` +
+
+        `<div class="day-date">` +
+          `${dateText}` +
+        `</div>` +
+
+        `<div class="day-weather ${weatherClass}">` +
+          `${description}` +
+        `</div>` +
+
+        `<div class="day-temp">` +
+          `<span class="temp-high">${high}℃</span>` +
+          ` / ` +
+          `<span class="temp-low">${low}℃</span>` +
+        `</div>` +
+
+        `<div class="day-rain ${rainClass}">` +
+          `${rain}%` +
+        `</div>` +
+
+      `</div>`;
+
+  }
+
+
+  weekPanel.innerHTML =
+    html;
+
+}
+
+
+/* =========================
+   RETRY
+========================= */
 
 retry.addEventListener(
   "click",
@@ -585,11 +1046,46 @@ retry.addEventListener(
 );
 
 
+/* =========================
+   SHINMAI INPUT
+========================= */
+
 document.addEventListener(
   "keydown",
   event => {
 
+    /* PAGE SWITCH */
+
     if(
+      event.key === "ArrowRight"
+    ){
+
+      event.preventDefault();
+
+      nextPage();
+
+      return;
+
+    }
+
+
+    if(
+      event.key === "ArrowLeft"
+    ){
+
+      event.preventDefault();
+
+      previousPage();
+
+      return;
+
+    }
+
+
+    /* RETRY */
+
+    if(
+      currentPage === 0 &&
       retry.classList.contains("show") &&
       (
         event.key === "Enter" ||
@@ -607,7 +1103,11 @@ document.addEventListener(
 );
 
 
-/* START */
+/* =========================
+   START
+========================= */
+
+showPage(0);
 
 getLocation();
 
