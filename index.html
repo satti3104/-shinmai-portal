@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHINMAI HUD V4.4 COLOR</title>
+<title>SHINMAI HUD V4.4.1 COLOR</title>
 
 <style>
 *{box-sizing:border-box}
@@ -35,7 +35,9 @@ main{
     radial-gradient(circle at top,#0b2835,#02090d 58%,#000);
 }
 
-/* PAGES */
+/* =========================
+   PAGES
+========================= */
 
 .page{
   display:none;
@@ -48,7 +50,13 @@ main{
   display:block;
 }
 
-/* COMMON */
+#page-weekly{
+  padding:15px 24px 34px;
+}
+
+/* =========================
+   COMMON
+========================= */
 
 .label{
   font-size:11px;
@@ -57,7 +65,9 @@ main{
   color:#68e7ff;
 }
 
-/* HOME */
+/* =========================
+   HOME
+========================= */
 
 .clock{
   margin-top:5px;
@@ -115,7 +125,9 @@ main{
   color:#d8e5e9;
 }
 
-/* RAIN COLORS */
+/* =========================
+   RAIN COLORS
+========================= */
 
 .rain-low{
   color:#61d9ff;
@@ -150,20 +162,24 @@ main{
   display:block;
 }
 
-/* WEEKLY */
+/* =========================
+   WEEKLY - 600x600 OPTIMIZED
+========================= */
 
 .week-title{
-  margin-top:5px;
-  font-size:28px;
+  margin-top:3px;
+  font-size:25px;
   font-weight:850;
+  line-height:1.1;
   color:#fff;
 }
 
 .week-location{
-  margin-top:5px;
-  margin-bottom:12px;
-  font-size:17px;
+  margin-top:3px;
+  margin-bottom:8px;
+  font-size:16px;
   font-weight:800;
+  line-height:1.2;
   color:#5de8ff;
   white-space:nowrap;
   overflow:hidden;
@@ -171,7 +187,7 @@ main{
 }
 
 .week-panel{
-  padding:7px 14px;
+  padding:4px 14px;
   border:1px solid #7896a1;
   border-radius:16px;
   background:#07151c;
@@ -179,9 +195,9 @@ main{
 
 .day-row{
   display:grid;
-  grid-template-columns:88px 1fr 135px 55px;
+  grid-template-columns:86px 1fr 130px 52px;
   align-items:center;
-  min-height:51px;
+  min-height:44px;
   border-bottom:1px solid #19333e;
   font-weight:800;
 }
@@ -191,17 +207,17 @@ main{
 }
 
 .day-date{
-  font-size:16px;
+  font-size:15px;
   color:#d8e5e9;
 }
 
 .day-weather{
-  font-size:18px;
+  font-size:17px;
   white-space:nowrap;
 }
 
 .day-temp{
-  font-size:17px;
+  font-size:16px;
   white-space:nowrap;
   text-align:right;
 }
@@ -215,11 +231,13 @@ main{
 }
 
 .day-rain{
-  font-size:16px;
+  font-size:15px;
   text-align:right;
 }
 
-/* WEATHER COLORS */
+/* =========================
+   WEATHER COLORS
+========================= */
 
 .weather-sun{
   color:#ffe66d;
@@ -237,7 +255,9 @@ main{
   color:#ffffff;
 }
 
-/* PAGE INDICATOR */
+/* =========================
+   PAGE INDICATOR
+========================= */
 
 .indicator{
   position:absolute;
@@ -259,6 +279,7 @@ main{
   font-weight:700;
   color:#7896a1;
 }
+
 </style>
 </head>
 
@@ -266,7 +287,9 @@ main{
 
 <main>
 
-<!-- PAGE 1 : HOME -->
+<!-- ======================
+     PAGE 1 : HOME
+====================== -->
 
 <section id="page-home" class="page active">
 
@@ -299,7 +322,9 @@ main{
 </section>
 
 
-<!-- PAGE 2 : WEEKLY -->
+<!-- ======================
+     PAGE 2 : WEEKLY
+====================== -->
 
 <section id="page-weekly" class="page">
 
@@ -326,6 +351,8 @@ main{
 
 </section>
 
+
+<!-- PAGE INDICATOR -->
 
 <div id="indicator" class="indicator">
   ● ○
@@ -368,9 +395,7 @@ const indicator =
 const pages =
   document.querySelectorAll(".page");
 
-
 let requesting = false;
-
 let currentPage = 0;
 
 
@@ -536,10 +561,12 @@ function showPage(index){
 
   pages.forEach(
     (page,i) => {
+
       page.classList.toggle(
         "active",
         i === currentPage
       );
+
     }
   );
 
@@ -587,7 +614,6 @@ function getLocation(){
     return;
   }
 
-
   requesting = true;
 
   retry.classList.remove("show");
@@ -611,6 +637,7 @@ function getLocation(){
 
       const coordinate =
         `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+
 
       locationText.textContent =
         coordinate;
@@ -757,9 +784,11 @@ async function loadWeather(lat,lon){
 
 
     if(!r.ok){
+
       throw new Error(
         "Weather API error"
       );
+
     }
 
 
@@ -783,6 +812,7 @@ async function loadWeather(lat,lon){
 
     details.textContent =
       "予報取得失敗";
+
 
     weekPanel.innerHTML =
       '<div class="day-row">' +
