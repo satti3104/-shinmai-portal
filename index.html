@@ -1,1659 +1,801 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHINMAI HUD V4.4.2 COLOR</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>COMMAND HUD V4.6</title>
 <style>
-*{
-  box-sizing:border-box;
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #050d15;
+  color: white;
+  font-family: -apple-system, "Noto Sans JP", sans-serif;
 }
-
-html,body{
-  margin:0;
-  padding:0;
-  width:100%;
-  height:100%;
-  background:#000;
-  overflow:hidden;
+.hud {
+  width: 600px;
+  height: 600px;
+  position: relative;
+  overflow: hidden;
+  background: #07121d;
 }
-
-body{
-  color:#fff;
-  font-family:
-    -apple-system,
-    "Noto Sans JP",
-    "Hiragino Sans",
-    "Yu Gothic",
-    sans-serif;
+.page {
+  display: none;
+  width: 100%;
+  height: 100%;
+  padding: 15px 24px 34px;
 }
-
-main{
-  position:relative;
-  width:100vw;
-  height:100vh;
-  max-width:600px;
-  max-height:600px;
-  margin:0 auto;
-  overflow:hidden;
-
-  background:
-    radial-gradient(
-      circle at top,
-      #0b2835,
-      #02090d 58%,
-      #000
-    );
+.page.active { display: block; }
+.top {
+  display: flex;
+  justify-content: space-between;
+  color: #61d9ff;
+  font-size: 15px;
+  font-weight: bold;
 }
-
-
-/* ========================================
-   PAGE SYSTEM
-======================================== */
-
-.page{
-  display:none;
-  width:100%;
-  height:100%;
-  padding:18px 24px 42px;
+.ok { color: #8ff0b3; }
+.muted { color: #91a5b5; }
+.clock {
+  font-size: 112px;
+  font-weight: 300;
+  margin-top: 18px;
 }
-
-.page.active{
-  display:block;
+.date { font-size: 24px; }
+.place { font-size: 25px; margin: 24px 0 8px; }
+.temp { font-size: 70px; color: #ff9d72; }
+.panel {
+  border: 1px solid #29465a;
+  border-radius: 12px;
+  padding: 12px;
+  background: #0d1c2a;
 }
-
-/* 週間予報だけ縦方向を少し圧縮 */
-#page-weekly{
-  padding:15px 24px 34px;
+.small { font-size: 16px; }
+.foot {
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+  color: #7d9bac;
+  font-size: 14px;
+  pointer-events: none;
 }
-
-
-/* ========================================
-   COMMON
-======================================== */
-
-.label{
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:2px;
-  color:#68e7ff;
+.keys {
+  position: absolute;
+  bottom: 8px;
+  right: 24px;
+  color: #61d9ff;
+  font-size: 14px;
 }
-
-
-/* ========================================
-   HOME
-======================================== */
-
-.clock{
-  margin-top:5px;
-
-  font-size:62px;
-  font-weight:800;
-  line-height:1;
-  letter-spacing:1px;
-
-  color:#fff;
+.week { margin-top: 15px; padding: 4px 12px; }
+.weekrow {
+  display: grid;
+  grid-template-columns: 96px 1fr 124px 48px;
+  gap: 4px;
+  align-items: center;
+  min-height: 44px;
+  border-bottom: 1px solid #233949;
+  font-size: 16px;
 }
-
-.date{
-  margin-top:7px;
-
-  font-size:22px;
-  font-weight:800;
-  line-height:1.2;
-
-  color:#b9eaff;
+.weekrow:last-child { border: 0; }
+.weekrow span { white-space: nowrap; }
+.weather {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-
-.panel{
-  margin-top:15px;
-  padding:16px 18px;
-
-  border:1px solid #7896a1;
-  border-radius:16px;
-
-  background:#07151c;
+.hi { color: #ff9d72; }
+.lo { color: #61d9ff; }
+.map {
+  position: relative;
+  width: 100%;
+  height: 445px;
+  margin-top: 13px;
+  overflow: hidden;
+  background: #142839;
+  border: 1px solid #29465a;
+  border-radius: 12px;
 }
-
-.location{
-  font-size:20px;
-  font-weight:800;
-  line-height:1.25;
-
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-
-  color:#5de8ff;
+.tile {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  max-width: none;
+  pointer-events: none;
 }
-
-.weather{
-  margin-top:11px;
-
-  font-size:29px;
-  font-weight:850;
-  line-height:1.15;
-
-  color:#fff;
+.pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #61d9ff;
+  font-size: 35px;
+  text-shadow: 0 0 12px #61d9ff;
+  pointer-events: none;
 }
-
-.details{
-  margin-top:9px;
-
-  font-size:15px;
-  font-weight:700;
-  line-height:1.4;
-
-  white-space:nowrap;
-
-  color:#d8e5e9;
+.mapinfo {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: #07121de8;
+  padding: 6px;
+  font-size: 13px;
 }
-
-.feels{
-  color:#d8e5e9;
+.actions { display: flex; gap: 8px; margin-top: 10px; }
+button {
+  border: 1px solid #61d9ff;
+  color: #61d9ff;
+  background: #102839;
+  border-radius: 7px;
+  padding: 7px 12px;
+  font-size: 15px;
 }
-
-
-/* ========================================
-   RAIN COLORS
-======================================== */
-
-.rain-none{
-  color:#8ff0b3;
+.legend {
+  font-size: 13px;
+  color: #9bb2c2;
+  margin-top: 7px;
 }
-
-.rain-low{
-  color:#61d9ff;
+.scoutcircle {
+  width: 340px;
+  height: 340px;
+  border: 2px solid #23566d;
+  border-radius: 50%;
+  position: relative;
+  margin: 30px auto 0;
+  background: repeating-radial-gradient(
+    circle, transparent 0,
+    transparent 53px, #1b4253 54px, #1b4253 55px
+  );
 }
-
-.rain-mid{
-  color:#ffe66d;
+.crossh {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  width: 80%;
+  border-top: 2px solid #61d9ff;
 }
-
-.rain-high{
-  color:#ff6464;
+.crossv {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  height: 80%;
+  border-left: 2px solid #61d9ff;
 }
-
-
-/* ========================================
-   RETRY BUTTON
-======================================== */
-
-.retry{
-  display:none;
-
-  margin-top:10px;
-  width:100%;
-  padding:9px;
-
-  border:1px solid #fff;
-  border-radius:10px;
-
-  background:#102832;
-  color:#fff;
-
-  font-size:15px;
-  font-weight:800;
+.center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #8ff0b3;
 }
-
-.retry.show{
-  display:block;
+.needle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 130px;
+  transform-origin: 50% 100%;
+  background: linear-gradient(#ffe66d, transparent);
 }
-
-
-/* ========================================
-   WEEKLY
-   V4.4.2
-======================================== */
-
-.week-title{
-  margin-top:3px;
-
-  font-size:25px;
-  font-weight:850;
-  line-height:1.1;
-
-  color:#fff;
+.scoutlabel {
+  text-align: center;
+  font-size: 18px;
+  color: #8ff0b3;
+  margin-top: 14px;
 }
-
-.week-location{
-  margin-top:3px;
-  margin-bottom:8px;
-
-  font-size:16px;
-  font-weight:800;
-  line-height:1.2;
-
-  color:#5de8ff;
-
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+.scoutdata {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 17px;
+  font-size: 18px;
 }
-
-.week-panel{
-  padding:4px 12px;
-
-  border:1px solid #7896a1;
-  border-radius:16px;
-
-  background:#07151c;
+.scoutdata b { color: #61d9ff; }
+.status { margin-top: 12px; color: #91a5b5; font-size: 14px; }
+.schedule { margin-top: 16px; }
+.event {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+  padding: 11px 4px;
+  border-bottom: 1px solid #284252;
+  align-items: center;
 }
-
-.day-row{
-  display:grid;
-
-  /*
-    V4.4.2
-    日付列を96pxへ拡張。
-    日付＋曜日の改行を防止。
-  */
-
-  grid-template-columns:
-    96px
-    1fr
-    124px
-    48px;
-
-  align-items:center;
-
-  min-height:44px;
-
-  border-bottom:1px solid #19333e;
-
-  font-weight:800;
+.eventtime { color: #61d9ff; font-size: 19px; }
+.eventname {
+  font-size: 19px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-
-.day-row:last-child{
-  border-bottom:none;
+.eventsub { color: #91a5b5; font-size: 13px; }
+.calendarNote {
+  color: #91a5b5;
+  font-size: 14px;
+  margin-top: 12px;
+  line-height: 1.5;
 }
-
-
-/* 日付 */
-
-.day-date{
-  font-size:15px;
-
-  color:#d8e5e9;
-
-  /* ★ V4.4.2 */
-  white-space:nowrap;
+.calendarInput {
+  width: 100%;
+  background: #102333;
+  border: 1px solid #345267;
+  border-radius: 7px;
+  color: white;
+  padding: 8px;
+  margin-top: 8px;
 }
-
-
-/* 天気 */
-
-.day-weather{
-  font-size:17px;
-
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-
-/* 気温 */
-
-.day-temp{
-  font-size:16px;
-
-  white-space:nowrap;
-
-  text-align:right;
-}
-
-.temp-high{
-  color:#ff9d72;
-}
-
-.temp-low{
-  color:#61d9ff;
-}
-
-
-/* 降水確率 */
-
-.day-rain{
-  font-size:15px;
-
-  white-space:nowrap;
-
-  text-align:right;
-}
-
-
-/* ========================================
-   WEATHER COLORS
-======================================== */
-
-.weather-sun{
-  color:#ffe66d;
-}
-
-.weather-rain{
-  color:#61d9ff;
-}
-
-.weather-snow{
-  color:#d9f4ff;
-}
-
-.weather-cloud{
-  color:#ffffff;
-}
-
-
-/* ========================================
-   PAGE INDICATOR
-======================================== */
-
-.indicator{
-  position:absolute;
-
-  bottom:13px;
-  left:0;
-
-  width:100%;
-
-  text-align:center;
-
-  font-size:14px;
-  letter-spacing:7px;
-
-  color:#68e7ff;
-
-  pointer-events:none;
-}
-
-.page-hint{
-  position:absolute;
-
-  right:19px;
-  bottom:13px;
-
-  font-size:11px;
-  font-weight:700;
-
-  color:#7896a1;
-
-  pointer-events:none;
-}
-
+.calCount { color: #8ff0b3; font-size: 14px; }
 </style>
 </head>
 
-
 <body>
+<main class="hud">
 
-<main>
-
-
-<!-- ======================================
-     PAGE 1
-     HOME
-======================================= -->
-
-<section
-  id="page-home"
-  class="page active"
->
-
-  <div class="label">
-    SHINMAI
+<!-- PAGE 1 : HOME -->
+<section class="page active">
+  <div class="top">
+    <span>SHINMAI / HOME</span>
+    <span class="ok" id="gps0">GPS WAIT</span>
   </div>
-
-  <div
-    id="clock"
-    class="clock"
-  >
-    --:--
-  </div>
-
-  <div
-    id="date"
-    class="date"
-  >
-    --
-  </div>
-
-
+  <div class="clock" id="clock">--:--</div>
+  <div class="date" id="date">----</div>
+  <div class="place" id="place">位置情報を取得中…</div>
+  <div class="temp" id="temp">--°</div>
   <div class="panel">
-
-    <div
-      id="location"
-      class="location"
-    >
-      現在地を確認中
+    <div id="condition">天気を取得中…</div>
+    <p class="small">
+      体感 <span id="feels">--</span>° /
+      降水 <span id="rainNow">--</span>%
+    </p>
+    <div class="small">
+      次の雨：<span id="nextRain">確認中</span>
     </div>
-
-
-    <div
-      id="weather"
-      class="weather"
-    >
-      --
-    </div>
-
-
-    <div
-      id="details"
-      class="details"
-    >
-      天気情報を取得中
-    </div>
-
-
-    <button
-      id="retry"
-      class="retry"
-      type="button"
-    >
-      再試行
-    </button>
-
   </div>
-
+  <div class="actions">
+    <button id="retry">GPS再取得</button>
+    <span class="muted small" id="homeStatus"></span>
+  </div>
 </section>
 
-
-
-<!-- ======================================
-     PAGE 2
-     WEEKLY WEATHER
-======================================= -->
-
-<section
-  id="page-weekly"
-  class="page"
->
-
-  <div class="label">
-    SHINMAI / WEATHER
+<!-- PAGE 2 : WEEKLY -->
+<section class="page">
+  <div class="top">
+    <span>SHINMAI / WEATHER</span>
+    <span class="ok">7 DAYS</span>
   </div>
-
-
-  <div class="week-title">
-    7日間予報
-  </div>
-
-
-  <div
-    id="week-location"
-    class="week-location"
-  >
-    現在地
-  </div>
-
-
-  <div
-    id="week-panel"
-    class="week-panel"
-  >
-
-    <div class="day-row">
-
-      <div class="day-date">
-        --
-      </div>
-
-      <div class="day-weather">
-        取得中
-      </div>
-
-      <div class="day-temp">
-        -- / --
-      </div>
-
-      <div class="day-rain">
-        --
-      </div>
-
-    </div>
-
-  </div>
-
+  <h2>7日間予報</h2>
+  <div class="muted small" id="weekPlace">取得中…</div>
+  <div class="panel week" id="week">予報取得中…</div>
+  <div class="legend">最高 / 最低 / 降水確率</div>
 </section>
 
+<!-- PAGE 3 : MAP -->
+<section class="page">
+  <div class="top">
+    <span>SHINMAI / TACTICAL MAP</span>
+    <span class="ok" id="gps2">GPS WAIT</span>
+  </div>
+  <div class="map" id="map">
+    <div class="pin">◎</div>
+    <div class="mapinfo" id="mapInfo">GPS待機中</div>
+  </div>
+  <div class="actions">
+    <button id="zoomIn">＋ 拡大</button>
+    <button id="zoomOut">－ 縮小</button>
+    <button id="recenter">◎ 現在地</button>
+  </div>
+  <div class="legend">
+    ↑↓ 拡大縮小 / Enter 現在地
+  </div>
+</section>
 
+<!-- PAGE 4 : SCOUT -->
+<section class="page">
+  <div class="top">
+    <span>SHINMAI / SCOUT MODE</span>
+    <span class="ok" id="gps3">GPS WAIT</span>
+  </div>
+  <div class="scoutcircle">
+    <div class="crossh"></div>
+    <div class="crossv"></div>
+    <div class="needle" id="needle"></div>
+    <div class="center"></div>
+  </div>
+  <div class="scoutlabel" id="bearing">
+    HEADING --°
+  </div>
+  <div class="scoutdata">
+    <span>LAT <b id="lat">--</b></span>
+    <span>LON <b id="lon">--</b></span>
+  </div>
+  <div class="status" id="sensor">
+    方位センサー確認中…
+  </div>
+  <div class="actions">
+    <button id="sensorEnable">センサー許可</button>
+    <button id="scan">RE-SCAN</button>
+  </div>
+  <div class="legend">
+    方位値は機種依存。頭の向きとは限りません。
+  </div>
+</section>
 
-<!-- ======================================
-     PAGE INDICATOR
-======================================= -->
+<!-- PAGE 5 : CALENDAR -->
+<section class="page">
+  <div class="top">
+    <span>SHINMAI / MISSION SCHEDULE</span>
+    <span class="ok" id="calState">LOCAL</span>
+  </div>
+  <h2>今日の予定</h2>
+  <div class="muted small" id="calDate"></div>
+  <div class="panel schedule">
+    <div class="calCount" id="calCount">確認中…</div>
+    <div id="events"></div>
+  </div>
+  <div class="calendarNote" id="calNote">
+    Googleカレンダー自動同期は未設定です。
+  </div>
+  <input
+    class="calendarInput"
+    id="calUrl"
+    type="url"
+    placeholder="予定JSONのHTTPS URL"
+  >
+  <div class="actions">
+    <button id="calRefresh">予定を更新</button>
+    <button id="calImport">JSON貼付</button>
+  </div>
+</section>
 
-<div
-  id="indicator"
-  class="indicator"
->
-  ● ○
-</div>
-
-
-<div class="page-hint">
-  ◀ ▶
-</div>
-
-
+<div class="foot" id="dots">● ○ ○ ○ ○</div>
+<div class="keys">◀ ▶</div>
 </main>
 
-
-
 <script>
+(() => {
+"use strict";
 
-/* ========================================
-   ELEMENTS
-======================================== */
+const $ = id => document.getElementById(id);
+const pages = [...document.querySelectorAll(".page")];
 
-const locationText =
-  document.getElementById("location");
+let page = 0;
+let position = null;
+let zoom = 16;
+let heading = null;
+let calendarEvents = [];
 
-const weatherText =
-  document.getElementById("weather");
+const calKey = "commandHudCalendarEventsV1";
+const urlKey = "commandHudCalendarUrlV1";
 
-const details =
-  document.getElementById("details");
-
-const retry =
-  document.getElementById("retry");
-
-const weekLocation =
-  document.getElementById("week-location");
-
-const weekPanel =
-  document.getElementById("week-panel");
-
-const indicator =
-  document.getElementById("indicator");
-
-const pages =
-  document.querySelectorAll(".page");
-
-
-let requesting = false;
-
-let currentPage = 0;
-
-
-
-/* ========================================
-   CLOCK
-======================================== */
-
-function updateClock(){
-
-  const d =
-    new Date();
-
-
-  document
-    .getElementById("clock")
-    .textContent =
-
-      d.toLocaleTimeString(
-        "ja-JP",
-        {
-          hour:"2-digit",
-          minute:"2-digit",
-          hour12:false
-        }
-      );
-
-
-  const week =
-    [
-      "日",
-      "月",
-      "火",
-      "水",
-      "木",
-      "金",
-      "土"
-    ];
-
-
-  document
-    .getElementById("date")
-    .textContent =
-
-      `${d.getMonth()+1}月${d.getDate()}日 ${week[d.getDay()]}`;
-
+function show(n) {
+  page = (n + pages.length) % pages.length;
+  pages.forEach((el, i) => {
+    el.classList.toggle("active", i === page);
+  });
+  $("dots").textContent = pages.map((_, i) =>
+    i === page ? "●" : "○"
+  ).join(" ");
+  if (page === 2) drawMap();
+  if (page === 3) updateScout();
+  if (page === 4) renderCalendar();
 }
 
-
-updateClock();
-
-
-setInterval(
-  updateClock,
-  1000
-);
-
-
-
-/* ========================================
-   WEATHER CODES
-======================================== */
-
-const weatherCodes = {
-
-  0:"快晴",
-  1:"晴れ",
-  2:"晴/曇",
-  3:"くもり",
-
-  45:"霧",
-  48:"霧",
-
-  51:"霧雨",
-  53:"霧雨",
-  55:"霧雨",
-
-  61:"小雨",
-  63:"雨",
-  65:"強い雨",
-
-  71:"小雪",
-  73:"雪",
-  75:"大雪",
-
-  80:"にわか雨",
-  81:"にわか雨",
-  82:"豪雨",
-
-  95:"雷雨",
-  96:"雷雨",
-  99:"雷雨"
-
-};
-
-
-
-/* ========================================
-   WEATHER COLOR
-======================================== */
-
-function getWeatherClass(code){
-
-  if(
-    code === 0 ||
-    code === 1
-  ){
-    return "weather-sun";
-  }
-
-
-  if(
-    (code >= 51 && code <= 65) ||
-    (code >= 80 && code <= 82) ||
-    code >= 95
-  ){
-    return "weather-rain";
-  }
-
-
-  if(
-    code >= 71 &&
-    code <= 75
-  ){
-    return "weather-snow";
-  }
-
-
-  return "weather-cloud";
-
+// CLOCK
+function tick() {
+  const d = new Date();
+  $("clock").textContent = d.toLocaleTimeString("ja-JP", {
+    hour: "2-digit", minute: "2-digit", hour12: false
+  });
+  $("date").textContent = d.toLocaleDateString("ja-JP", {
+    year: "numeric", month: "long",
+    day: "numeric", weekday: "long"
+  });
 }
+tick();
+setInterval(tick, 1000);
 
-
-
-function setWeatherColor(code){
-
-  const weatherClass =
-    getWeatherClass(code);
-
-
-  const colors = {
-
-    "weather-sun":
-      "#ffe66d",
-
-    "weather-rain":
-      "#61d9ff",
-
-    "weather-snow":
-      "#d9f4ff",
-
-    "weather-cloud":
-      "#ffffff"
-
-  };
-
-
-  weatherText.style.color =
-    colors[weatherClass];
-
+// WEATHER
+function weatherName(c) {
+  if (c === 0) return ["快晴", "#ffe66d"];
+  if (c <= 3) return ["晴れ・くもり", "#ffffff"];
+  if (c <= 48) return ["霧", "#ffffff"];
+  if (c <= 67) return ["雨", "#61d9ff"];
+  if (c <= 77) return ["雪", "#d9f4ff"];
+  if (c <= 82) return ["にわか雨", "#61d9ff"];
+  if (c <= 86) return ["雪", "#d9f4ff"];
+  return ["雷雨", "#61d9ff"];
 }
-
-
-
-/* ========================================
-   RAIN COLOR
-======================================== */
-
-function getRainClass(probability){
-
-  if(probability >= 70){
-
-    return "rain-high";
-
-  }
-
-
-  if(probability >= 50){
-
-    return "rain-mid";
-
-  }
-
-
-  if(probability >= 30){
-
-    return "rain-low";
-
-  }
-
-
-  return "rain-none";
-
+function rainColor(p) {
+  return p >= 70 ? "#ff6464" :
+         p >= 50 ? "#ffe66d" :
+         p >= 30 ? "#61d9ff" : "#8ff0b3";
 }
+async function fetchWeather() {
+  if (!position) return;
+  const { latitude: lat, longitude: lon } = position.coords;
+  const url = "https://api.open-meteo.com/v1/forecast?" +
+    new URLSearchParams({
+      latitude: lat,
+      longitude: lon,
+      current: "temperature_2m,apparent_temperature,weather_code,precipitation_probability",
+      hourly: "precipitation_probability",
+      daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+      timezone: "auto",
+      forecast_days: "7"
+    });
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw Error("Weather HTTP " + r.status);
+    const d = await r.json();
+    const c = d.current;
+    const w = weatherName(c.weather_code);
 
+    $("temp").textContent = Math.round(c.temperature_2m) + "°";
+    $("condition").textContent = w[0];
+    $("condition").style.color = w[1];
+    $("feels").textContent = Math.round(c.apparent_temperature);
+    $("rainNow").textContent =
+      c.precipitation_probability ?? "--";
 
-
-/* ========================================
-   PAGE CONTROL
-======================================== */
-
-function showPage(index){
-
-  if(index < 0){
-
-    index =
-      pages.length - 1;
-
-  }
-
-
-  if(index >= pages.length){
-
-    index = 0;
-
-  }
-
-
-  currentPage =
-    index;
-
-
-  pages.forEach(
-
-    (page,i) => {
-
-      page.classList.toggle(
-        "active",
-        i === currentPage
-      );
-
+    let next = "予報期間内になし";
+    const now = Date.now();
+    for (let i = 0; i < d.hourly.time.length; i++) {
+      const t = new Date(d.hourly.time[i]).getTime();
+      const p = d.hourly.precipitation_probability[i];
+      if (t > now && p >= 50) {
+        next = d.hourly.time[i].slice(11, 16) +
+          "頃 (" + p + "%)";
+        break;
+      }
     }
+    $("nextRain").textContent = next;
 
-  );
+    const week = $("week");
+    week.replaceChildren();
+    for (let i = 0; i < d.daily.time.length; i++) {
+      const date = new Date(d.daily.time[i] + "T12:00:00");
+      const wc = weatherName(d.daily.weather_code[i]);
+      const rp = d.daily.precipitation_probability_max[i] ?? 0;
+      const row = document.createElement("div");
+      row.className = "weekrow";
 
+      const add = (value, color) => {
+        const span = document.createElement("span");
+        span.textContent = value;
+        if (color) span.style.color = color;
+        row.appendChild(span);
+      };
+      add((date.getMonth()+1) + "/" + date.getDate() +
+        " (" + "日月火水木金土"[date.getDay()] + ")");
+      add(wc[0], wc[1]);
 
-  indicator.textContent =
-
-    currentPage === 0
-
-      ? "● ○"
-
-      : "○ ●";
-
-}
-
-
-
-function nextPage(){
-
-  showPage(
-    currentPage + 1
-  );
-
-}
-
-
-
-function previousPage(){
-
-  showPage(
-    currentPage - 1
-  );
-
-}
-
-
-
-/* ========================================
-   LOCATION
-======================================== */
-
-function getLocation(){
-
-  if(requesting){
-
-    return;
-
+      const temps = document.createElement("span");
+      temps.innerHTML =
+        '<span class="hi">' +
+        Math.round(d.daily.temperature_2m_max[i]) +
+        '°</span> / <span class="lo">' +
+        Math.round(d.daily.temperature_2m_min[i]) + '°</span>';
+      row.appendChild(temps);
+      add(rp + "%", rainColor(rp));
+      week.appendChild(row);
+    }
+    $("homeStatus").textContent = "SYNC OK";
+  } catch (e) {
+    $("homeStatus").textContent = "WEATHER ERROR";
+    $("week").textContent = "天気予報を取得できません";
   }
+}
 
-
-  if(!navigator.geolocation){
-
-    locationText.textContent =
-      "位置情報非対応";
-
-    weekLocation.textContent =
-      "位置情報非対応";
-
-    return;
-
+// GPS
+async function reverseGeo() {
+  if (!position) return;
+  const { latitude: lat, longitude: lon } = position.coords;
+  try {
+    const r = await fetch(
+      "https://api.bigdatacloud.net/data/reverse-geocode-client?" +
+      new URLSearchParams({
+        latitude: lat,
+        longitude: lon,
+        localityLanguage: "ja"
+      })
+    );
+    if (!r.ok) throw Error("Reverse geocode failed");
+    const d = await r.json();
+    const name = [d.locality || d.city, d.principalSubdivision]
+      .filter(Boolean).join(" / ") || "現在地";
+    $("place").textContent = name;
+    $("weekPlace").textContent = name;
+  } catch {
+    $("place").textContent = "現在地取得済み";
+    $("weekPlace").textContent = "現在地";
   }
+}
 
-
-  requesting = true;
-
-
-  retry.classList.remove(
-    "show"
-  );
-
-
-  locationText.textContent =
-    "現在地を確認中";
-
-
+function gotPosition(p) {
+  position = p;
+  ["gps0", "gps2", "gps3"].forEach(id => {
+    $(id).textContent = "GPS LOCK";
+  });
+  $("lat").textContent = p.coords.latitude.toFixed(4);
+  $("lon").textContent = p.coords.longitude.toFixed(4);
+  reverseGeo();
+  fetchWeather();
+  drawMap();
+  updateScout();
+}
+function gps() {
+  if (!navigator.geolocation) {
+    $("place").textContent = "GPS非対応";
+    return;
+  }
   navigator.geolocation.getCurrentPosition(
-
-    async position => {
-
-
-      requesting = false;
-
-
-      const lat =
-        position.coords.latitude;
-
-
-      const lon =
-        position.coords.longitude;
-
-
-      const coordinate =
-
-        `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
-
-
-      locationText.textContent =
-        coordinate;
-
-
-      weekLocation.textContent =
-        coordinate;
-
-
-
-      /* --------------------------------
-         REVERSE GEOCODING
-      -------------------------------- */
-
-      try{
-
-
-        const reverse =
-
-          "https://api.bigdatacloud.net/data/reverse-geocode-client" +
-
-          `?latitude=${lat}` +
-
-          `&longitude=${lon}` +
-
-          "&localityLanguage=ja";
-
-
-        const r =
-          await fetch(reverse);
-
-
-        if(r.ok){
-
-
-          const data =
-            await r.json();
-
-
-          const city =
-
-            data.locality ||
-
-            data.city ||
-
-            "";
-
-
-          const pref =
-
-            data.principalSubdivision ||
-
-            "";
-
-
-          const place =
-
-            city ||
-
-            pref ||
-
-            coordinate;
-
-
-          locationText.textContent =
-            place;
-
-
-          weekLocation.textContent =
-            place;
-
-        }
-
-
-      }
-      catch(e){
-
-        /* 座標表示を維持 */
-
-      }
-
-
-
-      await loadWeather(
-        lat,
-        lon
-      );
-
-
+    gotPosition,
+    e => {
+      $("place").textContent = "GPS ERROR " + e.code;
+      $("homeStatus").textContent = "位置情報の許可を確認";
     },
-
-
-    error => {
-
-
-      requesting = false;
-
-
-      locationText.textContent =
-        "現在地を取得できません";
-
-
-      weekLocation.textContent =
-        "現在地を取得できません";
-
-
-      weatherText.textContent =
-        "--";
-
-
-      details.textContent =
-
-        `位置情報エラー ${error.code}`;
-
-
-      retry.classList.add(
-        "show"
-      );
-
-
-    },
-
-
     {
-
-      enableHighAccuracy:true,
-
-      timeout:30000,
-
-      maximumAge:300000
-
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 60000
     }
-
   );
-
 }
-
-
-
-/* ========================================
-   WEATHER API
-======================================== */
-
-async function loadWeather(lat,lon){
-
-  try{
-
-
-    weatherText.textContent =
-      "天気取得中";
-
-
-    weatherText.style.color =
-      "#ffffff";
-
-
-    details.textContent =
-      "降水予報を確認中";
-
-
-
-    const url =
-
-      "https://api.open-meteo.com/v1/forecast" +
-
-
-      `?latitude=${lat}` +
-
-
-      `&longitude=${lon}` +
-
-
-      "&current=" +
-
-      "temperature_2m," +
-
-      "apparent_temperature," +
-
-      "weather_code," +
-
-      "precipitation" +
-
-
-      "&hourly=" +
-
-      "precipitation_probability," +
-
-      "precipitation" +
-
-
-      "&daily=" +
-
-      "weather_code," +
-
-      "temperature_2m_max," +
-
-      "temperature_2m_min," +
-
-      "precipitation_probability_max" +
-
-
-      "&forecast_days=7" +
-
-
-      "&timezone=auto";
-
-
-
-    const r =
-      await fetch(url);
-
-
-    if(!r.ok){
-
-      throw new Error(
-        "Weather API error"
-      );
-
-    }
-
-
-    const data =
-      await r.json();
-
-
-    renderCurrentWeather(
-      data
-    );
-
-
-    renderWeeklyWeather(
-      data
-    );
-
-
-  }
-
-  catch(e){
-
-
-    weatherText.textContent =
-      "天気取得失敗";
-
-
-    weatherText.style.color =
-      "#ff6464";
-
-
-    details.textContent =
-      "予報取得失敗";
-
-
-    weekPanel.innerHTML =
-
-      '<div class="day-row">' +
-
-        '<div class="day-date">--</div>' +
-
-        '<div class="day-weather weather-rain">取得失敗</div>' +
-
-        '<div class="day-temp">--</div>' +
-
-        '<div class="day-rain">--</div>' +
-
-      '</div>';
-
-  }
-
+$("retry").onclick = gps;
+
+// MAP - GSI TILES
+function tileXY(lat, lon, z) {
+  const n = 2 ** z;
+  const rad = lat * Math.PI / 180;
+  return {
+    x: (lon + 180) / 360 * n,
+    y: (1 - Math.log(Math.tan(rad) +
+      1 / Math.cos(rad)) / Math.PI) / 2 * n
+  };
 }
-
-
-
-/* ========================================
-   CURRENT WEATHER
-======================================== */
-
-function renderCurrentWeather(data){
-
-  const w =
-    data.current;
-
-
-  const description =
-
-    weatherCodes[w.weather_code] ||
-
-    "現在の天気";
-
-
-  weatherText.textContent =
-
-    `${Math.round(w.temperature_2m)}℃  ${description}`;
-
-
-  setWeatherColor(
-    w.weather_code
-  );
-
-
-
-  const times =
-
-    data.hourly?.time ||
-
-    [];
-
-
-  const probabilities =
-
-    data.hourly?.precipitation_probability ||
-
-    [];
-
-
-  const amounts =
-
-    data.hourly?.precipitation ||
-
-    [];
-
-
-  const now =
-    new Date();
-
-
-  let rainForecast =
-    "雨予想なし";
-
-
-  let rainClass =
-    "rain-none";
-
-
-
-  for(
-    let i = 0;
-    i < times.length;
-    i++
-  ){
-
-
-    const forecastTime =
-      new Date(
-        times[i]
-      );
-
-
-    if(
-      forecastTime <= now
-    ){
-
-      continue;
-
-    }
-
-
-    const probability =
-
-      Number(
-        probabilities[i] ?? 0
-      );
-
-
-    const amount =
-
-      Number(
-        amounts[i] ?? 0
-      );
-
-
-    if(
-      probability >= 30 ||
-      amount >= 0.1
-    ){
-
-
-      const hour =
-
-        String(
-          forecastTime.getHours()
-        )
-        .padStart(
-          2,
-          "0"
-        );
-
-
-      const sameDay =
-
-        forecastTime.getFullYear() ===
-          now.getFullYear() &&
-
-        forecastTime.getMonth() ===
-          now.getMonth() &&
-
-        forecastTime.getDate() ===
-          now.getDate();
-
-
-      const day =
-
-        sameDay
-
-          ? ""
-
-          : "明日 ";
-
-
-      rainForecast =
-
-        `雨 ${day}${hour}:00〜 ${probability}%`;
-
-
-      rainClass =
-
-        getRainClass(
-          probability
-        );
-
-
-      break;
-
-    }
-
-  }
-
-
-
-  details.innerHTML =
-
-    `<span class="feels">` +
-
-      `体感 ${Math.round(w.apparent_temperature)}℃` +
-
-    `</span>` +
-
-    `　` +
-
-    `<span class="${rainClass}">` +
-
-      `${rainForecast}` +
-
-    `</span>`;
-
-}
-
-
-
-/* ========================================
-   WEEKLY WEATHER
-======================================== */
-
-function renderWeeklyWeather(data){
-
-  const daily =
-    data.daily;
-
-
-  if(
-    !daily ||
-    !daily.time
-  ){
-
+function drawMap() {
+  const m = $("map");
+  m.querySelectorAll(".tile").forEach(el => el.remove());
+  if (!position) {
+    $("mapInfo").textContent = "GPS待機中";
     return;
-
   }
-
-
-  const weekNames =
-
-    [
-      "日",
-      "月",
-      "火",
-      "水",
-      "木",
-      "金",
-      "土"
-    ];
-
-
-  let html =
-    "";
-
-
-  for(
-    let i = 0;
-    i < daily.time.length;
-    i++
-  ){
-
-
-    const d =
-
-      new Date(
-        daily.time[i] +
-        "T12:00:00"
-      );
-
-
-    /*
-      V4.4.2
-
-      日付＋曜日は
-      1つの文字列として生成。
-
-      CSS white-space:nowrap
-      と合わせて改行を防止。
-    */
-
-    const dateText =
-
-      `${d.getMonth()+1}/${d.getDate()} ${weekNames[d.getDay()]}`;
-
-
-
-    const code =
-
-      Number(
-        daily.weather_code[i]
-      );
-
-
-    const description =
-
-      weatherCodes[code] ||
-
-      "--";
-
-
-    const high =
-
-      Math.round(
-        daily.temperature_2m_max[i]
-      );
-
-
-    const low =
-
-      Math.round(
-        daily.temperature_2m_min[i]
-      );
-
-
-    const rain =
-
-      Math.round(
-        daily.precipitation_probability_max[i] ?? 0
-      );
-
-
-    const weatherClass =
-
-      getWeatherClass(
-        code
-      );
-
-
-    const rainClass =
-
-      getRainClass(
-        rain
-      );
-
-
-
-    html +=
-
-      `<div class="day-row">` +
-
-
-        `<div class="day-date">` +
-
-          `${dateText}` +
-
-        `</div>` +
-
-
-        `<div class="day-weather ${weatherClass}">` +
-
-          `${description}` +
-
-        `</div>` +
-
-
-        `<div class="day-temp">` +
-
-          `<span class="temp-high">` +
-
-            `${high}℃` +
-
-          `</span>` +
-
-          ` / ` +
-
-          `<span class="temp-low">` +
-
-            `${low}℃` +
-
-          `</span>` +
-
-        `</div>` +
-
-
-        `<div class="day-rain ${rainClass}">` +
-
-          `${rain}%` +
-
-        `</div>` +
-
-
-      `</div>`;
-
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+  const c = tileXY(lat, lon, zoom);
+  const w = m.clientWidth || 550;
+  const h = m.clientHeight || 445;
+  const n = 2 ** zoom;
+
+  for (let dx = -2; dx <= 2; dx++) {
+    for (let dy = -2; dy <= 2; dy++) {
+      const x = Math.floor(c.x) + dx;
+      const y = Math.floor(c.y) + dy;
+      if (y < 0 || y >= n) continue;
+      const img = document.createElement("img");
+      img.className = "tile";
+      img.alt = "";
+      img.src =
+        "https://cyberjapandata.gsi.go.jp/xyz/std/" +
+        zoom + "/" + ((x % n + n) % n) + "/" + y + ".png";
+      img.style.left = (w/2 + (x-c.x)*256) + "px";
+      img.style.top = (h/2 + (y-c.y)*256) + "px";
+      img.onerror = () => { img.style.display = "none"; };
+      m.insertBefore(img, m.firstChild);
+    }
   }
+  $("mapInfo").textContent = "国土地理院 / Z" + zoom;
+}
+function setZoom(z) {
+  zoom = Math.max(5, Math.min(18, z));
+  drawMap();
+}
+$("zoomIn").onclick = () => setZoom(zoom+1);
+$("zoomOut").onclick = () => setZoom(zoom-1);
+$("recenter").onclick = drawMap;
 
-
-  weekPanel.innerHTML =
-    html;
-
+// SCOUT
+function onOrientation(e) {
+  let a = null;
+  if (typeof e.webkitCompassHeading === "number") {
+    a = e.webkitCompassHeading;
+  } else if (typeof e.alpha === "number") {
+    a = (360 - e.alpha) % 360;
+  }
+  if (a === null) return;
+  heading = (a + 360) % 360;
+  updateScout();
+}
+function updateScout() {
+  if (heading === null) {
+    $("bearing").textContent = "HEADING UNAVAILABLE";
+    $("sensor").textContent = "方位センサー待機中";
+    $("needle").style.display = "none";
+  } else {
+    $("bearing").textContent =
+      "SENSOR " + Math.round(heading) + "°";
+    $("sensor").textContent = "センサー値受信中";
+    $("needle").style.display = "block";
+    $("needle").style.transform =
+      "translate(-50%, -100%) rotate(" + (-heading) + "deg)";
+  }
+}
+async function enableSensor() {
+  try {
+    if (typeof DeviceOrientationEvent === "undefined")
+      throw Error("非対応");
+    if (typeof DeviceOrientationEvent.requestPermission === "function") {
+      const result = await DeviceOrientationEvent.requestPermission();
+      if (result !== "granted") throw Error("許可なし");
+    }
+    window.addEventListener("deviceorientation", onOrientation, true);
+    $("sensor").textContent = "センサー受信待機中";
+  } catch (e) {
+    $("sensor").textContent = "利用不可: " + e.message;
+  }
+}
+$("sensorEnable").onclick = enableSensor;
+$("scan").onclick = () => { gps(); enableSensor(); };
+if (typeof DeviceOrientationEvent !== "undefined" &&
+    typeof DeviceOrientationEvent.requestPermission !== "function") {
+  enableSensor();
 }
 
+// CALENDAR
+try {
+  const saved = JSON.parse(localStorage.getItem(calKey) || "[]");
+  if (Array.isArray(saved)) calendarEvents = saved;
+  $("calUrl").value = localStorage.getItem(urlKey) || "";
+} catch {
+  calendarEvents = [];
+}
 
+function tokyoDate(date) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric", month: "2-digit", day: "2-digit"
+  }).formatToParts(date);
+  const get = t => parts.find(p => p.type === t).value;
+  return get("year") + "-" + get("month") + "-" + get("day");
+}
+function renderCalendar() {
+  const today = new Date();
+  const day = tokyoDate(today);
+  $("calDate").textContent = today.toLocaleDateString("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric", month: "long",
+    day: "numeric", weekday: "long"
+  });
 
-/* ========================================
-   RETRY
-======================================== */
+  const items = calendarEvents.filter(e => {
+    const st = new Date(e.start || e.startTime || "");
+    return !isNaN(st) &&
+      tokyoDate(st) === day &&
+      e.status !== "cancelled";
+  }).sort((a,b) =>
+    new Date(a.start || a.startTime) -
+    new Date(b.start || b.startTime)
+  );
 
-retry.addEventListener(
+  $("calCount").textContent = items.length + " EVENTS / TODAY";
+  const target = $("events");
+  target.replaceChildren();
 
-  "click",
-
-  getLocation
-
-);
-
-
-
-/* ========================================
-   SHINMAI INPUT
-======================================== */
-
-document.addEventListener(
-
-  "keydown",
-
-  event => {
-
-
-    /* -------------------------------
-       RIGHT
-       NEXT PAGE
-    ------------------------------- */
-
-    if(
-      event.key ===
-      "ArrowRight"
-    ){
-
-
-      event.preventDefault();
-
-
-      nextPage();
-
-
-      return;
-
-    }
-
-
-
-    /* -------------------------------
-       LEFT
-       PREVIOUS PAGE
-    ------------------------------- */
-
-    if(
-      event.key ===
-      "ArrowLeft"
-    ){
-
-
-      event.preventDefault();
-
-
-      previousPage();
-
-
-      return;
-
-    }
-
-
-
-    /* -------------------------------
-       ENTER / SPACE
-       RETRY
-    ------------------------------- */
-
-    if(
-
-      currentPage === 0 &&
-
-      retry.classList.contains(
-        "show"
-      ) &&
-
-      (
-        event.key ===
-          "Enter" ||
-
-        event.key ===
-          " "
-      )
-
-    ){
-
-
-      event.preventDefault();
-
-
-      getLocation();
-
-    }
-
-
+  if (!items.length) {
+    const empty = document.createElement("div");
+    empty.className = "muted";
+    empty.style.padding = "22px 0";
+    empty.textContent = "今日の予定は登録されていません";
+    target.appendChild(empty);
+    return;
   }
 
-);
+  items.slice(0, 5).forEach(e => {
+    const st = new Date(e.start || e.startTime);
+    const row = document.createElement("div");
+    row.className = "event";
+    const time = document.createElement("div");
+    time.className = "eventtime";
+    time.textContent = st.toLocaleTimeString("ja-JP", {
+      timeZone: "Asia/Tokyo",
+      hour: "2-digit", minute: "2-digit"
+    });
+    const content = document.createElement("div");
+    const name = document.createElement("div");
+    name.className = "eventname";
+    name.textContent = e.summary || e.title || "予定";
+    const sub = document.createElement("div");
+    sub.className = "eventsub";
+    sub.textContent = e.location || "";
+    content.append(name, sub);
+    row.append(time, content);
+    target.appendChild(row);
+  });
+}
+function acceptCalendar(data) {
+  const items = Array.isArray(data) ?
+    data : (data.events || data.items);
+  if (!Array.isArray(items)) throw Error("events配列がありません");
+  calendarEvents = items.filter(e =>
+    e && typeof e === "object"
+  ).slice(0, 300);
+  localStorage.setItem(calKey, JSON.stringify(calendarEvents));
+  $("calState").textContent = "DATA READY";
+  $("calNote").textContent = "予定データ読み込み完了";
+  renderCalendar();
+}
+$("calImport").onclick = () => {
+  const value = prompt("予定JSONを貼り付けてください");
+  if (!value) return;
+  try {
+    acceptCalendar(JSON.parse(value));
+  } catch (e) {
+    $("calNote").textContent = "読込失敗: " + e.message;
+  }
+};
+async function syncCalendar() {
+  const url = $("calUrl").value.trim();
+  if (!url) {
+    renderCalendar();
+    $("calNote").textContent =
+      "自動同期にはHTTPSの予定JSON配信URLが必要です";
+    return;
+  }
+  if (!/^https:\/\//i.test(url)) {
+    $("calNote").textContent = "HTTPS URLのみ対応";
+    return;
+  }
+  localStorage.setItem(urlKey, url);
+  $("calState").textContent = "SYNCING";
+  try {
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw Error("HTTP " + r.status);
+    acceptCalendar(await r.json());
+    $("calState").textContent = "SYNC OK";
+  } catch (e) {
+    $("calState").textContent = "SYNC ERROR";
+    $("calNote").textContent = "通信失敗: " + e.message;
+  }
+}
+$("calRefresh").onclick = syncCalendar;
 
+// KEY CONTROL
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") {
+    e.preventDefault();
+    show(page+1);
+  } else if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    show(page-1);
+  } else if (page === 2 && e.key === "ArrowUp") {
+    e.preventDefault();
+    setZoom(zoom+1);
+  } else if (page === 2 && e.key === "ArrowDown") {
+    e.preventDefault();
+    setZoom(zoom-1);
+  } else if (page === 2 && e.key === "Enter") {
+    e.preventDefault();
+    drawMap();
+  } else if (page === 3 && e.key === "Enter") {
+    e.preventDefault();
+    $("scan").click();
+  }
+});
 
+setInterval(() => {
+  if (position) fetchWeather();
+  else gps();
+}, 600000);
 
-/* ========================================
-   START
-======================================== */
+setInterval(() => {
+  if ($("calUrl").value.trim()) syncCalendar();
+}, 600000);
 
-showPage(0);
+gps();
+renderCalendar();
 
-
-getLocation();
-
-
-
-/* ========================================
-   AUTO REFRESH
-   10 MINUTES
-======================================== */
-
-setInterval(
-
-  getLocation,
-
-  600000
-
-);
-
+})();
 </script>
-
 </body>
 </html>
