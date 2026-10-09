@@ -1,457 +1,1850 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="mrbd-web-app-capable" content="yes">
-<meta name="description" content="新米向けCOMMAND HUD:天気、地図、スカウター、予定">
-<title>COMMAND HUD V4.7</title>
+<title>COMMAND HUD V4.7.2</title>
+
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}
-body{touch-action:manipulation}
-.app{height:100%;width:100%;max-width:600px;max-height:600px;margin:auto;display:grid;grid-template-rows:70px minmax(0,1fr) 106px;padding:8px 16px 12px;gap:8px;background:#000}
-.header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:14px;background:#0e1016;color:#8fe8ff;font-size:16px;font-weight:700}
-.state{font-size:13px;color:#a1efbd}
-.content{min-height:0;overflow:hidden}
-.page{height:100%;display:none;min-height:0}
-.page.active{display:flex;flex-direction:column;gap:8px}
-.dock{display:grid;grid-template-columns:88px 1fr 88px;gap:8px;align-items:stretch}
-.dock button{height:88px}
-.pageid{display:grid;place-items:center;font-size:17px;color:#b7c7d0;background:#10131a;border-radius:16px}
-.btn{border:1px solid #40617a;border-radius:16px;background:#161d28;color:#fff;font-size:17px;font-weight:700;min-width:0;min-height:44px;cursor:pointer}
-.btn:focus-visible,.btn:focus{outline:3px solid #a7f2ff;outline-offset:-4px;background:#25475c}
-.btn:active{transform:scale(.94)}
-.hero{font-size:84px;line-height:1;font-weight:300;letter-spacing:-3px;font-variant-numeric:tabular-nums}
-.date{font-size:19px;color:#e4e6eb}
-.place{font-size:20px;color:#e4e6eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.temp{font-size:62px;color:#ffb080;line-height:1}
-.card{background:#10131a;border-radius:15px;padding:14px 16px;color:#fff}
-.weatherline{font-size:21px;color:#ffe66d}
-.meta{font-size:16px;color:#e4e6eb;line-height:1.5}
-.note{font-size:14px;color:#b0b3b8}
-.home{justify-content:space-between;padding:6px 6px 4px}
-.home .card{min-height:104px}
-.home .homeaction{height:54px;min-height:54px;font-size:16px;flex-shrink:0}
-.sectiontitle{font-size:24px;font-weight:700;margin:0}
-.week{overflow:auto;min-height:0;scrollbar-width:none}
-.weekrow{display:grid;grid-template-columns:92px minmax(0,1fr) 115px 46px;gap:4px;align-items:center;padding:11px 5px;min-height:52px;border-bottom:1px solid #38404c;font-size:15px}
-.weekrow>*{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hi{color:#ffb080}
-.lo{color:#82dfff}
-.rain{color:#8ff0b3}
-.map{position:relative;flex:1;min-height:0;overflow:hidden;border-radius:16px;background:#10131a}
-.tile{position:absolute;width:256px;height:256px;max-width:none;pointer-events:none}
-.pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:34px;color:#00dfff;text-shadow:0 0 12px #00dfff}
-.attribution{position:absolute;left:7px;bottom:7px;font-size:12px;background:#151b25;padding:5px 8px;border-radius:7px}
-.mapcontrols{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.mapcontrols .btn{height:68px}
-.radar{position:relative;width:min(100%,310px);aspect-ratio:1;margin:8px auto;border:2px solid #60d7ed;border-radius:50%;background:repeating-radial-gradient(circle,#000 0 48px,#1a3640 49px 50px)}
-.radar:before,.radar:after{content:"";position:absolute;background:#5ddaf0}
-.radar:before{width:80%;height:1px;left:10%;top:50%}
-.radar:after{height:80%;width:1px;top:10%;left:50%}
-.needle{position:absolute;left:50%;top:50%;width:4px;height:42%;background:linear-gradient(#ffe66d,transparent);transform-origin:50% 100%;transform:translate(-50%,-100%);display:none}
-.scouttext{text-align:center;font-size:20px;color:#a1efbd}
-.scoutbuttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.scoutbuttons .btn{height:68px}
-.events{min-height:0;overflow:auto;scrollbar-width:none}
-.event{padding:12px 0;border-bottom:1px solid #343c47;display:grid;grid-template-columns:75px 1fr;gap:8px}
-.event time{color:#80dfff}
-.event strong{font-size:17px}
-.event small{display:block;color:#b0b3b8}
-.calendarbuttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.calendarbuttons .btn{height:68px}
-.url{width:100%;background:#171c26;border:1px solid #637b8d;border-radius:12px;color:#fff;padding:12px;font-size:16px;min-height:50px}
-.hidden{display:none!important}
-@media(max-height:550px){
-.app{grid-template-rows:58px minmax(0,1fr) 86px}
-.dock button{height:72px}
-.home .hero{font-size:66px}
-.home .temp{font-size:48px}
-.home .card{min-height:90px;padding:10px}
-.home .homeaction{height:44px;min-height:44px}
-.radar{width:min(100%,240px)}
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  font-family: system-ui, -apple-system,
+    "Noto Sans JP", sans-serif;
+}
+
+button, input {
+  font: inherit;
+}
+
+.app {
+  width: 100%;
+  max-width: 600px;
+  height: 100%;
+  max-height: 600px;
+  margin: auto;
+  padding: 8px 16px 12px;
+  display: grid;
+  grid-template-rows:
+    70px minmax(0, 1fr) 106px;
+  gap: 8px;
+  background: #000;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: #0e1016;
+  color: #8fe8ff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.state {
+  font-size: 13px;
+  color: #a1efbd;
+}
+
+.content {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.page {
+  display: none;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.page.active {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn {
+  border: 1px solid #40617a;
+  border-radius: 14px;
+  background: #161d28;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.btn:focus {
+  outline: 3px solid #a7f2ff;
+  outline-offset: -3px;
+  background: #25475c;
+}
+
+.dock {
+  display: grid;
+  grid-template-columns: 88px 1fr 88px;
+  gap: 8px;
+}
+
+.dock .btn {
+  height: 88px;
+}
+
+.pageid {
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #10131a;
+  color: #b7c7d0;
+  font-size: 17px;
+}
+
+.card {
+  background: #10131a;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.note {
+  font-size: 14px;
+  color: #b0b3b8;
+}
+
+.meta {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.sectiontitle {
+  margin: 0;
+  font-size: 23px;
+}
+
+/* ==========================
+   HOME AUTO FIT
+========================== */
+
+.home.active {
+  display: block;
+}
+
+.home {
+  position: relative;
+  overflow: hidden;
+}
+
+/*
+  HOME内部を一つの領域として
+  実際の高さに合わせて縮小する
+*/
+
+.home-inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transform-origin: top left;
+  will-change: transform;
+}
+
+.home-clock {
+  font-size: 84px;
+  font-weight: 300;
+  letter-spacing: -3px;
+  line-height: 1.08;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-date {
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.home-place {
+  font-size: 21px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-temp {
+  font-size: 62px;
+  line-height: 1.05;
+  color: #ffb080;
+}
+
+.home-weather {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.weather-name {
+  font-size: 22px;
+  color: #ffe66d;
+}
+
+.home-refresh {
+  height: 52px;
+  min-height: 52px;
+  width: 100%;
+}
+
+/* ==========================
+   WEEKLY
+========================== */
+
+.week {
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.weekrow {
+  display: grid;
+  grid-template-columns:
+    92px minmax(0,1fr) 115px 46px;
+  gap: 4px;
+  align-items: center;
+  min-height: 52px;
+  padding: 10px 5px;
+  border-bottom: 1px solid #38404c;
+  font-size: 15px;
+}
+
+.weekrow span {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hi { color: #ffb080; }
+.lo { color: #82dfff; }
+
+/* ==========================
+   MAP
+========================== */
+
+.map {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #10131a;
+}
+
+.tile {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  max-width: none;
+  pointer-events: none;
+}
+
+.pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 34px;
+  color: #00dfff;
+  text-shadow: 0 0 12px #00dfff;
+  pointer-events: none;
+}
+
+.attribution {
+  position: absolute;
+  left: 7px;
+  bottom: 7px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: #151b25;
+  font-size: 12px;
+}
+
+.mapcontrols {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 8px;
+}
+
+.mapcontrols .btn {
+  height: 68px;
+}
+
+/* ==========================
+   SCOUT
+========================== */
+
+.radar {
+  position: relative;
+  width: min(100%,310px);
+  aspect-ratio: 1;
+  margin: 8px auto;
+  border: 2px solid #60d7ed;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle,
+    #000 0 48px,
+    #1a3640 49px 50px
+  );
+}
+
+.radar::before,
+.radar::after {
+  content: "";
+  position: absolute;
+  background: #5ddaf0;
+}
+
+.radar::before {
+  width: 80%;
+  height: 1px;
+  left: 10%;
+  top: 50%;
+}
+
+.radar::after {
+  height: 80%;
+  width: 1px;
+  top: 10%;
+  left: 50%;
+}
+
+.needle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 42%;
+  background: linear-gradient(
+    #ffe66d, transparent
+  );
+  transform-origin: 50% 100%;
+  transform: translate(-50%,-100%);
+  display: none;
+}
+
+.scouttext {
+  text-align: center;
+  font-size: 20px;
+  color: #a1efbd;
+}
+
+.scoutbuttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.scoutbuttons .btn {
+  height: 68px;
+}
+
+/* ==========================
+   CALENDAR
+========================== */
+
+.events {
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.event {
+  display: grid;
+  grid-template-columns: 75px 1fr;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid #343c47;
+}
+
+.event time {
+  color: #80dfff;
+}
+
+.event strong {
+  font-size: 17px;
+}
+
+.event small {
+  display: block;
+  color: #b0b3b8;
+}
+
+.calendarbuttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.calendarbuttons .btn {
+  height: 68px;
+}
+
+.url {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px;
+  border: 1px solid #637b8d;
+  border-radius: 12px;
+  background: #171c26;
+  color: #fff;
+  font-size: 16px;
+}
+
+@media (max-height: 550px) {
+  .app {
+    grid-template-rows:
+      58px minmax(0,1fr) 86px;
+  }
+
+  .dock .btn {
+    height: 72px;
+  }
+
+  .radar {
+    width: min(100%,240px);
+  }
 }
 </style>
 </head>
+
 <body>
+
 <main class="app">
+
 <header class="header">
-<span id="title">SHINMAI / HOME</span>
-<span class="state" id="state">READY</span>
+  <span id="title">SHINMAI / HOME</span>
+  <span class="state" id="state">READY</span>
 </header>
+
 <div class="content">
 
+<!-- HOME -->
+
 <section class="page active home" id="home">
-<div class="hero" id="clock">--:--</div>
-<div class="date" id="date">----</div>
-<div class="place" id="place">現在地を確認中</div>
-<div class="temp" id="temp">--°</div>
-<div class="card">
-<div class="weatherline" id="condition">天気取得中</div>
-<div class="meta" id="details">体感 --° / 降水 --%</div>
-<div class="meta" id="rainnext">次の雨：確認中</div>
-</div>
-<button class="btn homeaction" id="gpsBtn">GPS / 天気を更新</button>
+
+  <div class="home-inner" id="homeInner">
+
+    <div class="home-clock" id="clock">
+      --:--
+    </div>
+
+    <div class="home-date" id="date">
+      ----
+    </div>
+
+    <div class="home-place" id="place">
+      現在地を確認中
+    </div>
+
+    <div class="home-temp" id="temp">
+      --°
+    </div>
+
+    <div class="card home-weather">
+
+      <div class="weather-name" id="condition">
+        天気取得中
+      </div>
+
+      <div class="meta" id="details">
+        体感 --° / 降水 --%
+      </div>
+
+      <div class="meta" id="rainnext">
+        次の雨：確認中
+      </div>
+
+    </div>
+
+    <button class="btn home-refresh" id="gpsBtn">
+      GPS / 天気を更新
+    </button>
+
+  </div>
+
 </section>
+
+<!-- WEEKLY -->
 
 <section class="page" id="weekly">
-<h2 class="sectiontitle">7日間予報</h2>
-<div class="note" id="weekplace">現在地</div>
-<div class="card week" id="weekrows">予報取得中</div>
+
+  <h2 class="sectiontitle">
+    7日間予報
+  </h2>
+
+  <div class="note" id="weekplace">
+    現在地
+  </div>
+
+  <div class="card week" id="weekrows">
+    予報取得中
+  </div>
+
 </section>
+
+<!-- MAP -->
 
 <section class="page" id="mapPage">
-<div class="map" id="map">
-<div class="pin">◎</div>
-<div class="attribution" id="mapinfo">国土地理院 / GPS待機</div>
-</div>
-<div class="mapcontrols">
-<button class="btn" id="zin">＋ 拡大</button>
-<button class="btn" id="zout">－ 縮小</button>
-<button class="btn" id="center">◎ 現在地</button>
-</div>
+
+  <div class="map" id="map">
+
+    <div class="pin">◎</div>
+
+    <div class="attribution" id="mapinfo">
+      国土地理院 / GPS待機
+    </div>
+
+  </div>
+
+  <div class="mapcontrols">
+
+    <button class="btn" id="zin">
+      ＋ 拡大
+    </button>
+
+    <button class="btn" id="zout">
+      － 縮小
+    </button>
+
+    <button class="btn" id="center">
+      ◎ 現在地
+    </button>
+
+  </div>
+
 </section>
+
+<!-- SCOUT -->
 
 <section class="page" id="scout">
-<div class="radar"><div class="needle" id="needle"></div></div>
-<div class="scouttext" id="bearing">SENSOR --°</div>
-<div class="meta" id="coords">GPS WAIT</div>
-<div class="note" id="sensorstatus">方位センサーは実機で要確認</div>
-<div class="scoutbuttons">
-<button class="btn" id="sensorBtn">センサー許可</button>
-<button class="btn" id="scanBtn">再スキャン</button>
-</div>
+
+  <div class="radar">
+    <div class="needle" id="needle"></div>
+  </div>
+
+  <div class="scouttext" id="bearing">
+    SENSOR --°
+  </div>
+
+  <div class="meta" id="coords">
+    GPS WAIT
+  </div>
+
+  <div class="note" id="sensorstatus">
+    方位センサーは実機で要確認
+  </div>
+
+  <div class="scoutbuttons">
+
+    <button class="btn" id="sensorBtn">
+      センサー許可
+    </button>
+
+    <button class="btn" id="scanBtn">
+      再スキャン
+    </button>
+
+  </div>
+
 </section>
+
+<!-- CALENDAR -->
 
 <section class="page" id="calendar">
-<h2 class="sectiontitle">今日の予定</h2>
-<div class="note" id="caldate"></div>
-<div class="card events" id="events">予定データなし</div>
-<div class="note" id="calstatus">Googleカレンダー直接同期は未設定</div>
-<input class="url" id="calurl" type="text" placeholder="予定JSONのHTTPS URL" aria-label="予定データのURL">
-<div class="calendarbuttons">
-<button class="btn" id="calfetch">予定を更新</button>
-<button class="btn" id="calpaste">JSON貼付</button>
-</div>
+
+  <h2 class="sectiontitle">
+    今日の予定
+  </h2>
+
+  <div class="note" id="caldate"></div>
+
+  <div class="card events" id="events">
+    予定データなし
+  </div>
+
+  <div class="note" id="calstatus">
+    Googleカレンダー直接同期は未設定
+  </div>
+
+  <input
+    class="url"
+    id="calurl"
+    type="text"
+    placeholder="予定JSONのHTTPS URL"
+  >
+
+  <div class="calendarbuttons">
+
+    <button class="btn" id="calfetch">
+      予定を更新
+    </button>
+
+    <button class="btn" id="calpaste">
+      JSON貼付
+    </button>
+
+  </div>
+
 </section>
+
 </div>
 
+<!-- BOTTOM NAVIGATION -->
+
 <nav class="dock" aria-label="ページ切替">
-<button class="btn" id="prev" aria-label="前のページ">◀</button>
-<div class="pageid" id="pageid">● ○ ○ ○ ○</div>
-<button class="btn" id="next" aria-label="次のページ">▶</button>
+
+  <button class="btn" id="prev">
+    ◀
+  </button>
+
+  <div class="pageid" id="pageid">
+    ● ○ ○ ○ ○
+  </div>
+
+  <button class="btn" id="next">
+    ▶
+  </button>
+
 </nav>
+
 </main>
 
 <script>
-(()=>{
-'use strict';
-const $=id=>document.getElementById(id),
-ids=['home','weekly','mapPage','scout','calendar'],
-titles=['HOME','WEATHER','TACTICAL MAP','SCOUT','MISSION SCHEDULE'];
-let page=0,pos=null,zoom=16,heading=null,events=[];
-const store='shinmai_v47_events',urlstore='shinmai_v47_url';
+(() => {
+"use strict";
 
-function show(n){
-page=(n+5)%5;
-ids.forEach((id,i)=>$(id).classList.toggle('active',i===page));
-$('title').textContent='SHINMAI / '+titles[page];
-$('pageid').textContent=ids.map((_,i)=>i===page?'●':'○').join(' ');
-if(page===2)drawMap();
-if(page===4)renderEvents();
-}
-$('prev').onclick=()=>show(page-1);
-$('next').onclick=()=>show(page+1);
-document.addEventListener('keydown',e=>{
-if(e.target.matches('input,textarea'))return;
-if(e.key==='ArrowLeft'&&document.activeElement!==$('calurl')){
-e.preventDefault();show(page-1);
-}
-if(e.key==='ArrowRight'&&document.activeElement!==$('calurl')){
-e.preventDefault();show(page+1);
-}
-});
+const $ = id =>
+  document.getElementById(id);
 
-function tick(){
-const d=new Date();
-$('clock').textContent=d.toLocaleTimeString('ja-JP',{
-hour:'2-digit',minute:'2-digit',hour12:false
-});
-$('date').textContent=d.toLocaleDateString('ja-JP',{
-year:'numeric',month:'long',day:'numeric',weekday:'long'
-});
+const ids = [
+  "home",
+  "weekly",
+  "mapPage",
+  "scout",
+  "calendar"
+];
+
+const titles = [
+  "HOME",
+  "WEATHER",
+  "TACTICAL MAP",
+  "SCOUT",
+  "MISSION SCHEDULE"
+];
+
+let page = 0;
+let pos = null;
+let zoom = 16;
+let heading = null;
+let sensorOn = false;
+let events = [];
+
+const store = "shinmai_v47_events";
+const urlstore = "shinmai_v47_url";
+
+/* ==========================
+   HOME AUTO FIT ENGINE
+========================== */
+
+function fitHome() {
+
+  const home = $("home");
+  const inner = $("homeInner");
+
+  if (!home || !inner) return;
+
+  /*
+    まず縮小を解除し、
+    本来必要な高さを測定
+  */
+
+  inner.style.transform = "none";
+  inner.style.width = "100%";
+
+  const availableHeight =
+    home.clientHeight;
+
+  const naturalHeight =
+    inner.scrollHeight;
+
+  if (
+    availableHeight <= 0 ||
+    naturalHeight <= 0
+  ) return;
+
+  /*
+    下部に8pxの余裕を残す。
+    拡大は行わない。
+  */
+
+  const scale = Math.min(
+    1,
+    (availableHeight - 8) /
+    naturalHeight
+  );
+
+  const safeScale = Math.max(
+    0.1,
+    scale
+  );
+
+  /*
+    縮小すると横幅も縮むため、
+    内容のレイアウト幅を補正
+  */
+
+  inner.style.width =
+    (100 / safeScale) + "%";
+
+  /*
+    幅補正による折り返し変化を
+    再測定して必要なら再調整
+  */
+
+  const adjustedHeight =
+    inner.scrollHeight;
+
+  const finalScale = Math.min(
+    safeScale,
+    (availableHeight - 8) /
+    adjustedHeight
+  );
+
+  inner.style.transform =
+    "scale(" + Math.max(0.1,finalScale) + ")";
 }
+
+let fitScheduled = false;
+
+function scheduleHomeFit() {
+  if (fitScheduled) return;
+
+  fitScheduled = true;
+
+  requestAnimationFrame(() => {
+    fitScheduled = false;
+    fitHome();
+  });
+}
+
+if (typeof ResizeObserver !== "undefined") {
+  const observer = new ResizeObserver(
+    scheduleHomeFit
+  );
+
+  observer.observe($("home"));
+  observer.observe($("homeInner"));
+}
+
+window.addEventListener(
+  "resize",
+  scheduleHomeFit
+);
+
+/* ==========================
+   PAGE CONTROL
+========================== */
+
+function show(n) {
+
+  page = (n + ids.length) %
+    ids.length;
+
+  ids.forEach((id,i) => {
+    $(id).classList.toggle(
+      "active",
+      i === page
+    );
+  });
+
+  $("title").textContent =
+    "SHINMAI / " + titles[page];
+
+  $("pageid").textContent =
+    ids.map((_,i) =>
+      i === page ? "●" : "○"
+    ).join(" ");
+
+  if (page === 0) {
+    scheduleHomeFit();
+  }
+
+  if (page === 2) {
+    drawMap();
+  }
+
+  if (page === 4) {
+    renderEvents();
+  }
+}
+
+$("prev").onclick = () =>
+  show(page - 1);
+
+$("next").onclick = () =>
+  show(page + 1);
+
+document.addEventListener(
+  "keydown",
+  e => {
+
+    if (
+      e.target.matches(
+        "input,textarea"
+      )
+    ) return;
+
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      show(page - 1);
+    }
+
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      show(page + 1);
+    }
+
+  }
+);
+
+/* ==========================
+   CLOCK
+========================== */
+
+function tick() {
+
+  const d = new Date();
+
+  $("clock").textContent =
+    d.toLocaleTimeString(
+      "ja-JP",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }
+    );
+
+  $("date").textContent =
+    d.toLocaleDateString(
+      "ja-JP",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "long"
+      }
+    );
+
+}
+
 tick();
-const clockTimer=setInterval(tick,1000);
+setInterval(tick,1000);
 
-const weatherName=c=>c===0?['快晴','#ffe66d']:
-c<=3?['晴れ・くもり','#fff']:
-c<=48?['霧','#fff']:
-c<=67?['雨','#61d9ff']:
-c<=77?['雪','#d9f4ff']:
-c<=82?['にわか雨','#61d9ff']:
-c<=86?['雪','#d9f4ff']:['雷雨','#61d9ff'];
+/* ==========================
+   WEATHER
+========================== */
 
-const rainColor=p=>p>=70?'#ff6464':
-p>=50?'#ffe66d':
-p>=30?'#61d9ff':'#8ff0b3';
+function weatherName(c) {
 
-async function weather(){
-if(!pos)return;
-const {latitude,longitude}=pos.coords;
-try{
-const url='https://api.open-meteo.com/v1/forecast?'+new URLSearchParams({
-latitude,longitude,
-current:'temperature_2m,apparent_temperature,weather_code,precipitation_probability',
-hourly:'precipitation_probability',
-daily:'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
-timezone:'auto',forecast_days:7
-});
-const r=await fetch(url);
-if(!r.ok)throw Error('HTTP '+r.status);
-const d=await r.json(),c=d.current,w=weatherName(c.weather_code);
-$('temp').textContent=Math.round(c.temperature_2m)+'°';
-$('condition').textContent=w[0];
-$('condition').style.color=w[1];
-$('details').textContent='体感 '+Math.round(c.apparent_temperature)+'° / 降水 '+(c.precipitation_probability??'--')+'%';
-let next='予報期間内になし';
-const now=new Date(),h=d.hourly;
-for(let i=0;i<h.time.length;i++){
-const t=h.time[i],p=h.precipitation_probability[i];
-if(t>new Intl.DateTimeFormat('sv-SE',{
-timeZone:d.timezone,year:'numeric',month:'2-digit',
-day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false
-}).format(now).replace(' ','T')&&p>=50){
-next=t.slice(5,16).replace('T',' ')+'頃 ('+p+'%)';
-break;
-}
-}
-$('rainnext').textContent='次の雨：'+next;
-const wrap=$('weekrows');
-wrap.replaceChildren();
-d.daily.time.forEach((date,i)=>{
-const row=document.createElement('div');
-row.className='weekrow';
-const day=new Date(date+'T12:00:00'),
-wc=weatherName(d.daily.weather_code[i]),
-rp=d.daily.precipitation_probability_max[i]??0;
-[
-[`${day.getMonth()+1}/${day.getDate()} (${'日月火水木金土'[day.getDay()]})`,''],
-[wc[0],wc[1]],
-[`${Math.round(d.daily.temperature_2m_max[i])}° / ${Math.round(d.daily.temperature_2m_min[i])}°`,''],
-[rp+'%',rainColor(rp)]
-].forEach(([v,color],j)=>{
-const s=document.createElement('span');
-s.textContent=v;
-if(color)s.style.color=color;
-if(j===2)s.className='hi';
-row.appendChild(s);
-});
-wrap.appendChild(row);
-});
-$('state').textContent='SYNC OK';
-}catch(e){
-$('state').textContent='WEATHER ERR';
-$('condition').textContent='天気取得失敗';
-$('weekrows').textContent='予報取得失敗';
-}
+  if (c === 0)
+    return ["快晴","#ffe66d"];
+
+  if (c <= 3)
+    return ["晴れ・くもり","#fff"];
+
+  if (c <= 48)
+    return ["霧","#fff"];
+
+  if (c <= 67)
+    return ["雨","#61d9ff"];
+
+  if (c <= 77)
+    return ["雪","#d9f4ff"];
+
+  if (c <= 82)
+    return ["にわか雨","#61d9ff"];
+
+  if (c <= 86)
+    return ["雪","#d9f4ff"];
+
+  return ["雷雨","#61d9ff"];
 }
 
-async function locationName(){
-if(!pos)return;
-try{
-const {latitude,longitude}=pos.coords;
-const r=await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?'+new URLSearchParams({
-latitude,longitude,localityLanguage:'ja'
-}));
-if(!r.ok)throw Error();
-const d=await r.json(),
-name=[d.locality||d.city,d.principalSubdivision].filter(Boolean).join(' / ')||'現在地';
-$('place').textContent=name;
-$('weekplace').textContent=name;
-}catch{
-$('place').textContent='現在地取得済み';
-}
+function rainColor(p) {
+
+  if (p >= 70)
+    return "#ff6464";
+
+  if (p >= 50)
+    return "#ffe66d";
+
+  if (p >= 30)
+    return "#61d9ff";
+
+  return "#8ff0b3";
 }
 
-function gps(){
-if(!navigator.geolocation){
-$('state').textContent='GPS非対応';
-return;
-}
-navigator.geolocation.getCurrentPosition(p=>{
-pos=p;
-$('state').textContent='GPS LOCK';
-$('coords').textContent='LAT '+p.coords.latitude.toFixed(4)+' / LON '+p.coords.longitude.toFixed(4);
-locationName();weather();drawMap();
-},e=>{
-$('state').textContent='GPS ERROR '+e.code;
-$('place').textContent='位置情報の許可を確認';
-},{
-enableHighAccuracy:true,timeout:15000,maximumAge:60000
-});
-}
-$('gpsBtn').onclick=gps;
+async function weather() {
 
-function tileXY(lat,lon,z){
-const n=2**z,rad=Math.max(-85,Math.min(85,lat))*Math.PI/180;
-return{
-x:(lon+180)/360*n,
-y:(1-Math.log(Math.tan(rad)+1/Math.cos(rad))/Math.PI)/2*n
-};
-}
-function drawMap(){
-const m=$('map');
-m.querySelectorAll('.tile').forEach(e=>e.remove());
-if(!pos)return;
-const c=tileXY(pos.coords.latitude,pos.coords.longitude,zoom),
-w=m.clientWidth||540,h=m.clientHeight||340,n=2**zoom;
-for(let dx=-2;dx<=2;dx++)
-for(let dy=-2;dy<=2;dy++){
-const x=Math.floor(c.x)+dx,y=Math.floor(c.y)+dy;
-if(y<0||y>=n)continue;
-const im=document.createElement('img');
-im.className='tile';im.alt='';
-im.src=`https://cyberjapandata.gsi.go.jp/xyz/std/${zoom}/${((x%n)+n)%n}/${y}.png`;
-im.style.left=(w/2+(x-c.x)*256)+'px';
-im.style.top=(h/2+(y-c.y)*256)+'px';
-m.prepend(im);
-}
-$('mapinfo').textContent='国土地理院 / Z'+zoom;
-}
-function setZoom(z){
-zoom=Math.max(5,Math.min(18,z));drawMap();
-}
-$('zin').onclick=()=>setZoom(zoom+1);
-$('zout').onclick=()=>setZoom(zoom-1);
-$('center').onclick=()=>{gps();drawMap()};
+  if (!pos) return;
 
-let sensorOn=false;
-function onOrientation(e){
-const a=typeof e.webkitCompassHeading==='number'?e.webkitCompassHeading:
-typeof e.alpha==='number'?(360-e.alpha)%360:null;
-if(a===null)return;
-heading=a;
-$('bearing').textContent='SENSOR '+Math.round(a)+'°';
-$('sensorstatus').textContent='方位センサー値（頭の向きとは限りません）';
-$('needle').style.display='block';
-$('needle').style.transform=`translate(-50%,-100%) rotate(${-a}deg)`;
-}
-async function sensor(){
-try{
-if(typeof DeviceOrientationEvent==='undefined')throw Error('非対応');
-if(typeof DeviceOrientationEvent.requestPermission==='function'){
-if(await DeviceOrientationEvent.requestPermission()!=='granted')throw Error('許可なし');
-}
-if(!sensorOn){
-window.addEventListener('deviceorientation',onOrientation,true);
-sensorOn=true;
-}
-$('sensorstatus').textContent='方位センサー待機中';
-}catch(e){
-$('sensorstatus').textContent='センサー利用不可: '+e.message;
-}
-}
-$('sensorBtn').onclick=sensor;
-$('scanBtn').onclick=()=>{gps();sensor()};
+  const {
+    latitude,
+    longitude
+  } = pos.coords;
 
-try{
-const saved=JSON.parse(localStorage.getItem(store)||'[]');
-if(Array.isArray(saved))events=saved;
-$('calurl').value=localStorage.getItem(urlstore)||'';
-}catch{}
+  try {
 
-function tokyoDay(d){
-return new Intl.DateTimeFormat('en-CA',{
-timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'
-}).format(d);
+    const url =
+      "https://api.open-meteo.com/v1/forecast?" +
+      new URLSearchParams({
+        latitude,
+        longitude,
+        current:
+          "temperature_2m,apparent_temperature,weather_code,precipitation_probability",
+        hourly:
+          "precipitation_probability",
+        daily:
+          "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+        timezone: "auto",
+        forecast_days: 7
+      });
+
+    const r = await fetch(url);
+
+    if (!r.ok)
+      throw Error("HTTP " + r.status);
+
+    const d = await r.json();
+    const c = d.current;
+    const w = weatherName(
+      c.weather_code
+    );
+
+    $("temp").textContent =
+      Math.round(
+        c.temperature_2m
+      ) + "°";
+
+    $("condition").textContent =
+      w[0];
+
+    $("condition").style.color =
+      w[1];
+
+    $("details").textContent =
+      "体感 " +
+      Math.round(
+        c.apparent_temperature
+      ) +
+      "° / 降水 " +
+      (
+        c.precipitation_probability
+        ?? "--"
+      ) + "%";
+
+    let next =
+      "予報期間内になし";
+
+    const now = Date.now();
+
+    const timeParts =
+      new Intl.DateTimeFormat(
+        "sv-SE",
+        {
+          timeZone: d.timezone,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        }
+      ).format(
+        new Date(now)
+      ).replace(" ","T");
+
+    for (
+      let i = 0;
+      i < d.hourly.time.length;
+      i++
+    ) {
+
+      const t =
+        d.hourly.time[i];
+
+      const p =
+        d.hourly
+          .precipitation_probability[i];
+
+      if (
+        t > timeParts &&
+        p >= 50
+      ) {
+
+        next =
+          t.slice(5,16)
+            .replace("T"," ") +
+          "頃 (" + p + "%)";
+
+        break;
+      }
+    }
+
+    $("rainnext").textContent =
+      "次の雨：" + next;
+
+    const wrap =
+      $("weekrows");
+
+    wrap.replaceChildren();
+
+    d.daily.time.forEach(
+      (date,i) => {
+
+        const row =
+          document.createElement("div");
+
+        row.className =
+          "weekrow";
+
+        const day =
+          new Date(
+            date + "T12:00:00"
+          );
+
+        const wc =
+          weatherName(
+            d.daily.weather_code[i]
+          );
+
+        const rp =
+          d.daily
+            .precipitation_probability_max[i]
+            ?? 0;
+
+        const values = [
+          [
+            (day.getMonth()+1) +
+            "/" +
+            day.getDate() +
+            " (" +
+            "日月火水木金土"[
+              day.getDay()
+            ] +
+            ")",
+            ""
+          ],
+          [
+            wc[0],
+            wc[1]
+          ],
+          [
+            Math.round(
+              d.daily
+                .temperature_2m_max[i]
+            ) +
+            "° / " +
+            Math.round(
+              d.daily
+                .temperature_2m_min[i]
+            ) +
+            "°",
+            ""
+          ],
+          [
+            rp + "%",
+            rainColor(rp)
+          ]
+        ];
+
+        values.forEach(
+          ([value,color],j) => {
+
+            const span =
+              document.createElement(
+                "span"
+              );
+
+            span.textContent =
+              value;
+
+            if (color)
+              span.style.color =
+                color;
+
+            if (j === 2)
+              span.className =
+                "hi";
+
+            row.appendChild(
+              span
+            );
+
+          }
+        );
+
+        wrap.appendChild(
+          row
+        );
+
+      }
+    );
+
+    $("state").textContent =
+      "SYNC OK";
+
+    scheduleHomeFit();
+
+  } catch(e) {
+
+    $("state").textContent =
+      "WEATHER ERR";
+
+    $("condition").textContent =
+      "天気取得失敗";
+
+    $("weekrows").textContent =
+      "予報取得失敗";
+
+    scheduleHomeFit();
+
+  }
+
 }
-function renderEvents(){
-const now=new Date(),day=tokyoDay(now);
-$('caldate').textContent=now.toLocaleDateString('ja-JP',{
-timeZone:'Asia/Tokyo',year:'numeric',month:'long',day:'numeric',weekday:'long'
-});
-const today=events.filter(e=>{
-const d=new Date(e.start||e.startTime||'');
-return !isNaN(d)&&tokyoDay(d)===day&&e.status!=='cancelled';
-}).sort((a,b)=>new Date(a.start||a.startTime)-new Date(b.start||b.startTime));
-const target=$('events');
-target.replaceChildren();
-if(!today.length){
-target.textContent='今日の予定は登録されていません';
-return;
+
+/* ==========================
+   LOCATION
+========================== */
+
+async function locationName() {
+
+  if (!pos) return;
+
+  try {
+
+    const {
+      latitude,
+      longitude
+    } = pos.coords;
+
+    const r = await fetch(
+      "https://api.bigdatacloud.net/data/reverse-geocode-client?" +
+      new URLSearchParams({
+        latitude,
+        longitude,
+        localityLanguage: "ja"
+      })
+    );
+
+    if (!r.ok)
+      throw Error();
+
+    const d = await r.json();
+
+    const name = [
+      d.locality || d.city,
+      d.principalSubdivision
+    ].filter(Boolean).join(" / ")
+      || "現在地";
+
+    $("place").textContent =
+      name;
+
+    $("weekplace").textContent =
+      name;
+
+  } catch {
+
+    $("place").textContent =
+      "現在地取得済み";
+
+  }
+
+  scheduleHomeFit();
+
 }
-today.forEach(e=>{
-const row=document.createElement('div');row.className='event';
-const time=document.createElement('time');
-time.textContent=new Date(e.start||e.startTime).toLocaleTimeString('ja-JP',{
-timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit'
-});
-const body=document.createElement('div'),
-name=document.createElement('strong'),
-place=document.createElement('small');
-name.textContent=e.summary||e.title||'予定';
-place.textContent=e.location||'';
-body.append(name,place);row.append(time,body);target.append(row);
-});
+
+function gps() {
+
+  if (!navigator.geolocation) {
+
+    $("state").textContent =
+      "GPS非対応";
+
+    return;
+  }
+
+  navigator.geolocation
+    .getCurrentPosition(
+
+      p => {
+
+        pos = p;
+
+        $("state").textContent =
+          "GPS LOCK";
+
+        $("coords").textContent =
+          "LAT " +
+          p.coords.latitude
+            .toFixed(4) +
+          " / LON " +
+          p.coords.longitude
+            .toFixed(4);
+
+        locationName();
+        weather();
+        drawMap();
+
+      },
+
+      e => {
+
+        $("state").textContent =
+          "GPS ERROR " + e.code;
+
+        $("place").textContent =
+          "位置情報の許可を確認";
+
+        scheduleHomeFit();
+
+      },
+
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 60000
+      }
+
+    );
+
 }
-function acceptCalendar(data){
-const a=Array.isArray(data)?data:(data.events||data.items);
-if(!Array.isArray(a))throw Error('予定配列がありません');
-events=a.filter(x=>x&&typeof x==='object').slice(0,300);
-try{localStorage.setItem(store,JSON.stringify(events))}catch{}
-$('calstatus').textContent=events.length+'件読み込み';
+
+$("gpsBtn").onclick = gps;
+
+/* ==========================
+   MAP
+========================== */
+
+function tileXY(lat,lon,z) {
+
+  const n = 2 ** z;
+
+  const rad =
+    Math.max(
+      -85,
+      Math.min(85,lat)
+    ) *
+    Math.PI / 180;
+
+  return {
+    x:
+      (lon+180)/360*n,
+    y:
+      (1-
+        Math.log(
+          Math.tan(rad) +
+          1/Math.cos(rad)
+        )/Math.PI
+      )/2*n
+  };
+
+}
+
+function drawMap() {
+
+  const m = $("map");
+
+  m.querySelectorAll(
+    ".tile"
+  ).forEach(
+    e => e.remove()
+  );
+
+  if (!pos) return;
+
+  const c = tileXY(
+    pos.coords.latitude,
+    pos.coords.longitude,
+    zoom
+  );
+
+  const w =
+    m.clientWidth || 540;
+
+  const h =
+    m.clientHeight || 340;
+
+  const n = 2 ** zoom;
+
+  for (
+    let dx=-2;
+    dx<=2;
+    dx++
+  ) {
+
+    for (
+      let dy=-2;
+      dy<=2;
+      dy++
+    ) {
+
+      const x =
+        Math.floor(c.x)+dx;
+
+      const y =
+        Math.floor(c.y)+dy;
+
+      if (
+        y<0 ||
+        y>=n
+      ) continue;
+
+      const im =
+        document.createElement(
+          "img"
+        );
+
+      im.className =
+        "tile";
+
+      im.alt = "";
+
+      im.src =
+        "https://cyberjapandata.gsi.go.jp/xyz/std/" +
+        zoom + "/" +
+        ((x%n+n)%n) +
+        "/" + y + ".png";
+
+      im.style.left =
+        (
+          w/2 +
+          (x-c.x)*256
+        ) + "px";
+
+      im.style.top =
+        (
+          h/2 +
+          (y-c.y)*256
+        ) + "px";
+
+      m.prepend(im);
+
+    }
+  }
+
+  $("mapinfo").textContent =
+    "国土地理院 / Z" +
+    zoom;
+
+}
+
+function setZoom(z) {
+
+  zoom = Math.max(
+    5,
+    Math.min(18,z)
+  );
+
+  drawMap();
+
+}
+
+$("zin").onclick =
+  () => setZoom(zoom+1);
+
+$("zout").onclick =
+  () => setZoom(zoom-1);
+
+$("center").onclick =
+  gps;
+
+/* ==========================
+   SCOUT
+========================== */
+
+function onOrientation(e) {
+
+  let a = null;
+
+  if (
+    typeof e.webkitCompassHeading
+    === "number"
+  ) {
+
+    a =
+      e.webkitCompassHeading;
+
+  } else if (
+    typeof e.alpha
+    === "number"
+  ) {
+
+    a =
+      (360-e.alpha)%360;
+
+  }
+
+  if (a === null) return;
+
+  heading = a;
+
+  $("bearing").textContent =
+    "SENSOR " +
+    Math.round(a) +
+    "°";
+
+  $("sensorstatus").textContent =
+    "方位センサー値（頭の向きとは限りません）";
+
+  $("needle").style.display =
+    "block";
+
+  $("needle").style.transform =
+    "translate(-50%,-100%) rotate(" +
+    (-a) +
+    "deg)";
+
+}
+
+async function sensor() {
+
+  try {
+
+    if (
+      typeof DeviceOrientationEvent
+      === "undefined"
+    ) {
+
+      throw Error(
+        "非対応"
+      );
+
+    }
+
+    if (
+      typeof DeviceOrientationEvent
+        .requestPermission
+      === "function"
+    ) {
+
+      const result =
+        await DeviceOrientationEvent
+          .requestPermission();
+
+      if (
+        result !== "granted"
+      ) {
+
+        throw Error(
+          "許可なし"
+        );
+
+      }
+
+    }
+
+    if (!sensorOn) {
+
+      window.addEventListener(
+        "deviceorientation",
+        onOrientation,
+        true
+      );
+
+      sensorOn = true;
+
+    }
+
+    $("sensorstatus").textContent =
+      "方位センサー待機中";
+
+  } catch(e) {
+
+    $("sensorstatus").textContent =
+      "センサー利用不可: " +
+      e.message;
+
+  }
+
+}
+
+$("sensorBtn").onclick =
+  sensor;
+
+$("scanBtn").onclick =
+  () => {
+    gps();
+    sensor();
+  };
+
+/* ==========================
+   CALENDAR
+========================== */
+
+try {
+
+  const saved = JSON.parse(
+    localStorage.getItem(
+      store
+    ) || "[]"
+  );
+
+  if (Array.isArray(saved))
+    events = saved;
+
+  $("calurl").value =
+    localStorage.getItem(
+      urlstore
+    ) || "";
+
+} catch {}
+
+function tokyoDay(d) {
+
+  const parts =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        timeZone: "Asia/Tokyo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }
+    ).formatToParts(d);
+
+  const get = type =>
+    parts.find(
+      p => p.type === type
+    ).value;
+
+  return (
+    get("year") +
+    "-" +
+    get("month") +
+    "-" +
+    get("day")
+  );
+
+}
+
+function renderEvents() {
+
+  const now =
+    new Date();
+
+  const day =
+    tokyoDay(now);
+
+  $("caldate").textContent =
+    now.toLocaleDateString(
+      "ja-JP",
+      {
+        timeZone: "Asia/Tokyo",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "long"
+      }
+    );
+
+  const today =
+    events.filter(e => {
+
+      const d =
+        new Date(
+          e.start ||
+          e.startTime ||
+          ""
+        );
+
+      return (
+        !isNaN(d) &&
+        tokyoDay(d) === day &&
+        e.status !== "cancelled"
+      );
+
+    }).sort(
+      (a,b) =>
+        new Date(
+          a.start ||
+          a.startTime
+        ) -
+        new Date(
+          b.start ||
+          b.startTime
+        )
+    );
+
+  const target =
+    $("events");
+
+  target.replaceChildren();
+
+  if (!today.length) {
+
+    target.textContent =
+      "今日の予定は登録されていません";
+
+    return;
+  }
+
+  today.forEach(e => {
+
+    const row =
+      document.createElement(
+        "div"
+      );
+
+    row.className =
+      "event";
+
+    const time =
+      document.createElement(
+        "time"
+      );
+
+    time.textContent =
+      new Date(
+        e.start ||
+        e.startTime
+      ).toLocaleTimeString(
+        "ja-JP",
+        {
+          timeZone: "Asia/Tokyo",
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      );
+
+    const body =
+      document.createElement(
+        "div"
+      );
+
+    const name =
+      document.createElement(
+        "strong"
+      );
+
+    const place =
+      document.createElement(
+        "small"
+      );
+
+    name.textContent =
+      e.summary ||
+      e.title ||
+      "予定";
+
+    place.textContent =
+      e.location || "";
+
+    body.append(
+      name,
+      place
+    );
+
+    row.append(
+      time,
+      body
+    );
+
+    target.append(
+      row
+    );
+
+  });
+
+}
+
+function acceptCalendar(data) {
+
+  const a =
+    Array.isArray(data)
+      ? data
+      : (
+        data.events ||
+        data.items
+      );
+
+  if (!Array.isArray(a)) {
+
+    throw Error(
+      "予定配列がありません"
+    );
+
+  }
+
+  events = a.filter(
+    x =>
+      x &&
+      typeof x === "object"
+  ).slice(0,300);
+
+  try {
+
+    localStorage.setItem(
+      store,
+      JSON.stringify(events)
+    );
+
+  } catch {}
+
+  $("calstatus").textContent =
+    events.length +
+    "件読み込み";
+
+  renderEvents();
+
+}
+
+$("calpaste").onclick =
+  () => {
+
+    const s = prompt(
+      "予定JSONを貼り付け"
+    );
+
+    if (!s) return;
+
+    try {
+
+      acceptCalendar(
+        JSON.parse(s)
+      );
+
+    } catch(e) {
+
+      $("calstatus").textContent =
+        "JSONエラー: " +
+        e.message;
+
+    }
+
+  };
+
+async function syncCalendar() {
+
+  const url =
+    $("calurl").value.trim();
+
+  if (
+    !/^https:\/\//i.test(url)
+  ) {
+
+    $("calstatus").textContent =
+      "HTTPSのJSON URLを入力してください";
+
+    return;
+
+  }
+
+  try {
+
+    localStorage.setItem(
+      urlstore,
+      url
+    );
+
+  } catch {}
+
+  $("calstatus").textContent =
+    "同期中";
+
+  try {
+
+    const r = await fetch(
+      url,
+      {
+        cache: "no-store"
+      }
+    );
+
+    if (!r.ok)
+      throw Error(
+        "HTTP " + r.status
+      );
+
+    acceptCalendar(
+      await r.json()
+    );
+
+  } catch(e) {
+
+    $("calstatus").textContent =
+      "同期失敗: " +
+      e.message;
+
+  }
+
+}
+
+$("calfetch").onclick =
+  syncCalendar;
+
+/* ==========================
+   REFRESH
+========================== */
+
+setInterval(
+  () => {
+
+    if (document.hidden)
+      return;
+
+    if (pos)
+      weather();
+    else
+      gps();
+
+    if (
+      $("calurl").value.trim()
+    ) {
+      syncCalendar();
+    }
+
+  },
+  600000
+);
+
+/* ==========================
+   START
+========================== */
+
+gps();
 renderEvents();
-}
-$('calpaste').onclick=()=>{
-const s=prompt('予定JSONを貼り付け');
-if(!s)return;
-try{acceptCalendar(JSON.parse(s))}
-catch(e){$('calstatus').textContent='JSONエラー: '+e.message}
-};
-async function syncCalendar(){
-const url=$('calurl').value.trim();
-if(!/^https:\/\//i.test(url)){
-$('calstatus').textContent='HTTPSのJSON URLを入力してください';
-return;
-}
-try{localStorage.setItem(urlstore,url)}catch{}
-$('calstatus').textContent='同期中';
-try{
-const r=await fetch(url,{cache:'no-store'});
-if(!r.ok)throw Error('HTTP '+r.status);
-acceptCalendar(await r.json());
-}catch(e){
-$('calstatus').textContent='同期失敗: '+e.message;
-}
-}
-$('calfetch').onclick=syncCalendar;
 
-let refreshTimer=null;
-function resume(){
-if(refreshTimer)return;
-refreshTimer=setInterval(()=>{
-if(pos)weather();else gps();
-if($('calurl').value.trim())syncCalendar();
-},600000);
-}
-function pause(){
-if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}
-if(sensorOn){
-window.removeEventListener('deviceorientation',onOrientation,true);
-sensorOn=false;
-}
-}
-document.addEventListener('visibilitychange',()=>{
-if(document.hidden)pause();else resume();
-});
-window.addEventListener('pagehide',()=>{
-pause();clearInterval(clockTimer);
-});
-gps();renderEvents();resume();
+requestAnimationFrame(
+  scheduleHomeFit
+);
+
 })();
 </script>
+
 </body>
 </html>
