@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V5.1.2 — AINCRAD VOICE EDITION</title>
+<title>COMMAND HUD V5.1.3 — AINCRAD VOICE EDITION</title>
 
 <style>
 *{box-sizing:border-box}
@@ -630,6 +630,9 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  .home-clock{font-size:32px}
 }
 
+/* V5.1.3: compact date above the clock; no HOME location row. */
+#home .home-date{font-size:15px;line-height:1.4;margin:0 0 4px}
+#home .home-place{display:none}
 </style>
 </head>
 
@@ -638,7 +641,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <main class="app">
 
 <header class="header">
- <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1.2 / AINCRAD</small></div>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1.3 / AINCRAD</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
@@ -648,13 +651,9 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <section class="page active home" id="home">
  <div class="home-inner">
 
-  <div class="home-clock" id="clock">
-   --:--
-  </div>
+  <div class="home-date" id="date">--/-- (-)</div>
 
-  <div class="home-date" id="date">
-   ----
-  </div>
+  <div class="home-clock" id="clock">--:--</div>
 
   <div class="home-place" id="place">
    現在地を確認中
@@ -999,12 +998,7 @@ function tick(){
   });
 
  $("date").textContent=
-  d.toLocaleDateString("ja-JP",{
-   year:"numeric",
-   month:"long",
-   day:"numeric",
-   weekday:"long"
-  });
+  `${d.getMonth()+1}/${d.getDate()} (${"日月火水木金土"[d.getDay()]})`;
 }
 
 tick();
@@ -1700,5 +1694,6 @@ renderEvents();
 
 </body>
 </html>
+
 
 
