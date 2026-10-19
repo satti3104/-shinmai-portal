@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V5.1.4 — AINCRAD VOICE EDITION</title>
+<title>COMMAND HUD V5.1.5 — AINCRAD VOICE EDITION</title>
 
 <style>
 *{box-sizing:border-box}
@@ -653,6 +653,9 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @media(max-width:280px){
  #home .home-clock{font-size:48px;font-size:clamp(36px,20vw,56px)}
 }
+/* Persistent clock shared by all five pages. */
+.header-clock{display:block;font-size:14px;font-weight:700;line-height:1.4;font-variant-numeric:tabular-nums;letter-spacing:.04em;color:#fff;margin:0 0 4px;text-align:left}
+@media(max-height:470px){.header-clock{font-size:12px;margin-bottom:3px}}
 </style>
 </head>
 
@@ -661,7 +664,8 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <main class="app">
 
 <header class="header">
- <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1.4 / AINCRAD</small></div>
+ <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1.5 / AINCRAD</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
@@ -1016,6 +1020,8 @@ function tick(){
    minute:"2-digit",
    hour12:false
   });
+
+ $("headerClock").textContent=$("clock").textContent;
 
  $("date").textContent=
   `${d.getMonth()+1}/${d.getDate()} (${"日月火水木金土"[d.getDay()]})`;
@@ -1714,6 +1720,7 @@ renderEvents();
 
 </body>
 </html>
+
 
 
 
