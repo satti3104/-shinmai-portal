@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V5.1.8 — AINCRAD VOICE EDITION</title>
+<title>COMMAND HUD V5.1.9 — AINCRAD VOICE EDITION</title>
 
 <style>
 *{box-sizing:border-box}
@@ -704,6 +704,14 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 }
 /* Keep HOME weather content-sized instead of filling unused height. */
 #home .home-weather{flex:0 0 auto;min-height:0;padding:4px 7px;gap:1px;justify-content:flex-start}
+/* Weather symbols remain readable on narrow displays. */
+.weekrow span:nth-child(2){font-size:11px}
+@media(min-width:400px){.weekrow span:nth-child(2){font-size:14px}}
+@media(max-width:280px){
+ .weekrow{grid-template-columns:45px minmax(0,1fr) 62px 30px;gap:2px}
+ .weekrow span:nth-child(2){font-size:18px;text-align:center}
+}
+@media(max-width:280px){.forecast-label{display:none}}
 </style>
 </head>
 
@@ -713,7 +721,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1.8 / AINCRAD</small></div>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1.9 / AINCRAD</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
@@ -1193,7 +1201,7 @@ async function weather(){
       "日月火水木金土"[day.getDay()]
      }`,""
     ],
-    [wc[0].replace(/^[^ ]+ /,""),wc[1]],
+    [wc[0],wc[1]],
     [
      `${Math.round(d.daily.temperature_2m_max[i])}° / ${
       Math.round(d.daily.temperature_2m_min[i])
@@ -1206,7 +1214,19 @@ async function weather(){
 
     const span=document.createElement("span");
     span.textContent=value;
+    span.title=value;
 
+    if(value===wc[0]){
+     span.className="forecast-condition";
+     span.setAttribute("aria-label",value);
+     const icon=document.createElement("span");
+     icon.textContent=value.split(" ")[0];
+     icon.setAttribute("aria-hidden","true");
+     const label=document.createElement("span");
+     label.className="forecast-label";
+     label.textContent=" "+value.split(" ").slice(1).join(" ");
+     span.replaceChildren(icon,label);
+    }
     if(color)span.style.color=color;
 
     row.appendChild(span);
@@ -1768,6 +1788,7 @@ renderEvents();
 
 </body>
 </html>
+
 
 
 
