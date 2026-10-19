@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V5.1 — AINCRAD VOICE EDITION</title>
+<title>COMMAND HUD V5.1.1 — AINCRAD VOICE EDITION</title>
 
 <style>
 *{box-sizing:border-box}
@@ -560,6 +560,42 @@ body{background:radial-gradient(ellipse at top,#123a40,#020b10 70%);color:#edfdf
 @keyframes materialize{from{opacity:.4;transform:translateX(6px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.page.active{animation:none}.btn{transition:none}}
 @media(max-width:360px){.dock{grid-template-columns:44px minmax(0,1fr) 44px 48px}.header{font-size:13px}.pageid{font-size:14px}}
+
+/* V5.1.1: header participates in layout instead of overflowing a fixed row. */
+.app{grid-template-rows:minmax(64px,auto) minmax(0,1fr) 76px;gap:8px}
+.header{min-width:0;min-height:64px;gap:8px;line-height:1.35;align-items:center}
+.header>div{flex:1 1 0;min-width:0}
+#title{display:block;overflow-wrap:anywhere}
+.header small{line-height:1.4;letter-spacing:.08em;overflow-wrap:anywhere}
+.state{flex:0 1 32%;min-width:0;text-align:right;line-height:1.4;overflow-wrap:anywhere}
+.content{min-width:0}
+.home{overflow-y:auto}
+.home-inner{height:100%;min-height:310px;overflow:visible;grid-template-rows:64px 26px 28px 51px minmax(68px,1fr) 43px;gap:6px}
+.home-clock{height:64px;line-height:64px;font-size:clamp(32px,10vw,48px);min-width:0}
+.home-date{height:26px;line-height:26px;font-size:clamp(13px,3.8vw,18px)}
+.home-place{line-height:28px}
+@media(max-height:470px){
+ .app{grid-template-rows:minmax(56px,auto) minmax(0,1fr) 59px;gap:6px}
+ .header{min-height:56px;padding:6px 8px}
+ .home-inner{min-height:259px;grid-template-rows:50px 22px 23px 37px minmax(72px,1fr) 35px;gap:4px}
+ .home-clock{height:50px;line-height:50px;font-size:37px}
+ .home-date{height:22px;line-height:22px;font-size:15px}
+ .home-place{line-height:23px}
+}
+@media(max-width:360px){
+ .app{padding-inline:8px}
+ .header{padding:8px;column-gap:6px;font-size:13px}
+ .header small{font-size:9px;letter-spacing:.03em}
+ .state{font-size:10px;flex-basis:28%}
+ .home-clock{font-size:36px}
+ .home-date{font-size:13px}
+}
+@media(max-width:280px){
+ .header{flex-wrap:wrap}
+ .header>div{flex-basis:100%}
+ .state{flex-basis:100%;text-align:left}
+}
+
 </style>
 </head>
 
@@ -568,7 +604,7 @@ body{background:radial-gradient(ellipse at top,#123a40,#020b10 70%);color:#edfdf
 <main class="app">
 
 <header class="header">
- <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1 / AINCRAD</small></div>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1.1 / AINCRAD</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
@@ -1630,3 +1666,4 @@ renderEvents();
 
 </body>
 </html>
+
