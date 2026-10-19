@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V5.1.6 — AINCRAD VOICE EDITION</title>
+<title>COMMAND HUD V5.1.7 — AINCRAD VOICE EDITION</title>
 
 <style>
 *{box-sizing:border-box}
@@ -685,6 +685,23 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  .home-temp{font-size:23px;line-height:26px}
  .home-refresh{height:28px;min-height:28px}
 }
+/* V5.1.7: seven flexible rows, compact forecast columns. */
+#weekly.active{gap:4px}
+#weekly .sectiontitle{font-size:18px;line-height:24px;flex:0 0 auto}
+#weekplace{font-size:11px;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 0 auto}
+#weekrows{flex:1 1 0;min-height:0;display:flex;flex-direction:column;padding:3px 5px;overflow:hidden}
+.weekrow{flex:1 1 0;min-height:0;padding:2px 0;grid-template-columns:50px minmax(0,1fr) 68px 34px;gap:3px;font-size:12px;line-height:1.25}
+.weekrow:last-child{border-bottom:0}
+.weekrow span{overflow:hidden;text-overflow:clip}
+@media(min-width:400px) and (min-height:400px){
+ .weekrow{grid-template-columns:62px minmax(0,1fr) 90px 42px;font-size:15px}
+}
+@media(max-height:350px){
+ #weekly.active{gap:2px}
+ #weekly .sectiontitle{font-size:15px;line-height:20px}
+ #weekplace{font-size:10px;line-height:13px}
+ .weekrow{font-size:11px;padding:1px 0;grid-template-columns:45px minmax(0,1fr) 62px 30px;gap:2px}
+}
 </style>
 </head>
 
@@ -694,7 +711,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1.6 / AINCRAD</small></div>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1.7 / AINCRAD</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
@@ -1053,7 +1070,7 @@ function tick(){
  $("headerClock").textContent=$("clock").textContent;
 
  $("date").textContent=
-  `${d.getMonth()+1}/${d.getDate()} (${"日月火水木金土"[d.getDay()]})`;
+  `${d.getMonth()+1}/${d.getDate()}${"日月火水木金土"[d.getDay()]}`;
 }
 
 tick();
@@ -1170,17 +1187,17 @@ async function weather(){
 
    const values=[
     [
-     `${day.getMonth()+1}/${day.getDate()} (${
+     `${day.getMonth()+1}/${day.getDate()}${
       "日月火水木金土"[day.getDay()]
-     })`,""
+     }`,""
     ],
-    [wc[0],wc[1]],
+    [wc[0].replace(/^[^ ]+ /,""),wc[1]],
     [
      `${Math.round(d.daily.temperature_2m_max[i])}° / ${
       Math.round(d.daily.temperature_2m_min[i])
      }°`,""
     ],
-    ["💧"+rp+"%",rainColor(rp)]
+    [rp+"%",rainColor(rp)]
    ];
 
    values.forEach(([value,color])=>{
@@ -1749,6 +1766,7 @@ renderEvents();
 
 </body>
 </html>
+
 
 
 
