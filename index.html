@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V4.9.3</title>
+<title>COMMAND HUD V5.1 — AINCRAD VOICE EDITION</title>
 
 <style>
 *{box-sizing:border-box}
@@ -534,6 +534,32 @@ button{touch-action:manipulation}
   font-size:14px;
  }
 }
+/* AINCRAD interface: retain the compact five-page layout. */
+:root{--cyan:#8ffff0;--gold:#ffe3a0;--panel:rgba(17,65,69,.78)}
+body{background:radial-gradient(ellipse at top,#123a40,#020b10 70%);color:#edfdfa}
+.app{background:linear-gradient(145deg,rgba(6,29,35,.94),rgba(0,8,14,.96));border-inline:1px solid #427a7b}
+.header,.card,.pageid{background:var(--panel);border:1px solid #5a9895;box-shadow:inset 0 1px rgba(205,255,246,.12),0 4px 16px #0005;border-radius:3px}
+.header{color:var(--cyan);letter-spacing:.04em}
+.header small{display:block;font-size:9px;letter-spacing:.13em;color:#b6d2c9;margin-top:3px}
+.btn{border-radius:3px;background:linear-gradient(110deg,#16444bde,#0b242fe8);border-color:#5e9898;transition:background .15s,box-shadow .15s}
+.btn:focus-visible,.btn.selected{outline:2px solid var(--gold);outline-offset:-2px;background:#4d4932;box-shadow:0 0 14px #ffe3a044}
+.sectiontitle{color:var(--cyan);font-weight:500;letter-spacing:.07em;border-left:3px solid var(--gold);padding-left:10px}
+.page.active{animation:materialize .18s ease-out}
+.dock{grid-template-columns:58px minmax(0,1fr) 58px 58px;gap:6px}
+.home-clock{text-shadow:0 0 20px #8ffff044}
+.radar{border-color:var(--cyan);box-shadow:0 0 20px #65f7da22,inset 0 0 26px #65f7da11}
+.url{border-radius:3px}
+.command-dialog{width:min(520px,calc(100% - 24px));max-height:calc(100dvh - 24px);overflow:auto;background:#0b242bf5;color:#edfdfa;border:1px solid var(--cyan);padding:18px;box-shadow:0 0 35px #59efd42b}
+.command-dialog::backdrop{background:#000a}
+.command-dialog h2{font-size:19px;color:var(--cyan);margin:0 0 12px}
+.command-dialog label{display:block;margin-bottom:7px}
+.command-dialog .note{line-height:1.5;margin:10px 0}
+.command-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.command-actions .btn{flex:1;min-width:85px;padding:8px}
+#commandStatus{color:var(--gold);min-height:1.5em}
+@keyframes materialize{from{opacity:.4;transform:translateX(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.page.active{animation:none}.btn{transition:none}}
+@media(max-width:360px){.dock{grid-template-columns:44px minmax(0,1fr) 44px 48px}.header{font-size:13px}.pageid{font-size:14px}}
 </style>
 </head>
 
@@ -542,7 +568,7 @@ button{touch-action:manipulation}
 <main class="app">
 
 <header class="header">
- <span id="title">SHINMAI / HOME</span>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.1 / AINCRAD</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
@@ -700,14 +726,32 @@ button{touch-action:manipulation}
 </div>
 
 <nav class="dock" aria-label="ページ切替">
- <button class="btn" id="prev">◀</button>
+ <button class="btn" id="prev" aria-label="前のページ">◀</button>
  <div class="pageid" id="pageid">
   ● ○ ○ ○ ○
  </div>
- <button class="btn" id="next">▶</button>
+ <button class="btn" id="next" aria-label="次のページ">▶</button>
+ <button class="btn" id="commandBtn" aria-label="音声コマンドを開く" aria-haspopup="dialog">🎙</button>
 </nav>
 
 </main>
+
+<dialog class="command-dialog" id="commandDialog" aria-labelledby="commandTitle">
+ <h2 id="commandTitle">SYSTEM VOICE COMMAND</h2>
+ <form id="commandForm">
+  <label for="commandInput">COMMAND INPUT</label>
+  <input class="url" id="commandInput" type="text" placeholder="例：マップを開いて" autocomplete="off" enterkeyhint="go">
+  <p class="note">入力欄で端末の音声入力、または文字入力を使えます。</p>
+  <div id="commandStatus" role="status" aria-live="polite">命令を入力してEXECUTEを押してください。</div>
+  <div class="command-actions">
+   <button class="btn" type="submit">EXECUTE</button>
+   <button class="btn" type="button" id="micBtn">MIC</button>
+   <button class="btn" type="button" id="commandClose">閉じる</button>
+  </div>
+ </form>
+ <p class="note">ホーム / 天気 / マップ / スカウター / 予定 / 現在地を更新 / 拡大 / 縮小 / 現在地に戻る / 次のページ / 前のページ</p>
+ <p class="note" id="micHelp">MICは対応ブラウザで利用できます。音声はブラウザ提供元のサービスで処理される場合があります。</p>
+</dialog>
 
 <script>
 (()=>{
@@ -816,6 +860,7 @@ $("next").onclick=()=>show(page+1);
 
 document.addEventListener("keydown",e=>{
 
+ if($("commandDialog").open||e.isComposing)return;
  if(e.target.matches("input,textarea"))return;
 
  if(page===2&&mapFocus>=0){
@@ -1483,6 +1528,97 @@ setInterval(()=>{
  }
 
 },600000);
+
+/* Japanese commands share the existing page, map and GPS actions. */
+const commandDialog=$("commandDialog");
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+let recognition=null;
+let listening=false;
+
+function commandAction(raw){
+ const text=raw.normalize("NFKC").replace(/[\s。、！？!?]/g,"").toLowerCase();
+ if(!text)return null;
+ if(/現在地.*(戻|もど)|現在地に移動/.test(text))return ()=>{show(2);gps();};
+ if(/現在地.*更新|gps|天気.*更新/.test(text))return gps;
+ if(/ズームイン|拡大/.test(text))return ()=>{show(2);setZoom(zoom+1);};
+ if(/ズームアウト|縮小/.test(text))return ()=>{show(2);setZoom(zoom-1);};
+ if(/次のページ|次へ/.test(text))return ()=>show(page+1);
+ if(/前のページ|前へ/.test(text))return ()=>show(page-1);
+ if(/ホーム|home/.test(text))return ()=>show(0);
+ if(/天気|週間予報|weather/.test(text))return ()=>show(1);
+ if(/マップ|地図|map/.test(text))return ()=>show(2);
+ if(/スカウター|スカウト|レーダー|scout/.test(text))return ()=>show(3);
+ if(/予定|ミッション|カレンダー|mission/.test(text))return ()=>show(4);
+ return null;
+}
+
+function stopListening(){
+ const active=recognition;
+ recognition=null;
+ listening=false;
+ $("micBtn").textContent="MIC";
+ if(active){try{active.abort();}catch{}}
+}
+
+function executeCommand(){
+ const action=commandAction($("commandInput").value);
+ if(!action){
+  $("commandStatus").textContent="命令を確認できません。下の例から入力してください。";
+  return;
+ }
+ commandDialog.close();
+ action();
+}
+
+$("commandBtn").onclick=()=>{
+ $("commandStatus").textContent="命令を入力してEXECUTEを押してください。";
+ commandDialog.showModal();
+ $("commandInput").focus();
+};
+$("commandClose").onclick=()=>commandDialog.close();
+commandDialog.addEventListener("close",()=>{
+ stopListening();
+ $("commandBtn").focus();
+});
+$("commandForm").onsubmit=e=>{e.preventDefault();executeCommand();};
+if(!SpeechRecognition){
+ $("micBtn").disabled=true;
+ $("micHelp").textContent="このブラウザのMICは非対応です。入力欄で端末の音声入力または文字入力を使ってください。";
+}
+$("micBtn").onclick=()=>{
+ if(listening){stopListening();$("commandStatus").textContent="音声入力を停止しました。";return;}
+ if(!SpeechRecognition)return;
+ try{
+  const current=new SpeechRecognition();
+  recognition=current;
+  current.lang="ja-JP";
+  current.continuous=false;
+  current.interimResults=false;
+  current.onresult=e=>{
+   if(recognition!==current||!commandDialog.open)return;
+   $("commandInput").value=e.results[0][0].transcript;
+   executeCommand();
+  };
+  current.onerror=e=>{
+   if(recognition!==current)return;
+   $("commandStatus").textContent=e.error==="not-allowed"
+    ?"マイクが許可されていません。端末の音声入力または文字入力を使ってください。"
+    :"音声を取得できませんでした。再試行または文字入力を使ってください。";
+  };
+  current.onend=()=>{
+   if(recognition!==current)return;
+   recognition=null;listening=false;$("micBtn").textContent="MIC";
+   if($("commandStatus").textContent==="音声を聞き取り中…")$("commandStatus").textContent="音声入力が終了しました。再試行または文字入力を使ってください。";
+  };
+  current.start();
+  listening=true;
+  $("micBtn").textContent="STOP";
+  $("commandStatus").textContent="音声を聞き取り中…";
+ }catch{
+  stopListening();
+  $("commandStatus").textContent="MICを開始できません。端末の音声入力または文字入力を使ってください。";
+ }
+};
 
 /* START */
 
