@@ -1959,8 +1959,16 @@ setInterval(()=>{if(!document.hidden&&!stationBusy)gps();},300000);
 // Refresh weather independently if GPS is temporarily unavailable.
 setInterval(()=>{if(!document.hidden&&pos)weather();},600000);
 setInterval(()=>{if(!document.hidden&&$("ttDialog").open)renderTimetable();},60000);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!stationBusy)gps();});
-gps();
+// Refresh immediately when the HUD is opened or returns to the foreground.
+function refreshHUDOnOpen(){
+ tick();
+ if(pos)weather(); // refresh forecast without waiting for another GPS fix
+ if(!gpsBusy)gps();
+}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshHUDOnOpen();});
+window.addEventListener("pageshow",refreshHUDOnOpen);
+window.addEventListener("focus",()=>{if(!document.hidden)refreshHUDOnOpen();});
+refreshHUDOnOpen();
 
 })();
 </script>
