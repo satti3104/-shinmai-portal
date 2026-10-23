@@ -1814,6 +1814,32 @@ async function showOfflineStations(){
  $("homeNearestStation").textContent="自動検索不可・地下鉄駅一覧から選択";
 }
 $("stationOffline").onclick=showOfflineStations;
+function heartRailsNearby(lat,lon){
+ return new Promise((resolve,reject)=>{
+  const callback="hudNearStation_"+Date.now()+"_"+Math.floor(Math.random()*100000);
+  const script=document.createElement("script");
+  let finished=false;
+  const done=(error,data)=>{if(finished)return;finished=true;clearTimeout(timer);delete window[callback];script.remove();error?reject(error):resolve(data);};
+  const timer=setTimeout(()=>done(Error("HeartRails timeout")),6500);
+  window[callback]=data=>done(null,data);
+  script.onerror=()=>done(Error("HeartRails connection error"));
+  script.src="https://express.heartrails.com/api/json?"+new URLSearchParams({method:"getStations",x:String(lon),y:String(lat),jsonp:callback});
+  document.head.append(script);
+ });
+}
+function heartRailsStationRecords(payload){
+ const stations=payload?.response?.station;
+ if(!Array.isArray(stations))throw Error("駅データの形式が不正です");
+ const seen=new Set();
+ return stations.filter(s=>{
+  const name=String(s.name||"").normalize("NFKC").replace(/駅$/,"");
+  const key=name+":"+s.x+":"+s.y;
+  if(!TT_DATA.some(r=>r.station===name)||seen.has(key))return false;
+  seen.add(key);return true;
+ }).map(s=>({id:"hr:"+s.name,lat:Number(s.y),lon:Number(s.x),name:s.name,
+  lines:[s.line||"名古屋市営地下鉄"],areas:[],routeIds:[],direction:null,departure:null}))
+ .filter(s=>Number.isFinite(s.lat)&&Number.isFinite(s.lon));
+}
 async function scanStations(knownPosition=null){
  if(stationBusy)return;
  stationBusy=true;const generation=++stationGeneration;
@@ -1835,6 +1861,16 @@ async function scanStations(knownPosition=null){
   else{
    if(Date.now()-stationLastRequest<30000&&stationCache){records=stationCache.records;renderStations(nearbyStations(records,origin),origin,true);return;}
    stationLastRequest=Date.now();$("stationStatus").textContent="SCANNING STATIONS...";
+   try{
+    const payload=await heartRailsNearby(origin.lat,origin.lon);
+    const found=heartRailsStationRecords(payload);
+    if(found.length){
+     records=found;
+     stationCache={time:Date.now(),origin,records};
+     try{localStorage.setItem("hud_station_cache",JSON.stringify(stationCache));}catch{}
+    }
+   }catch(error){$("stationStatus").textContent="代替の駅検索を試行中...";}
+   if(!records){
    const endpoints=["https://overpass.kumi.systems/api/interpreter","https://overpass-api.de/api/interpreter","https://overpass.nchc.org.tw/api/interpreter"];
    let lastError;
    for(const endpoint of endpoints){
@@ -1856,6 +1892,7 @@ async function scanStations(knownPosition=null){
     $("stationStatus").textContent="駅データ通信タイムアウト（GPS取得済み）";
     if(stationCache&&stationDistance(origin,stationCache.origin)<=1500){records=stationCache.records;}
     else throw Error("駅データ通信失敗。時刻表ボタンから駅を選択できます");
+   }
    }
   }
   if(generation===stationGeneration){
