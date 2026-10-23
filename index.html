@@ -1802,7 +1802,7 @@ async function showOfflineStations(){
  $("homeNearestStation").textContent="自動検索不可・地下鉄駅一覧から選択";
 }
 $("stationOffline").onclick=showOfflineStations;
-function scanStations(knownPosition=null){
+async function scanStations(knownPosition=null){
  if(stationBusy)return;
  stationBusy=true;const generation=++stationGeneration;
  const button=$("stationScan");button.disabled=true;button.setAttribute("aria-busy","true");
