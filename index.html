@@ -765,7 +765,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  .station-note,.station-source{font-size:9px;line-height:11px}
  #stationStatus{font-size:10px;line-height:12px}
 }
-.station-actions{display:grid;grid-template-columns:2fr 1fr;gap:4px;flex-shrink:0}.station-actions .btn{height:28px;min-height:28px;font-size:12px}.tt-station{display:block;width:100%;min-height:26px;margin:3px 0;font-size:12px}.tt-links{display:flex;gap:8px;flex-wrap:wrap}.tt-links a,#ttDialog a{color:#a8eee4}#ttDialog{width:min(560px,96vw);max-width:96vw;max-height:94dvh;padding:10px;border:1px solid #8ffff0;border-radius:3px;background:#0c262d;color:white;overflow:auto}#ttDialog::backdrop{background:#000b}.tt-header{display:flex;justify-content:space-between;align-items:center;gap:6px;position:sticky;top:0;background:#0c262d}#ttDialog h2{font-size:16px;margin:0}#ttDialog label{display:block;font-size:12px;margin-top:5px}#ttDialog select{display:block;width:100%;min-height:30px;background:#173e43;color:white;border:1px solid #86b7b1;font-size:13px}#ttDialog select:focus-visible,#ttDialog a:focus-visible{outline:2px solid #ffe3a0}#ttDialog p{font-size:11px;line-height:1.4;margin:5px 0}.tt-train{padding:6px 0;border-bottom:1px solid #376b70;font-size:12px}.tt-train b{font-size:18px;color:#ffe3a0}#ttClose{min-height:28px;font-size:12px}@media(max-height:350px){.station-actions .btn{height:24px;min-height:24px;font-size:10px}#ttDialog{padding:6px}#ttDialog select{min-height:26px;font-size:12px}#ttDialog label{margin-top:2px;font-size:10px}.tt-train{padding:4px 0}.tt-train b{font-size:15px}}
+.station-actions{display:grid;grid-template-columns:2fr 1fr;gap:4px;flex-shrink:0}.station-actions .btn{height:28px;min-height:28px;font-size:12px}.tt-station{display:block;width:100%;min-height:26px;margin:3px 0;font-size:12px}.tt-links{display:flex;gap:8px;flex-wrap:wrap}.tt-links a,#ttDialog a{color:#a8eee4}#ttDialog{width:min(560px,96vw);max-width:96vw;max-height:94dvh;padding:10px;border:1px solid #8ffff0;border-radius:3px;background:#0c262d;color:white;overflow:auto}#ttDialog::backdrop{background:#000b}.tt-step{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:5px;align-items:center;margin:5px 0 9px}.tt-step .btn{min-height:42px;height:auto;font-size:13px;padding:5px 2px}.tt-step strong{text-align:center;font-size:15px;line-height:1.2;overflow-wrap:anywhere}#ttDialog select{display:none!important}#ttDialog .tt-header{z-index:2}.tt-header{display:flex;justify-content:space-between;align-items:center;gap:6px;position:sticky;top:0;background:#0c262d}#ttDialog h2{font-size:16px;margin:0}#ttDialog label{display:block;font-size:12px;margin-top:5px}#ttDialog select{display:block;width:100%;min-height:30px;background:#173e43;color:white;border:1px solid #86b7b1;font-size:13px}#ttDialog select:focus-visible,#ttDialog a:focus-visible{outline:2px solid #ffe3a0}#ttDialog p{font-size:11px;line-height:1.4;margin:5px 0}.tt-train{padding:6px 0;border-bottom:1px solid #376b70;font-size:12px}.tt-train b{font-size:18px;color:#ffe3a0}#ttClose{min-height:28px;font-size:12px}@media(max-height:350px){.station-actions .btn{height:24px;min-height:24px;font-size:10px}#ttDialog{padding:6px}#ttDialog select{min-height:26px;font-size:12px}#ttDialog label{margin-top:2px;font-size:10px}.tt-train{padding:4px 0}.tt-train b{font-size:15px}}
 </style>
 </head>
 
@@ -929,8 +929,8 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <dialog id="ttDialog" aria-labelledby="ttTitle">
 <div class="tt-header"><h2 id="ttTitle">地下鉄 次発時刻</h2><button class="btn" id="ttClose">閉じる</button></div>
 <p>時刻表上の予定・遅延／臨時列車は未反映</p>
-<label for="ttStation">駅</label><select id="ttStation"></select>
-<label for="ttDirection">路線・方面</label><select id="ttDirection"></select>
+<label for="ttStation">駅</label><select id="ttStation"></select><div class="tt-step"><button class="btn" id="ttStationPrev">◀ 前の駅</button><strong id="ttStationLabel">駅</strong><button class="btn" id="ttStationNext">次の駅 ▶</button></div>
+<label for="ttDirection">路線・方面</label><select id="ttDirection"></select><div class="tt-step"><button class="btn" id="ttDirPrev">◀ 前の方面</button><strong id="ttDirLabel">方面</strong><button class="btn" id="ttDirNext">次の方面 ▶</button></div>
 <label for="ttDay">ダイヤ</label><select id="ttDay"><option value="auto">自動（日本時間・祝日対応）</option><option value="weekday">平日（手動）</option><option value="holiday">土曜・日曜・休日（手動）</option></select>
 <p id="ttMeta"></p><div id="ttResults"></div><p id="ttNotes"></p><p id="ttRevision"></p>
 <p><a href="https://www.kotsu.city.nagoya.jp/yomiage/subwaydia/" target="_blank" rel="noopener">地下鉄 公式時刻表</a> / <a href="https://www.meitetsu.co.jp/train/" target="_blank" rel="noopener">名鉄 公式時刻表</a> / <a href="https://railway.jr-central.co.jp/time-schedule/search/" target="_blank" rel="noopener">JR東海 公式時刻表</a></p>
@@ -1862,14 +1862,23 @@ function timetableDestination(record,flag){
  return match?match[1]+(flag.includes('*')?'（上小田井から急行）':''):flag?flag+'（記号は備考参照）':'';
 }
 function ttOption(value,label){const o=document.createElement('option');o.value=value;o.textContent=label;return o;}
+function updateTTLabels(){
+ $("ttStationLabel").textContent=$("ttStation").value;
+ $("ttDirLabel").textContent=$("ttDirection").selectedOptions[0]?.textContent||"方面なし";
+}
+function cycleTT(id,step,callback){
+ const el=$(id);if(!el.options.length)return;
+ el.selectedIndex=(el.selectedIndex+step+el.options.length)%el.options.length;
+ callback();
+}
 function populateDirections(){
  const select=$('ttDirection');select.replaceChildren();
  TT_DATA.forEach((r,i)=>{if(r.station===$('ttStation').value)select.append(ttOption(i,r.line+' / '+r.direction));});
- renderTimetable();
+ renderTimetable();updateTTLabels();
 }
 function openTimetable(station){
  if(station&&TT_DATA.some(r=>r.station===station))$('ttStation').value=station;
- populateDirections();$('ttDialog').showModal();$('ttStation').focus();
+ populateDirections();$('ttDialog').showModal();$('ttStationNext').focus();
 }
 function renderTimetable(){
  const r=TT_DATA[Number($('ttDirection').value)];if(!r)return;
@@ -1903,7 +1912,11 @@ function appendTimetableLinks(row,station){
 $('ttStation').value='名古屋';
 $('timetableBtn').onclick=()=>openTimetable();
 $('ttStation').onchange=populateDirections;
-$('ttDirection').onchange=renderTimetable;
+$('ttDirection').onchange=()=>{renderTimetable();updateTTLabels();};
+$('ttStationPrev').onclick=()=>cycleTT('ttStation',-1,populateDirections);
+$('ttStationNext').onclick=()=>cycleTT('ttStation',1,populateDirections);
+$('ttDirPrev').onclick=()=>cycleTT('ttDirection',-1,()=>{renderTimetable();updateTTLabels();});
+$('ttDirNext').onclick=()=>cycleTT('ttDirection',1,()=>{renderTimetable();updateTTLabels();});
 $('ttDay').onchange=renderTimetable;
 $('ttClose').onclick=()=>$('ttDialog').close();
 setInterval(()=>{if($('ttDialog').open)renderTimetable();},1000);
