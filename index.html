@@ -890,6 +890,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <div id="stationAccuracy" class="station-note">GPS精度：未確認</div>
   <div id="stationStatus" role="status" aria-live="polite">SCAN STATIONSで駅を検索</div>
   <div id="stationList" tabindex="0" role="region" aria-label="周辺の駅一覧・上下キーでスクロール"></div>
+  <button class="btn" id="stationOffline" style="height:28px;min-height:28px;font-size:12px">通信不要：地下鉄駅一覧</button>
   <div class="station-source">検索時に現在地を送信 · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a></div>
  </div>
 </section>
@@ -1358,7 +1359,7 @@ async function gps(){
    $("state").textContent=e.code===3?"GPS TIMEOUT":e.code===1?"GPS DENIED":"GPS ERROR "+e.code;
    $("stationStatus").textContent=e.code===3?"GPS取得タイムアウト（駅通信前）":e.code===1?"位置情報の許可が必要":"GPS取得失敗";
    if(pos){$("homeNearestStation").textContent="前回の位置情報を使用中";scanStations(pos);}
-   else $("homeNearestStation").textContent="GPS取得失敗・位置情報なし";
+   else { $("homeNearestStation").textContent="GPS取得失敗・位置情報なし"; showOfflineStations(); }
 
    $("place").textContent=e.code===1?"位置情報の許可を確認":"GPSの再取得を待機中";
  }finally{gpsBusy=false;}
@@ -1758,7 +1759,20 @@ function renderStations(stations,origin,cached){
  $("stationAccuracy").textContent=accuracy===null?"GPS精度：不明":`GPS精度：±${accuracy}m${accuracy>100?"（低精度・距離に誤差）":""}`;
  $("stationAccuracy").title=accuracy>100?"GPS精度が低いため距離に誤差があります":"";
 }
-async function scanStations(knownPosition=null){
+async function showOfflineStations(){
+ const list=$("stationList");list.replaceChildren();
+ const names=[...new Set(TT_DATA.map(r=>r.station))].sort((a,b)=>a.localeCompare(b,"ja"));
+ const search=document.createElement("input");search.className="url";search.placeholder="駅名で絞り込み（例：丸の内）";search.setAttribute("aria-label","駅名検索");
+ const results=document.createElement("div");
+ const render=()=>{results.replaceChildren();for(const name of names.filter(n=>n.includes(search.value.trim())).slice(0,100)){
+ const b=document.createElement("button");b.className="btn tt-station";b.textContent=name+" / 時刻表";b.onclick=()=>openTimetable(name);results.append(b);
+ }};
+ search.addEventListener("input",render);render();list.append(search,results);
+ $("stationStatus").textContent="オフライン駅一覧（距離順ではありません）";
+ $("homeNearestStation").textContent="自動検索不可・地下鉄駅一覧から選択";
+}
+$("stationOffline").onclick=showOfflineStations;
+function scanStations(knownPosition=null){
  if(stationBusy)return;
  stationBusy=true;const generation=++stationGeneration;
  const button=$("stationScan");button.disabled=true;button.setAttribute("aria-busy","true");
@@ -1816,7 +1830,7 @@ async function scanStations(knownPosition=null){
   $("stationStatus").textContent=e.gps?e.message:e.name==="AbortError"?"駅データを取得できませんでした（タイムアウト）":e.message?.startsWith("再検索")||e.message?.startsWith("駅データ")?e.message:"駅データを取得できませんでした";
   $("stationAccuracy").textContent="GPS精度：未確認";
   if(stationCache&&pos){const origin={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:pos.coords.accuracy};if(stationDistance(origin,stationCache.origin)<=1500){renderStations(nearbyStations(stationCache.records,origin),origin,true);$("stationStatus").textContent+=" / 前回の駅データ";return;}}
-  if(!$("stationList").children.length)$("homeNearestStation").textContent="駅検索不可・時刻表から駅を選択";
+  if(!$("stationList").children.length)showOfflineStations();
  }finally{
   stationBusy=false;button.disabled=false;button.removeAttribute("aria-busy");
  }
