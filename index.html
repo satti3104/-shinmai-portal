@@ -151,7 +151,7 @@ button{touch-action:manipulation}
  display:grid;
  grid-template-rows:
  56px
- 24px
+ 34px
  26px
  51px
  minmax(0,1fr)
@@ -172,8 +172,9 @@ button{touch-action:manipulation}
 }
 
 .home-date{
- font-size:22px;
- line-height:24px;
+ font-size:28px;
+ font-weight:800;
+ line-height:34px;
  white-space:nowrap;
 }
 
@@ -261,7 +262,10 @@ button{touch-action:manipulation}
  overflow:hidden;
  border-radius:12px;
  background:#10131a;
+ touch-action:none;
+ cursor:grab;
 }
+.map.dragging{cursor:grabbing}
 
 .tile{
  position:absolute;
@@ -822,7 +826,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <!-- MAP -->
 <section class="page" id="mapPage">
 
- <div class="map" id="map">
+ <div class="map" id="map" aria-label="地図。ドラッグして移動できます">
   <div class="pin">◎</div>
   <div class="attribution" id="mapinfo">
    国土地理院 / GPS待機
@@ -830,7 +834,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  </div>
 
  <div class="map-hint" id="mapHint">
-  ◀ ▶ 選択 / 決定で実行 / ↓ 解除
+  地図をドラッグして移動 / 下のボタンで拡大・縮小
  </div>
 
  <div class="mapcontrols">
@@ -872,47 +876,13 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  </div>
 </section>
 
-<!-- CALENDAR -->
-<section class="page" id="calendar">
-
- <h2 class="sectiontitle">
-  今日の予定
- </h2>
-
- <div class="note" id="caldate"></div>
-
- <div class="card events" id="events">
-  予定データなし
- </div>
-
- <div class="note" id="calstatus">
-  Googleカレンダー直接同期は未設定
- </div>
-
- <input
-  class="url"
-  id="calurl"
-  type="text"
-  placeholder="予定JSONのHTTPS URL"
- >
-
- <div class="calendarbuttons">
-  <button class="btn" id="calfetch">
-   予定を更新
-  </button>
-  <button class="btn" id="calpaste">
-   JSON貼付
-  </button>
- </div>
-
-</section>
 
 </div>
 
 <nav class="dock" aria-label="ページ切替">
  <button class="btn" id="prev" aria-label="前のページ">◀</button>
  <div class="pageid" id="pageid">
-  ● ○ ○ ○ ○
+  ● ○ ○ ○
  </div>
  <button class="btn" id="next" aria-label="次のページ">▶</button>
  <button class="btn" id="commandBtn" aria-label="音声コマンドを開く" aria-haspopup="dialog">🎙</button>
@@ -933,7 +903,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
    <button class="btn" type="button" id="commandClose">閉じる</button>
   </div>
  </form>
- <p class="note">駅を探して / 駅を再検索 / ホーム / 天気 / マップ / スカウター / 予定 / 現在地を更新 / 拡大 / 縮小 / 現在地に戻る / 次のページ / 前のページ</p>
+ <p class="note">駅を探して / 駅を再検索 / ホーム / 天気 / マップ / スカウター / 現在地を更新 / 拡大 / 縮小 / 現在地に戻る / 次のページ / 前のページ</p>
  <p class="note" id="micHelp">MICは対応ブラウザで利用できます。音声はブラウザ提供元のサービスで処理される場合があります。</p>
 </dialog>
 
@@ -957,29 +927,26 @@ const ids=[
  "home",
  "weekly",
  "mapPage",
- "scout",
- "calendar"
+ "scout"
 ];
 
 const titles=[
  "HOME",
  "WEATHER",
  "TACTICAL MAP",
- "SCOUT",
- "MISSION SCHEDULE"
+ "SCOUT"
 ];
 
 let page=0;
 let pos=null;
 let zoom=16;
 let sensorOn=false;
-let events=[];
+let mapCenter=null;
 
 const mapButtons=["zin","zout","center"];
 let mapFocus=-1;
 
-const store="shinmai_v47_events";
-const urlstore="shinmai_v47_url";
+
 
 /* =====================
    MAP FOCUS
@@ -997,8 +964,8 @@ function updateMapFocus(){
 
  if(page===2){
   $("mapHint").textContent=mapFocus>=0
-   ?"◀ ▶ 選択 / 決定で実行 / ↓ 解除"
-   :"◀ ▶ ページ切替 / ↑ 地図操作";
+   ?"◀ ▶ ボタン選択 / 決定で実行 / ↓ 解除"
+   :"ドラッグで地図移動 / ◀ ▶ ページ切替";
  }
 }
 
@@ -1037,14 +1004,15 @@ function show(n){
   ids.map((_,i)=>i===page?"●":"○").join(" ");
 
  if(page===2){
+  mapCenter=null;
   drawMap();
-  focusMap(0);
+  leaveMapFocus();
  }else{
   mapFocus=-1;
   updateMapFocus();
  }
 
- if(page===4)renderEvents();
+
 }
 
 $("prev").onclick=()=>show(page-1);
@@ -1407,11 +1375,8 @@ function drawMap(){
 
  if(!pos)return;
 
- const c=tileXY(
-  pos.coords.latitude,
-  pos.coords.longitude,
-  zoom
- );
+ const center=mapCenter||{lat:pos.coords.latitude,lon:pos.coords.longitude};
+ const c=tileXY(center.lat,center.lon,zoom);
 
  const w=m.clientWidth||540;
  const h=m.clientHeight||340;
@@ -1449,6 +1414,34 @@ function drawMap(){
   "国土地理院 / Z"+zoom;
 }
 
+function pixelToGeo(x,y,z){
+ const n=2**z;
+ const lon=x/n*360-180;
+ const lat=Math.atan(Math.sinh(Math.PI*(1-2*y/n)))*180/Math.PI;
+ return {lat:Math.max(-85,Math.min(85,lat)),lon};
+}
+
+// Pointer dragging pans the map; the center button restores the GPS location.
+{
+ const m=$("map");
+ let drag=null;
+ m.addEventListener("pointerdown",e=>{
+  if(!pos||e.target.closest("a,button"))return;
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,center:mapCenter||{lat:pos.coords.latitude,lon:pos.coords.longitude}};
+  m.setPointerCapture(e.pointerId);
+  m.classList.add("dragging");
+ });
+ m.addEventListener("pointermove",e=>{
+  if(!drag||drag.id!==e.pointerId)return;
+  const p=tileXY(drag.center.lat,drag.center.lon,zoom);
+  mapCenter=pixelToGeo(p.x-(e.clientX-drag.x)/256,p.y-(e.clientY-drag.y)/256,zoom);
+  drawMap();
+ });
+ const stop=e=>{if(drag&&drag.id===e.pointerId){drag=null;m.classList.remove("dragging");}};
+ m.addEventListener("pointerup",stop);
+ m.addEventListener("pointercancel",stop);
+}
+
 function setZoom(z){
 
  zoom=Math.max(5,Math.min(18,z));
@@ -1457,7 +1450,7 @@ function setZoom(z){
 
 $("zin").onclick=()=>setZoom(zoom+1);
 $("zout").onclick=()=>setZoom(zoom-1);
-$("center").onclick=gps;
+$("center").onclick=()=>{mapCenter=null;drawMap();if(!pos)gps();};
 
 /* =====================
    SCOUT SENSOR
@@ -1537,193 +1530,6 @@ $("scanBtn").onclick=()=>{
 };
 
 /* =====================
-   CALENDAR
-===================== */
-
-try{
-
- const saved=JSON.parse(
-  localStorage.getItem(store)||"[]"
- );
-
- if(Array.isArray(saved))events=saved;
-
- $("calurl").value=
-  localStorage.getItem(urlstore)||"";
-
-}catch{}
-
-function tokyoDay(d){
-
- const parts=new Intl.DateTimeFormat(
-  "en-US",{
-   timeZone:"Asia/Tokyo",
-   year:"numeric",
-   month:"2-digit",
-   day:"2-digit"
-  }
- ).formatToParts(d);
-
- const get=type=>
-  parts.find(p=>p.type===type).value;
-
- return get("year")+"-"+get("month")+"-"+get("day");
-}
-
-function renderEvents(){
-
- const now=new Date();
- const day=tokyoDay(now);
-
- $("caldate").textContent=
-  now.toLocaleDateString(
-   "ja-JP",{
-    timeZone:"Asia/Tokyo",
-    year:"numeric",
-    month:"long",
-    day:"numeric",
-    weekday:"long"
-   }
-  );
-
- const today=events.filter(e=>{
-
-  const d=new Date(e.start||e.startTime||"");
-
-  return !isNaN(d)&&
-   tokyoDay(d)===day&&
-   e.status!=="cancelled";
-
- }).sort((a,b)=>
-  new Date(a.start||a.startTime)-
-  new Date(b.start||b.startTime)
- );
-
- const target=$("events");
- target.replaceChildren();
-
- if(!today.length){
-
-  target.textContent=
-   "今日の予定は登録されていません";
-
-  return;
- }
-
- today.forEach(e=>{
-
-  const row=document.createElement("div");
-  row.className="event";
-
-  const time=document.createElement("time");
-
-  time.textContent=new Date(
-   e.start||e.startTime
-  ).toLocaleTimeString(
-   "ja-JP",{
-    timeZone:"Asia/Tokyo",
-    hour:"2-digit",
-    minute:"2-digit"
-   }
-  );
-
-  const body=document.createElement("div");
-  const name=document.createElement("strong");
-  const place=document.createElement("small");
-
-  name.textContent=
-   e.summary||e.title||"予定";
-
-  place.textContent=e.location||"";
-
-  body.append(name,place);
-  row.append(time,body);
-  target.append(row);
- });
-}
-
-function acceptCalendar(data){
-
- const a=Array.isArray(data)?
-  data:(data.events||data.items);
-
- if(!Array.isArray(a)){
-  throw Error("予定配列がありません");
- }
-
- events=a.filter(x=>
-  x&&typeof x==="object"
- ).slice(0,300);
-
- try{
-
-  localStorage.setItem(
-   store,JSON.stringify(events)
-  );
-
- }catch{}
-
- $("calstatus").textContent=
-  events.length+"件読み込み";
-
- renderEvents();
-}
-
-$("calpaste").onclick=()=>{
-
- const s=prompt("予定JSONを貼り付け");
-
- if(!s)return;
-
- try{
-
-  acceptCalendar(JSON.parse(s));
-
- }catch(e){
-
-  $("calstatus").textContent=
-   "JSONエラー: "+e.message;
- }
-};
-
-async function syncCalendar(){
-
- const url=$("calurl").value.trim();
-
- if(!/^https:\/\//i.test(url)){
-
-  $("calstatus").textContent=
-   "HTTPSのJSON URLを入力してください";
-
-  return;
- }
-
- try{
-  localStorage.setItem(urlstore,url);
- }catch{}
-
- $("calstatus").textContent="同期中";
-
- try{
-
-  const r=await fetch(url,{cache:"no-store"});
-
-  if(!r.ok){
-   throw Error("HTTP "+r.status);
-  }
-
-  acceptCalendar(await r.json());
-
- }catch(e){
-
-  $("calstatus").textContent=
-   "同期失敗: "+e.message;
- }
-}
-
-$("calfetch").onclick=syncCalendar;
-
-/* =====================
    AUTO UPDATE
 ===================== */
 
@@ -1734,9 +1540,6 @@ setInterval(()=>{
  if(pos)weather();
  else gps();
 
- if($("calurl").value.trim()){
-  syncCalendar();
- }
 
 },600000);
 
@@ -1760,7 +1563,6 @@ function commandAction(raw){
  if(/天気|週間予報|weather/.test(text))return ()=>show(1);
  if(/マップ|地図|map/.test(text))return ()=>show(2);
  if(/スカウター|スカウト|レーダー|scout/.test(text))return ()=>show(3);
- if(/予定|ミッション|カレンダー|mission/.test(text))return ()=>show(4);
  return null;
 }
 
@@ -2073,7 +1875,6 @@ setInterval(()=>{if(!document.hidden&&pos)weather();},600000);
 setInterval(()=>{if(!document.hidden&&$("ttDialog").open)renderTimetable();},60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!stationBusy)gps();});
 gps();
-renderEvents();
 
 })();
 </script>
