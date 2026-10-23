@@ -1329,7 +1329,19 @@ async function locationName(){
  }
 }
 
-function gps(){
+let gpsBusy=false;
+function acquirePosition(){
+ return new Promise((resolve,reject)=>{
+  if(!navigator.geolocation){reject({code:0});return;}
+  navigator.geolocation.getCurrentPosition(resolve,firstError=>{
+   if(firstError.code===1){reject(firstError);return;}
+   navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:false,timeout:12000,maximumAge:300000});
+  },{enableHighAccuracy:true,timeout:10000,maximumAge:120000});
+ });
+}
+async function gps(){
+ if(gpsBusy)return;
+ gpsBusy=true;
  invalidateStationResults();
 
  if(!navigator.geolocation){
@@ -1338,9 +1350,9 @@ function gps(){
   return;
  }
 
- navigator.geolocation.getCurrentPosition(
-
-  p=>{
+ try{
+  const p=await acquirePosition();
+  {
 
    pos=p;
 
@@ -1354,23 +1366,16 @@ function gps(){
    weather();
    drawMap();
    scanStations(p);
-  },
-
-  e=>{
-
-   $("homeNearestStation").textContent="GPS取得に失敗しました";
-   $("state").textContent="GPS ERROR "+e.code;
-
-   $("place").textContent=
-    "位置情報の許可を確認";
-  },
-
-  {
-   enableHighAccuracy:true,
-   timeout:15000,
-   maximumAge:60000
   }
- );
+ }catch(e){
+
+   $("state").textContent=e.code===3?"GPS TIMEOUT":e.code===1?"GPS DENIED":"GPS ERROR "+e.code;
+   $("stationStatus").textContent=e.code===3?"GPS取得タイムアウト（駅通信前）":e.code===1?"位置情報の許可が必要":"GPS取得失敗";
+   if(pos){$("homeNearestStation").textContent="前回の位置情報を使用中";scanStations(pos);}
+   else $("homeNearestStation").textContent="GPS取得失敗・位置情報なし";
+
+   $("place").textContent=e.code===1?"位置情報の許可を確認":"GPSの再取得を待機中";
+ }finally{gpsBusy=false;}
 }
 
 $("gpsBtn").onclick=gps;
@@ -1930,7 +1935,7 @@ async function scanStations(knownPosition=null){
  $("homeNearestStation").textContent="最寄駅を検索中...";
  try{
   if(!navigator.geolocation)throw {gps:true,message:"このブラウザはGPS非対応です"};
-  const p=knownPosition||await new Promise((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,e=>reject({gps:true,message:stationGPSMessage(e)}),{enableHighAccuracy:true,timeout:15000,maximumAge:60000}));
+  const p=knownPosition||pos||await acquirePosition().catch(e=>{throw {gps:true,message:stationGPSMessage(e)};});
   if(generation!==stationGeneration)return;
   const origin={lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy};
   if(!Number.isFinite(origin.lat)||!Number.isFinite(origin.lon))throw {gps:true,message:"有効なGPS座標を取得できませんでした"};
@@ -1960,6 +1965,7 @@ async function scanStations(knownPosition=null){
     finally{clearTimeout(timeout);}
    }
    if(lastError){
+    $("stationStatus").textContent="駅データ通信タイムアウト（GPS取得済み）";
     if(stationCache&&stationDistance(origin,stationCache.origin)<=1500){records=stationCache.records;}
     else throw Error("駅データを取得できませんでした（通信エラー・タイムアウト）");
    }
