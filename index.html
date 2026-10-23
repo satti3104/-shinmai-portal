@@ -889,6 +889,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <div class="station-actions"><button class="btn" id="stationScan">◎ SCAN STATIONS</button><button class="btn" id="timetableBtn">時刻表</button></div>
   <div id="stationAccuracy" class="station-note">GPS精度：未確認</div>
   <div id="stationStatus" role="status" aria-live="polite">SCAN STATIONSで駅を検索</div>
+  <div id="nearTrainCard" class="card" style="padding:10px;margin:6px 0;border:1px solid #52dbe4"><strong style="font-size:19px">NearTrain</strong><div id="nearTrainStation" style="font-size:24px;font-weight:800;margin:7px 0">駅検索待ち</div><div id="nearTrainNext" style="font-size:17px;white-space:pre-line">次発時刻を確認中</div><button class="btn" id="nearTrainReload" style="width:100%;margin-top:8px;min-height:38px">Reload / 更新</button><small>名古屋市営地下鉄の公開時刻表に基づく予定時刻。遅延・運休は未反映</small></div>
   <div id="stationList" tabindex="0" role="region" aria-label="周辺の駅一覧・上下キーでスクロール"></div>
   <button class="btn" id="stationOffline" style="height:28px;min-height:28px;font-size:12px">通信不要：地下鉄駅一覧</button>
   <div class="station-source">検索時に現在地を送信 · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a></div>
@@ -1770,10 +1771,21 @@ try{const saved=JSON.parse(localStorage.getItem("hud_station_cache")||"null");if
 function stationGPSMessage(e){
  return e.code===1?"位置情報の利用を許可してください":e.code===3?"GPS取得がタイムアウトしました":"現在地を取得できませんでした";
 }
+function updateNearTrain(station,detail=""){
+ const name=(station||"").normalize("NFKC").replace(/駅$/,"");
+ $("nearTrainStation").textContent=name+(detail?"　"+detail:"");
+ const clock=timetableClock();
+ const records=TT_DATA.filter(r=>r.station===name);
+ if(!records.length){$("nearTrainNext").textContent="対応する地下鉄時刻表なし";return;}
+ if(!clock.kind){$("nearTrainNext").textContent="休日ダイヤ要確認・時刻表から選択";return;}
+ const departures=records.flatMap(r=>upcomingTrains(r,clock.kind,clock.minutes).map(([m])=>({m,line:r.line,direction:r.direction}))).sort((a,b)=>a.m-b.m).slice(0,2);
+ $("nearTrainNext").textContent=departures.length?departures.map((d,i)=>`${i?"次発候補":"最も早い便"} ${String(Math.floor(d.m/60)%24).padStart(2,"0")}:${String(d.m%60).padStart(2,"0")} / あと${d.m-clock.minutes}分\n${d.line} ${d.direction}`).join("\n"):"本日の発車予定なし";
+}
 function renderStations(stations,origin,cached){
  const list=$("stationList");list.replaceChildren();
  $("stationStatus").textContent=stations.length?`STATIONS DETECTED: ${stations.length}${cached?"（キャッシュ）":""}`:"半径1km以内に駅が見つかりません";
  const nearest=stations[0];
+ if(nearest)updateNearTrain(nearest.name,`${Math.round(nearest.distance)}m ${stationDirection(nearest.bearing)}`);
  $("homeNearestStation").textContent=nearest?`${nearest.name||"駅名未取得"}　${stationDirection(nearest.bearing)} 約${Math.round(nearest.distance)}m`:"1km以内に駅なし";
  for(const s of stations){
   const row=document.createElement("article");row.className="station-row";
@@ -1794,7 +1806,7 @@ async function showOfflineStations(){
  const search=document.createElement("input");search.className="url";search.placeholder="駅名で絞り込み（例：丸の内）";search.setAttribute("aria-label","駅名検索");
  const results=document.createElement("div");
  const render=()=>{results.replaceChildren();for(const name of names.filter(n=>n.includes(search.value.trim())).slice(0,100)){
- const b=document.createElement("button");b.className="btn tt-station";b.textContent=name+" / 時刻表";b.onclick=()=>openTimetable(name);results.append(b);
+ const b=document.createElement("button");b.className="btn tt-station";b.textContent=name+" / 時刻表";b.onclick=()=>{updateNearTrain(name,"手動選択");openTimetable(name);};results.append(b);
  }};
  search.addEventListener("input",render);render();list.append(search,results);
  $("stationStatus").textContent="オフライン駅一覧（距離順ではありません）";
@@ -1941,6 +1953,8 @@ function appendTimetableLinks(row,station){
 [...new Set(TT_DATA.map(r=>r.station))].sort((a,b)=>a.localeCompare(b,'ja')).forEach(n=>$('ttStation').append(ttOption(n,n)));
 $('ttStation').value='名古屋';
 $('timetableBtn').onclick=()=>openTimetable();
+$('nearTrainReload').onclick=()=>{const name=$('nearTrainStation').textContent.split('　')[0];if(name&&name!=='駅検索待ち')updateNearTrain(name);if(!stationBusy)scanStations();};
+setInterval(()=>{const name=$('nearTrainStation').textContent.split('　')[0];if(name&&name!=='駅検索待ち')updateNearTrain(name);},30000);
 $('ttStation').onchange=populateDirections;
 $('ttDirection').onchange=()=>{renderTimetable();updateTTLabels();};
 $('ttStationPrev').onclick=()=>cycleTT('ttStation',-1,populateDirections);
