@@ -298,6 +298,8 @@ button{touch-action:manipulation}
  z-index:3;
 }
 
+.map-pan-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.map-pan-controls .btn{height:39px;min-height:39px;font-size:15px;padding:4px 2px}
 .mapcontrols{
  display:grid;
  grid-template-columns:repeat(3,1fr);
@@ -834,9 +836,15 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  </div>
 
  <div class="map-hint" id="mapHint">
-  地図をドラッグして移動 / 下のボタンで拡大・縮小
+  方向ボタンで地図移動 / タッチでも操作可能
  </div>
 
+ <div class="map-pan-controls" aria-label="地図移動">
+  <button class="btn" id="panUp" aria-label="北へ移動">↑ 北</button>
+  <button class="btn" id="panLeft" aria-label="西へ移動">← 西</button>
+  <button class="btn" id="panDown" aria-label="南へ移動">↓ 南</button>
+  <button class="btn" id="panRight" aria-label="東へ移動">→ 東</button>
+ </div>
  <div class="mapcontrols">
   <button class="btn" id="zin">
    ＋ 拡大
@@ -943,7 +951,7 @@ let zoom=16;
 let sensorOn=false;
 let mapCenter=null;
 
-const mapButtons=["zin","zout","center"];
+const mapButtons=["panUp","panLeft","panDown","panRight","zin","zout","center"];
 let mapFocus=-1;
 
 
@@ -965,7 +973,7 @@ function updateMapFocus(){
  if(page===2){
   $("mapHint").textContent=mapFocus>=0
    ?"◀ ▶ ボタン選択 / 決定で実行 / ↓ 解除"
-   :"ドラッグで地図移動 / ◀ ▶ ページ切替";
+   :"方向ボタンで地図移動 / ◀ ▶ ページ切替";
  }
 }
 
@@ -1093,7 +1101,7 @@ function tick(){
  $("headerClock").textContent=$("clock").textContent;
 
  $("date").textContent=
-  `${d.getMonth()+1}/${d.getDate()}${"日月火水木金土"[d.getDay()]}`;
+  `令和${d.getFullYear()-2018}年${d.getMonth()+1}月${String(d.getDate()).padStart(2,"0")}日`;
 }
 
 tick();
@@ -1441,6 +1449,18 @@ function pixelToGeo(x,y,z){
  m.addEventListener("pointerup",stop);
  m.addEventListener("pointercancel",stop);
 }
+
+function panMap(dx,dy){
+ if(!pos)return;
+ const center=mapCenter||{lat:pos.coords.latitude,lon:pos.coords.longitude};
+ const p=tileXY(center.lat,center.lon,zoom);
+ mapCenter=pixelToGeo(p.x+dx*0.5,p.y+dy*0.5,zoom);
+ drawMap();
+}
+$("panUp").onclick=()=>panMap(0,-1);
+$("panDown").onclick=()=>panMap(0,1);
+$("panLeft").onclick=()=>panMap(-1,0);
+$("panRight").onclick=()=>panMap(1,0);
 
 function setZoom(z){
 
