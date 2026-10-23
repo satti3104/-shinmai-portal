@@ -199,17 +199,27 @@ button{touch-action:manipulation}
  justify-content:center;
  gap:3px;
  overflow:hidden;
- padding:7px 10px;
+ padding:5px 10px;
 }
-
 .weather-name{
- font-size:24px;
+ font-size:27px;
+ line-height:1.1;
+ font-weight:800;
  color:#ffe66d;
 }
-
 .home-weather .meta{
- font-size:18px;
- line-height:1.18;
+ font-size:20px;
+ line-height:1.15;
+ font-weight:650;
+ white-space:normal;
+ overflow-wrap:anywhere;
+}
+#details{white-space:pre-line}
+#rainnext{font-size:18px;line-height:1.15}
+@media(max-height:380px){
+ .weather-name{font-size:23px}
+ .home-weather .meta{font-size:17px}
+ #rainnext{font-size:15px}
 }
 
 .home-nearest{display:flex;flex-direction:column;justify-content:center;padding:5px 10px;min-height:0;border:1px solid #316178;border-radius:10px;background:#0b1823;overflow:hidden}
@@ -1170,7 +1180,7 @@ async function weather(){
   $("details").textContent=
    "🌡️ 体感 "+
    Math.round(c.apparent_temperature)+
-   "°  💧 降水 "+
+   "°\n💧 降水 "+
    (c.precipitation_probability??"--")+"%";
 
   const nowLocal=new Intl.DateTimeFormat(
