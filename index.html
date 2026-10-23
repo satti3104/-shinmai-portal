@@ -1037,11 +1037,40 @@ function show(n){
 $("prev").onclick=()=>show(page-1);
 $("next").onclick=()=>show(page+1);
 
-/* KEY CONTROLS */
-
+/* META NEURAL BAND: arrows navigate, Enter selects, Escape returns */
+function moveHUDSelection(container,step){
+ const controls=[...container.querySelectorAll('button:not(:disabled),a[href],input:not(:disabled)')]
+  .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden");
+ if(!controls.length)return;
+ const current=controls.indexOf(document.activeElement);
+ const next=controls[(current+step+controls.length)%controls.length];
+ next.focus({preventScroll:true});
+ next.scrollIntoView({block:"nearest",inline:"nearest"});
+}
 document.addEventListener("keydown",e=>{
+ if(e.isComposing)return;
+ if(e.key==="Escape"||e.key==="Backspace"){
+  if($("ttDialog").open){e.preventDefault();$("ttDialog").close();return;}
+  if($("commandDialog").open){e.preventDefault();$("commandDialog").close();return;}
+ }
+ if($("ttDialog").open){
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)){
+   e.preventDefault();moveHUDSelection($("ttDialog"),["ArrowUp","ArrowLeft"].includes(e.key)?-1:1);return;
+  }
+  if((e.key==="Enter"||e.key===" ")&&document.activeElement?.tagName==="BUTTON"){
+   e.preventDefault();document.activeElement.click();return;
+  }
+  return;
+ }
+ if($("commandDialog").open)return;
+ if(page===3&&["ArrowUp","ArrowDown"].includes(e.key)){
+  e.preventDefault();moveHUDSelection($("scout"),e.key==="ArrowUp"?-1:1);return;
+ }
+ if((e.key==="Enter"||e.key===" ")&&document.activeElement?.tagName==="BUTTON"){
+  e.preventDefault();document.activeElement.click();return;
+ }
 
- if($("commandDialog").open||$("ttDialog").open||e.isComposing)return;
+
  if(e.target.matches("input,textarea"))return;
 
  if(page===2&&mapFocus>=0){
@@ -1769,6 +1798,7 @@ async function showOfflineStations(){
  }};
  search.addEventListener("input",render);render();list.append(search,results);
  $("stationStatus").textContent="オフライン駅一覧（距離順ではありません）";
+ if(page===3){const first=results.querySelector("button");if(first)first.focus({preventScroll:true});}
  $("homeNearestStation").textContent="自動検索不可・地下鉄駅一覧から選択";
 }
 $("stationOffline").onclick=showOfflineStations;
