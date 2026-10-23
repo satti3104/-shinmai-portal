@@ -2053,8 +2053,10 @@ setInterval(()=>{if($('ttDialog').open)renderTimetable();},1000);
 
 /* START */
 
-// Update station position every 5 minutes while visible; timetable next departures every minute.
+// Keep the TOP screen fresh: GPS, location, weather, and nearest station.
 setInterval(()=>{if(!document.hidden&&!stationBusy)gps();},300000);
+// Refresh weather independently if GPS is temporarily unavailable.
+setInterval(()=>{if(!document.hidden&&pos)weather();},600000);
 setInterval(()=>{if(!document.hidden&&$("ttDialog").open)renderTimetable();},60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!stationBusy)gps();});
 gps();
