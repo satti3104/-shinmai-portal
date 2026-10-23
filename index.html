@@ -1353,7 +1353,7 @@ function gps(){
    locationName();
    weather();
    drawMap();
-   scanStations();
+   scanStations(p);
   },
 
   e=>{
@@ -1919,7 +1919,7 @@ function renderStations(stations,origin,cached){
  $("stationAccuracy").textContent=accuracy===null?"GPS精度：不明":`GPS精度：±${accuracy}m${accuracy>100?"（低精度・距離に誤差）":""}`;
  $("stationAccuracy").title=accuracy>100?"GPS精度が低いため距離に誤差があります":"";
 }
-async function scanStations(){
+async function scanStations(knownPosition=null){
  if(stationBusy)return;
  stationBusy=true;const generation=++stationGeneration;
  const button=$("stationScan");button.disabled=true;button.setAttribute("aria-busy","true");
@@ -1928,7 +1928,7 @@ async function scanStations(){
  $("homeNearestStation").textContent="最寄駅を検索中...";
  try{
   if(!navigator.geolocation)throw {gps:true,message:"このブラウザはGPS非対応です"};
-  const p=await new Promise((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,e=>reject({gps:true,message:stationGPSMessage(e)}),{enableHighAccuracy:true,timeout:15000,maximumAge:0}));
+  const p=knownPosition||await new Promise((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,e=>reject({gps:true,message:stationGPSMessage(e)}),{enableHighAccuracy:true,timeout:15000,maximumAge:60000}));
   if(generation!==stationGeneration)return;
   const origin={lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy};
   if(!Number.isFinite(origin.lat)||!Number.isFinite(origin.lon))throw {gps:true,message:"有効なGPS座標を取得できませんでした"};
@@ -1958,7 +1958,15 @@ async function scanStations(){
    }
    if(lastError)throw Error("駅データを取得できませんでした（通信エラー・タイムアウト）");
   }
-  if(generation===stationGeneration)renderStations(nearbyStations(records,origin),origin,Boolean(cached));
+  if(generation===stationGeneration){
+   const nearby=nearbyStations(records,origin);
+   renderStations(nearby,origin,Boolean(cached));
+   const name=(nearby[0]?.name||"").normalize("NFKC").replace(/駅$/,"");
+   if(name&&TT_DATA.some(r=>r.station===name)){
+    $("ttStation").value=name;
+    populateDirections();
+   }
+  }
  }catch(e){
   if(generation!==stationGeneration)return;
   $("stationStatus").textContent=e.gps?e.message:e.name==="AbortError"?"駅データを取得できませんでした（タイムアウト）":e.message?.startsWith("再検索")||e.message?.startsWith("駅データ")?e.message:"駅データを取得できませんでした";
@@ -1969,6 +1977,7 @@ async function scanStations(){
  }
 }
 function invalidateStationResults(){
+ if(stationBusy)return;
  stationGeneration++;
  $("stationList").replaceChildren();
  $("stationStatus").textContent="現在地の更新後、SCAN STATIONSで駅を検索";
@@ -2044,6 +2053,10 @@ setInterval(()=>{if($('ttDialog').open)renderTimetable();},1000);
 
 /* START */
 
+// Update station position every 5 minutes while visible; timetable next departures every minute.
+setInterval(()=>{if(!document.hidden&&!stationBusy)gps();},300000);
+setInterval(()=>{if(!document.hidden&&$("ttDialog").open)renderTimetable();},60000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!stationBusy)gps();});
 gps();
 renderEvents();
 
