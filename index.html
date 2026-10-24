@@ -786,6 +786,15 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 #nearTrainReload{background:#2d6639!important;border:1px solid #a4ff78!important;color:#f1ffe5!important;font-weight:800}
 #nearTrainCard small{display:block;color:#a3c4a0;margin-top:8px}
 @media(prefers-reduced-motion:no-preference){#nearTrainCard:before{animation:scouter-lock 2.8s ease-in-out infinite}@keyframes scouter-lock{50%{box-shadow:0 0 24px #ff514a,inset 0 0 16px #ff514a88}}}
+
+#nearTrainNext{white-space:normal!important}
+.scouter-direction{border-top:1px solid #7bff7880;padding:9px 0 6px}
+.scouter-direction-name{font-size:14px;font-weight:800;color:#b8ff9e;line-height:1.4;margin-bottom:7px}
+.scouter-departures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.scouter-departure{display:flex;flex-direction:column;gap:2px;border:1px solid #65d56b75;background:#143b25a8;padding:8px;border-radius:4px;min-width:0}
+.scouter-departure strong{font-size:clamp(23px,6vw,31px)!important;color:#f0ffe6!important;letter-spacing:0!important}
+.scouter-departure span{color:#ffdd80;font-size:18px;font-weight:800}
+.scouter-departure small{font-size:11px;margin:0;line-height:1.25}
 </style>
 </head>
 
@@ -1794,12 +1803,33 @@ function stationGPSMessage(e){
 function updateNearTrain(station,detail=""){
  const name=(station||"").normalize("NFKC").replace(/駅$/,"");
  $("nearTrainStation").textContent=name+(detail?"　"+detail:"");
+ const panel=$("nearTrainNext");panel.replaceChildren();
  const clock=timetableClock();
  const records=TT_DATA.filter(r=>r.station===name);
- if(!records.length){$("nearTrainNext").textContent="対応する地下鉄時刻表なし";return;}
- if(!clock.kind){$("nearTrainNext").textContent="休日ダイヤ要確認・時刻表から選択";return;}
- const departures=records.flatMap(r=>upcomingTrains(r,clock.kind,clock.minutes).map(([m])=>({m,line:r.line,direction:r.direction}))).sort((a,b)=>a.m-b.m).slice(0,2);
- $("nearTrainNext").textContent=departures.length?departures.map((d,i)=>`${i?"次発候補":"最も早い便"} ${String(Math.floor(d.m/60)%24).padStart(2,"0")}:${String(d.m%60).padStart(2,"0")} / あと${d.m-clock.minutes}分\n${d.line} ${d.direction}`).join("\n"):"本日の発車予定なし";
+ if(!records.length){panel.textContent="対応する地下鉄時刻表なし";return;}
+ if(!clock.kind){panel.textContent="休日ダイヤ要確認・時刻表から選択";return;}
+ for(const record of records){
+  const group=document.createElement("div");group.className="scouter-direction";
+  const heading=document.createElement("div");heading.className="scouter-direction-name";
+  heading.textContent=record.line+" / "+record.direction;
+  group.append(heading);
+  const departures=upcomingTrains(record,clock.kind,clock.minutes);
+  if(!departures.length){
+   const empty=document.createElement("div");empty.textContent="本日の発車予定なし";group.append(empty);
+  }else{
+   const times=document.createElement("div");times.className="scouter-departures";
+   for(const [minute,flag] of departures){
+    const cell=document.createElement("div");cell.className="scouter-departure";
+    const t=document.createElement("strong");t.textContent=String(Math.floor(minute/60)%24).padStart(2,"0")+":"+String(minute%60).padStart(2,"0");
+    const countdown=document.createElement("span");countdown.textContent="あと "+(minute-clock.minutes)+"分";
+    cell.append(t,countdown);
+    if(flag){const dest=document.createElement("small");dest.textContent=timetableDestination(record,flag);cell.append(dest);}
+    times.append(cell);
+   }
+   group.append(times);
+  }
+  panel.append(group);
+ }
 }
 function renderStations(stations,origin,cached){
  const list=$("stationList");list.replaceChildren();
