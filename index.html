@@ -1826,7 +1826,7 @@ try{const saved=JSON.parse(localStorage.getItem("hud_station_cache")||"null");if
 function stationGPSMessage(e){
  return e.code===1?"位置情報の利用を許可してください":e.code===3?"GPS取得がタイムアウトしました":"現在地を取得できませんでした";
 }
-let homeTrainStation="";
+var homeTrainStation="";
 function refreshHomeTrainCountdown(){
  const box=$("homeTrainCountdown");
  if(!box||!homeTrainStation)return;
