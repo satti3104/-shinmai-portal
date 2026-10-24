@@ -812,6 +812,14 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  .scouter-departure{padding:5px}
  .scouter-departure strong{font-size:22px!important}
 }
+
+.home-train-countdown{display:flex;flex-direction:column;gap:2px;min-width:0;overflow-y:auto;max-height:100%}
+.home-train-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;line-height:1.2;min-width:0}
+.home-train-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;color:#b3ffdc}
+.home-train-row strong{font-size:19px;letter-spacing:.05em;color:#ffec79;white-space:nowrap;font-variant-numeric:tabular-nums}
+.home-nearest{overflow:hidden}
+.home-nearest-value{font-size:12px!important;line-height:1.2!important}
+@media(max-height:500px){.home-train-row{font-size:10px}.home-train-row strong{font-size:16px}}
 </style>
 </head>
 
@@ -855,7 +863,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
    </div>
   </div>
 
-  <div class="home-nearest" role="status" aria-live="polite"><span class="home-nearest-label">◇ NEAREST STATION / 1KM</span><span class="home-nearest-value" id="homeNearestStation">GPS待機中</span></div>
+  <div class="home-nearest" role="status" aria-live="polite"><span class="home-nearest-label">◇ NEXT TRAIN / 最寄り地下鉄</span><span class="home-nearest-value" id="homeNearestStation">GPS待機中</span><div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div></div>
 
   <button class="btn home-refresh" id="gpsBtn">
    GPS / 天気を更新
@@ -1186,6 +1194,7 @@ function tick(){
   });
 
  $("headerClock").textContent=$("clock").textContent;
+ if(typeof refreshHomeTrainCountdown==="function")refreshHomeTrainCountdown();
 
  $("date").textContent=
   `令和${d.getFullYear()-2018}年${d.getMonth()+1}月${String(d.getDate()).padStart(2,"0")}日`;
@@ -1817,9 +1826,39 @@ try{const saved=JSON.parse(localStorage.getItem("hud_station_cache")||"null");if
 function stationGPSMessage(e){
  return e.code===1?"位置情報の利用を許可してください":e.code===3?"GPS取得がタイムアウトしました":"現在地を取得できませんでした";
 }
+let homeTrainStation="";
+function refreshHomeTrainCountdown(){
+ const box=$("homeTrainCountdown");
+ if(!box||!homeTrainStation)return;
+ const clock=timetableClock();
+ const records=TT_DATA.filter(r=>r.station===homeTrainStation);
+ if(!records.length){box.textContent="この駅の地下鉄時刻表は未収録";return;}
+ if(!clock.kind){box.textContent="特別ダイヤのため時刻表を要確認";return;}
+ const rows=[];
+ for(const record of records){
+  const next=upcomingTrains(record,clock.kind,clock.minutes)[0];
+  if(!next)continue;
+  const departure=next[0];
+  const now=new Date();
+  const secondsLeft=Math.max(0,departure*60-(clock.minutes*60+now.getSeconds()));
+  rows.push({line:record.line,direction:record.direction,secondsLeft});
+ }
+ box.replaceChildren();
+ if(!rows.length){box.textContent="本日の発車予定なし";return;}
+ rows.sort((a,b)=>a.secondsLeft-b.secondsLeft);
+ for(const row of rows){
+  const item=document.createElement("div");item.className="home-train-row";
+  const label=document.createElement("span");label.textContent=row.line+" "+row.direction;
+  const value=document.createElement("strong");
+  const min=Math.floor(row.secondsLeft/60),sec=row.secondsLeft%60;
+  value.textContent=String(min).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+  item.append(label,value);box.append(item);
+ }
+}
 function updateNearTrain(station,detail=""){
  const name=(station||"").normalize("NFKC").replace(/駅$/,"");
  $("nearTrainStation").textContent=name+(detail?"　"+detail:"");
+ homeTrainStation=name;refreshHomeTrainCountdown();
  const panel=$("nearTrainNext");panel.replaceChildren();
  const clock=timetableClock();
  const records=TT_DATA.filter(r=>r.station===name);
