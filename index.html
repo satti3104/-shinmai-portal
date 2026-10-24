@@ -795,6 +795,23 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .scouter-departure strong{font-size:clamp(23px,6vw,31px)!important;color:#f0ffe6!important;letter-spacing:0!important}
 .scouter-departure span{color:#ffdd80;font-size:18px;font-weight:800}
 .scouter-departure small{font-size:11px;margin:0;line-height:1.25}
+
+/* Prevent direction groups being clipped on compact phone / glasses displays */
+#scout.page.active{overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain;display:flex}
+#scout .station-panel{flex:0 0 auto!important;min-height:0!important;overflow:visible!important}
+#scout #nearTrainCard{flex:0 0 auto!important;overflow:visible!important}
+#scout #stationList{flex:0 0 auto!important;max-height:180px;overflow-y:auto!important}
+#scout .scouter-direction{break-inside:avoid}
+#scout .scout-top,#scout .scoutbuttons{flex-shrink:0}
+@media(max-height:520px){
+ #scout .scout-top{gap:5px}
+ #scout .radar{width:42px;height:42px;flex-basis:42px}
+ #scout .station-panel{padding:4px}
+ #nearTrainCard{padding:7px!important}
+ #nearTrainStation{font-size:24px!important}
+ .scouter-departure{padding:5px}
+ .scouter-departure strong{font-size:22px!important}
+}
 </style>
 </head>
 
