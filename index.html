@@ -766,6 +766,26 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  #stationStatus{font-size:10px;line-height:12px}
 }
 .station-actions{display:grid;grid-template-columns:2fr 1fr;gap:4px;flex-shrink:0}.station-actions .btn{height:28px;min-height:28px;font-size:12px}.tt-station{display:block;width:100%;min-height:26px;margin:3px 0;font-size:12px}.tt-links{display:flex;gap:8px;flex-wrap:wrap}.tt-links a,#ttDialog a{color:#a8eee4}#ttDialog{width:min(560px,96vw);max-width:96vw;max-height:94dvh;padding:10px;border:1px solid #8ffff0;border-radius:3px;background:#0c262d;color:white;overflow:auto}#ttDialog::backdrop{background:#000b}.tt-step{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:5px;align-items:center;margin:5px 0 9px}.tt-step .btn{min-height:42px;height:auto;font-size:13px;padding:5px 2px}.tt-step strong{text-align:center;font-size:15px;line-height:1.2;overflow-wrap:anywhere}#ttDialog select{display:none!important}#ttDialog .tt-header{z-index:2}.tt-header{display:flex;justify-content:space-between;align-items:center;gap:6px;position:sticky;top:0;background:#0c262d}#ttDialog h2{font-size:16px;margin:0}#ttDialog label{display:block;font-size:12px;margin-top:5px}#ttDialog select{display:block;width:100%;min-height:30px;background:#173e43;color:white;border:1px solid #86b7b1;font-size:13px}#ttDialog select:focus-visible,#ttDialog a:focus-visible{outline:2px solid #ffe3a0}#ttDialog p{font-size:11px;line-height:1.4;margin:5px 0}.tt-train{padding:6px 0;border-bottom:1px solid #376b70;font-size:12px}.tt-train b{font-size:18px;color:#ffe3a0}#ttClose{min-height:28px;font-size:12px}@media(max-height:350px){.station-actions .btn{height:24px;min-height:24px;font-size:10px}#ttDialog{padding:6px}#ttDialog select{min-height:26px;font-size:12px}#ttDialog label{margin-top:2px;font-size:10px}.tt-train{padding:4px 0}.tt-train b{font-size:15px}}
+
+/* SCOUTER VISUAL SYSTEM — green visor / red acquisition reticle */
+#scout{color:#c9ffb7;background:radial-gradient(ellipse at 52% 23%,rgba(52,180,58,.22),transparent 58%),linear-gradient(145deg,#071c13,#06110e 65%,#0b2616);position:relative}
+#scout:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.18;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 4px,rgba(130,255,120,.2) 5px,transparent 6px)}
+#scout>*{position:relative;z-index:1}
+#scout .radar{border-color:#8dff75!important;box-shadow:0 0 18px #36f46650,inset 0 0 24px #35f46622}
+#scout .radar:after{content:"";position:absolute;inset:30%;border:2px solid #ff554d;border-radius:50%;box-shadow:0 0 12px #ff554d;pointer-events:none}
+#scout .scouttext,#scout h2{color:#9dff77!important;text-shadow:0 0 9px #52ff5270;letter-spacing:.09em}
+#scout .station-panel{border-color:#5ee85e!important;background:#062015bd!important}
+#scout .station-row{border-color:#3b995d!important}
+#nearTrainCard{position:relative;overflow:hidden;border:1px solid #a0ff69!important;border-radius:5px!important;background:linear-gradient(120deg,#0c381dbb,#092017f2)!important;box-shadow:inset 0 0 28px #53ff4926,0 0 12px #49ff4133;padding:12px!important}
+#nearTrainCard:before{content:"";position:absolute;right:16px;top:28px;width:58px;height:58px;border:2px solid #ff4c46;border-radius:50%;box-shadow:0 0 12px #ff514a8c,inset 0 0 10px #ff514a40;pointer-events:none}
+#nearTrainCard:after{content:"+";position:absolute;right:34px;top:35px;color:#ff554d;font-size:42px;font-weight:200;text-shadow:0 0 8px #ff554d;pointer-events:none}
+#nearTrainCard strong{display:block;color:#9aff7d!important;font-size:15px!important;letter-spacing:.15em}
+#nearTrainCard strong:before{content:"◉ ";color:#ff6257}
+#nearTrainStation{color:#efffe2!important;font-size:clamp(24px,7vw,38px)!important;text-shadow:0 0 12px #b2ff8e80;max-width:75%;line-height:1.2}
+#nearTrainNext{color:#baff9f!important;font-family:ui-monospace,monospace;line-height:1.55;border-top:1px solid #76f56b6b;padding-top:9px}
+#nearTrainReload{background:#2d6639!important;border:1px solid #a4ff78!important;color:#f1ffe5!important;font-weight:800}
+#nearTrainCard small{display:block;color:#a3c4a0;margin-top:8px}
+@media(prefers-reduced-motion:no-preference){#nearTrainCard:before{animation:scouter-lock 2.8s ease-in-out infinite}@keyframes scouter-lock{50%{box-shadow:0 0 24px #ff514a,inset 0 0 16px #ff514a88}}}
 </style>
 </head>
 
@@ -889,7 +909,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <div class="station-actions"><button class="btn" id="stationScan">◎ SCAN STATIONS</button><button class="btn" id="timetableBtn">時刻表</button></div>
   <div id="stationAccuracy" class="station-note">GPS精度：未確認</div>
   <div id="stationStatus" role="status" aria-live="polite">SCAN STATIONSで駅を検索</div>
-  <div id="nearTrainCard" class="card" style="padding:10px;margin:6px 0;border:1px solid #52dbe4"><strong style="font-size:19px">NearTrain</strong><div id="nearTrainStation" style="font-size:24px;font-weight:800;margin:7px 0">駅検索待ち</div><div id="nearTrainNext" style="font-size:17px;white-space:pre-line">次発時刻を確認中</div><button class="btn" id="nearTrainReload" style="width:100%;margin-top:8px;min-height:38px">Reload / 更新</button><small>名古屋市営地下鉄の公開時刻表に基づく予定時刻。遅延・運休は未反映</small></div>
+  <div id="nearTrainCard" class="card" style="padding:10px;margin:6px 0;border:1px solid #52dbe4"><strong style="font-size:19px">SCOUTER / RAIL TARGET</strong><div id="nearTrainStation" style="font-size:24px;font-weight:800;margin:7px 0">駅検索待ち</div><div id="nearTrainNext" style="font-size:17px;white-space:pre-line">次発時刻を確認中</div><button class="btn" id="nearTrainReload" style="width:100%;margin-top:8px;min-height:38px">Reload / 更新</button><small>名古屋市営地下鉄の公開時刻表に基づく予定時刻。遅延・運休は未反映</small></div>
   <div id="stationList" tabindex="0" role="region" aria-label="周辺の駅一覧・上下キーでスクロール"></div>
   <button class="btn" id="stationOffline" style="height:28px;min-height:28px;font-size:12px">通信不要：地下鉄駅一覧</button>
   <div class="station-source">検索時に現在地を送信 · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a></div>
