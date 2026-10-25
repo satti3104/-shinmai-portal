@@ -2118,12 +2118,41 @@ setInterval(()=>{if(!document.hidden&&!stationBusy)gps();},300000);
 setInterval(()=>{if(!document.hidden&&pos)weather();},600000);
 setInterval(()=>{if(!document.hidden&&$("ttDialog").open)renderTimetable();},60000);
 // Refresh immediately when the HUD is opened or returns to the foreground.
+let hudGeoWatch=null,hudLastStationCoords=null,hudLastStationAt=0;
+function hudApplyTrackedPosition(p){
+ if(!p?.coords||!Number.isFinite(p.coords.latitude)||!Number.isFinite(p.coords.longitude))return;
+ const current={lat:p.coords.latitude,lon:p.coords.longitude};
+ const moved=!hudLastStationCoords||stationDistance(current,hudLastStationCoords)>180;
+ const elapsed=Date.now()-hudLastStationAt;
+ pos=p;
+ $("state").textContent="GPS AUTO";
+ $("coords").textContent="LAT "+current.lat.toFixed(4)+" / LON "+current.lon.toFixed(4);
+ if(moved||elapsed>180000){
+  if(!stationBusy){
+   hudLastStationCoords=current;hudLastStationAt=Date.now();
+   scanStations(p);
+  }
+ }
+}
+function startHUDLocationWatch(){
+ if(hudGeoWatch!==null||!navigator.geolocation||document.hidden)return;
+ try{
+  hudGeoWatch=navigator.geolocation.watchPosition(hudApplyTrackedPosition,e=>{
+   if(e.code===1){stopHUDLocationWatch();$("state").textContent="GPS 許可が必要";}
+  },{enableHighAccuracy:false,maximumAge:30000,timeout:20000});
+ }catch(e){$("state").textContent="GPS AUTO ERROR";}
+}
+function stopHUDLocationWatch(){
+ if(hudGeoWatch!==null&&navigator.geolocation)navigator.geolocation.clearWatch(hudGeoWatch);
+ hudGeoWatch=null;
+}
 function refreshHUDOnOpen(){
  tick();
  if(pos)weather(); // refresh forecast without waiting for another GPS fix
  if(!gpsBusy)gps();
+ startHUDLocationWatch();
 }
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshHUDOnOpen();});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshHUDOnOpen();else stopHUDLocationWatch();});
 window.addEventListener("pageshow",refreshHUDOnOpen);
 window.addEventListener("focus",()=>{if(!document.hidden)refreshHUDOnOpen();});
 refreshHUDOnOpen();
