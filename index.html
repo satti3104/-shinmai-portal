@@ -2160,6 +2160,19 @@ function stopHUDLocationWatch(){
  if(hudGeoWatch!==null&&navigator.geolocation)navigator.geolocation.clearWatch(hudGeoWatch);
  hudGeoWatch=null;
 }
+const hudBootAudio=new Audio("./hud-startup.mp3");
+hudBootAudio.preload="auto";
+hudBootAudio.volume=0.7;
+let hudBootPlayed=false;
+function playHUDBootSound(){
+ if(hudBootPlayed)return;
+ hudBootAudio.currentTime=0;
+ const attempt=hudBootAudio.play();
+ if(attempt&&typeof attempt.then==="function")attempt.then(()=>{hudBootPlayed=true;}).catch(()=>{});
+}
+window.addEventListener("pointerdown",playHUDBootSound,{once:false});
+window.addEventListener("keydown",playHUDBootSound,{once:false});
+playHUDBootSound();
 function refreshHUDOnOpen(){
  tick();
  if(pos)weather(); // refresh forecast without waiting for another GPS fix
