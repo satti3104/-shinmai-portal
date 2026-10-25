@@ -1836,11 +1836,12 @@ function refreshHomeTrainCountdown(){
  if(!clock.kind){box.textContent="特別ダイヤのため時刻表を要確認";return;}
  const rows=[];
  for(const record of records){
-  const next=upcomingTrains(record,clock.kind,clock.minutes)[0];
-  if(!next)continue;
-  const departure=next[0];
+  // Advance to the following train immediately when the countdown reaches zero.
   const now=new Date();
-  const secondsLeft=Math.max(0,departure*60-(clock.minutes*60+now.getSeconds()));
+  const elapsedSeconds=clock.minutes*60+now.getSeconds();
+  const next=record[clock.kind].find(train=>train[0]*60>elapsedSeconds);
+  if(!next)continue;
+  const secondsLeft=next[0]*60-elapsedSeconds;
   rows.push({line:record.line,direction:record.direction,secondsLeft});
  }
  box.replaceChildren();
