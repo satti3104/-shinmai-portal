@@ -155,7 +155,7 @@ button{touch-action:manipulation}
  26px
  51px
  minmax(0,1fr)
- 46px
+ 94px
  43px;
  gap:4px;
  overflow:hidden;
@@ -820,6 +820,12 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .home-nearest{overflow:hidden}
 .home-nearest-value{font-size:12px!important;line-height:1.2!important}
 @media(max-height:500px){.home-train-row{font-size:10px}.home-train-row strong{font-size:16px}}
+
+.home-nearest{justify-content:flex-start!important;gap:2px!important}
+.home-train-countdown{flex:1 1 auto;overflow:hidden!important}
+.home-train-row{min-height:19px}
+.home-train-next{flex:0 0 auto;border:0;background:transparent;color:#8eefff;font-size:11px;text-align:right;padding:0 2px;min-height:15px;cursor:pointer}
+.home-train-next[hidden]{display:none!important}
 </style>
 </head>
 
@@ -863,7 +869,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
    </div>
   </div>
 
-  <div class="home-nearest" role="status" aria-live="polite"><span class="home-nearest-label">◇ NEXT TRAIN / 最寄り地下鉄</span><span class="home-nearest-value" id="homeNearestStation">GPS待機中</span><div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div></div>
+  <div class="home-nearest" role="status" aria-live="polite"><span class="home-nearest-label">◇ NEXT TRAIN / 最寄り地下鉄</span><span class="home-nearest-value" id="homeNearestStation">GPS待機中</span><div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div><button id="homeTrainNextPage" class="home-train-next" type="button" aria-label="次の方面を表示">方面を切替 ▶ <span id="homeTrainPageIndicator"></span></button></div>
 
   <button class="btn home-refresh" id="gpsBtn">
    GPS / 天気を更新
@@ -1451,6 +1457,7 @@ async function gps(){
 }
 
 $("gpsBtn").onclick=gps;
+$("homeTrainNextPage").onclick=()=>{homeTrainPage++;homeTrainPageAt=Date.now();refreshHomeTrainCountdown();};
 
 /* =====================
    MAP
@@ -1827,6 +1834,7 @@ function stationGPSMessage(e){
  return e.code===1?"位置情報の利用を許可してください":e.code===3?"GPS取得がタイムアウトしました":"現在地を取得できませんでした";
 }
 var homeTrainStation="";
+var homeTrainPage=0,homeTrainPageAt=Date.now();
 function refreshHomeTrainCountdown(){
  const box=$("homeTrainCountdown");
  if(!box||!homeTrainStation)return;
@@ -1845,9 +1853,14 @@ function refreshHomeTrainCountdown(){
   rows.push({line:record.line,direction:record.direction,secondsLeft});
  }
  box.replaceChildren();
- if(!rows.length){box.textContent="本日の発車予定なし";return;}
+ if(!rows.length){box.textContent="本日の発車予定なし";$("homeTrainNextPage").hidden=true;return;}
  rows.sort((a,b)=>a.secondsLeft-b.secondsLeft);
- for(const row of rows){
+ const pageCount=Math.ceil(rows.length/2);
+ if(Date.now()-homeTrainPageAt>=8000&&pageCount>1){homeTrainPage=(homeTrainPage+1)%pageCount;homeTrainPageAt=Date.now();}
+ homeTrainPage%=pageCount;
+ $("homeTrainNextPage").hidden=pageCount<=1;
+ $("homeTrainPageIndicator").textContent=pageCount>1?`${homeTrainPage+1}/${pageCount}`:"";
+ for(const row of rows.slice(homeTrainPage*2,homeTrainPage*2+2)){
   const item=document.createElement("div");item.className="home-train-row";
   const label=document.createElement("span");label.textContent=row.line+" "+row.direction;
   const value=document.createElement("strong");
@@ -1859,6 +1872,7 @@ function refreshHomeTrainCountdown(){
 function updateNearTrain(station,detail=""){
  const name=(station||"").normalize("NFKC").replace(/駅$/,"");
  $("nearTrainStation").textContent=name+(detail?"　"+detail:"");
+ if(homeTrainStation!==name){homeTrainPage=0;homeTrainPageAt=Date.now();}
  homeTrainStation=name;refreshHomeTrainCountdown();
  const panel=$("nearTrainNext");panel.replaceChildren();
  const clock=timetableClock();
