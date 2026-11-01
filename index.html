@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V5.3 — AINCRAD STATION SCANNER</title>
+<title>COMMAND HUD V5.4 — GAME BOY MONO</title>
 
 <style>
 *{box-sizing:border-box}
@@ -826,6 +826,46 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .home-train-row{min-height:19px}
 .home-train-next{flex:0 0 auto;border:0;background:transparent;color:#8eefff;font-size:11px;text-align:right;padding:0 2px;min-height:15px;cursor:pointer}
 .home-train-next[hidden]{display:none!important}
+
+/* GAME BOY MONO THEME — visual replacement only; keep GPS, timetables and controls. */
+:root{--gb-ink:#17391e;--gb-dark:#305a32;--gb-mid:#79a75d;--gb-light:#d4ef9d;--cyan:#17391e;--gold:#305a32;--panel:#c7e38c}
+html,body{background:#243d25!important;color:var(--gb-ink)!important;font-family:ui-monospace,"SFMono-Regular","Noto Sans Mono","Noto Sans JP",monospace!important}
+.app{background:var(--gb-light)!important;color:var(--gb-ink)!important;border:5px solid var(--gb-ink)!important;border-radius:9px!important;box-shadow:inset 0 0 0 3px var(--gb-mid);padding:7px!important}
+.header,.card,.pageid,.home-nearest,.station-panel,.station-row,.command-dialog,#ttDialog{
+ background:var(--gb-light)!important;color:var(--gb-ink)!important;border:3px solid var(--gb-ink)!important;border-radius:0!important;box-shadow:4px 4px 0 var(--gb-dark)!important;text-shadow:none!important
+}
+.header{background:var(--gb-ink)!important;color:var(--gb-light)!important;padding:6px 8px!important}
+.header small,.header .state,.header-clock{color:var(--gb-light)!important}
+#title{font-weight:900!important;letter-spacing:.05em}
+.btn,.home-train-next,select,.url,.tt-step button{
+ background:var(--gb-mid)!important;color:var(--gb-ink)!important;border:3px solid var(--gb-ink)!important;border-radius:0!important;box-shadow:3px 3px 0 var(--gb-dark)!important;text-shadow:none!important;font-weight:900!important
+}
+.btn:focus-visible,.btn.selected,.btn:active{background:var(--gb-ink)!important;color:var(--gb-light)!important;outline:2px dashed var(--gb-light)!important;outline-offset:-6px!important}
+.pageid{background:var(--gb-mid)!important;color:var(--gb-ink)!important;font-weight:900}
+.home-clock{color:var(--gb-ink)!important;font-family:ui-monospace,monospace!important;font-weight:900!important;letter-spacing:-.05em!important;text-shadow:none!important}
+.home-date{font-size:clamp(21px,5.5vw,30px)!important;line-height:1.3!important;font-weight:900!important;color:var(--gb-ink)!important}
+.home-place,.home-temp,.weather-name,.home-nearest-value{color:var(--gb-ink)!important;font-weight:900!important}
+.home-temp{font-size:clamp(32px,9vw,44px)!important}
+.home-weather{background:repeating-linear-gradient(135deg,var(--gb-light) 0 10px,#c6e38b 10px 12px)!important}
+.home-weather .meta,#details,#rainnext,.note,.station-note,.station-source,.scouttext,.map-hint{color:var(--gb-dark)!important}
+.home-nearest{padding:6px 8px!important;margin-bottom:9px!important;min-height:93px!important;gap:3px!important}
+.home-nearest-label{color:var(--gb-ink)!important;font-size:12px!important;font-weight:900!important}
+.home-nearest-value{font-size:16px!important}
+.home-train-row{font-size:clamp(11px,3vw,15px)!important;line-height:1.35!important}
+.home-train-row span{color:var(--gb-ink)!important}
+.home-train-row strong{color:var(--gb-ink)!important;font-size:clamp(17px,5vw,23px)!important}
+.home-train-next{align-self:flex-end;font-size:11px!important;min-height:20px!important;padding:0 5px!important;box-shadow:none!important}
+.sectiontitle,.station-panel h2{color:var(--gb-ink)!important;border-left:5px solid var(--gb-ink)!important;font-weight:900!important}
+.weekrow,.event{border-bottom:2px dashed var(--gb-dark)!important}
+.radar{border:4px solid var(--gb-ink)!important;border-radius:50%!important;background:repeating-radial-gradient(circle,var(--gb-light) 0 18px,var(--gb-mid) 19px 21px)!important;box-shadow:none!important}
+.radar:before,.radar:after{background:var(--gb-ink)!important}
+.needle{background:var(--gb-ink)!important}
+.map{border:3px solid var(--gb-ink)!important;border-radius:0!important}
+.attribution{background:var(--gb-light)!important;color:var(--gb-ink)!important;border:1px solid var(--gb-ink)!important}
+.command-dialog::backdrop,#ttDialog::backdrop{background:#132d1cc9!important}
+a{color:var(--gb-dark)!important;text-decoration:underline!important}
+@media(max-height:470px){.home-date{font-size:clamp(18px,5vw,24px)!important}.home-nearest{min-height:86px!important}.home-train-row strong{font-size:17px!important}}
+@media(prefers-reduced-motion:reduce){.page.active{animation:none!important}}
 </style>
 </head>
 
@@ -835,7 +875,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.3 / AINCRAD</small></div>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.4 / GAME BOY MONO</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
