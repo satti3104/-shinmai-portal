@@ -998,6 +998,35 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
  #weekrows .weekrow>span{font-size:11px!important}
  #weekrows .forecast-label{display:none!important}
 }
+
+/* Weekly forecast: all seven days visible without scrolling. */
+#weekly.active{display:flex!important;flex-direction:column!important;gap:3px!important;overflow:hidden!important;min-height:0!important}
+#weekly .sectiontitle{font-size:clamp(15px,4vw,20px)!important;line-height:1.15!important;margin:0!important;flex:0 0 auto!important}
+#weekplace{font-size:11px!important;line-height:1.1!important;max-height:15px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;margin:0!important;flex:0 0 auto!important}
+#weekrows{
+ display:grid!important;
+ grid-template-rows:repeat(7,minmax(0,1fr))!important;
+ flex:1 1 0!important;
+ min-height:0!important;
+ height:100%!important;
+ overflow:hidden!important;
+ gap:1px!important;
+ padding:2px!important;
+}
+#weekrows .weekrow{
+ min-height:0!important;
+ height:100%!important;
+ padding:1px 3px!important;
+ margin:0!important;
+ align-items:center!important;
+}
+#weekrows .weekrow>span,#weekrows .forecast-label{font-size:clamp(10px,2.9vw,14px)!important;line-height:1.05!important}
+@media(max-height:430px){
+ #weekly.active{gap:2px!important}
+ #weekly .sectiontitle{font-size:15px!important}
+ #weekplace{font-size:10px!important;max-height:12px!important}
+ #weekrows .weekrow>span,#weekrows .forecast-label{font-size:11px!important}
+}
 </style>
 </head>
 
