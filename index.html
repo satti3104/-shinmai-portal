@@ -922,6 +922,37 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
 .app{padding-top:7px!important}
 .content{margin-top:0!important;flex:1 1 auto!important;min-height:0!important}
 @media(max-height:470px){.content{margin-top:0!important}}
+
+/* Seven-day forecast: large, two-line Game Boy cards for glasses. */
+#weekly.active{gap:7px!important;overflow:hidden!important}
+#weekplace{font-size:13px!important;line-height:1.3!important;flex-shrink:0}
+#weekrows{display:flex!important;flex-direction:column!important;gap:7px!important;overflow-y:auto!important;overscroll-behavior:contain;padding:7px!important;min-height:0!important;scrollbar-width:thin!important}
+#weekrows .weekrow{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ grid-template-rows:auto auto!important;
+ gap:5px 8px!important;
+ padding:9px!important;
+ min-height:89px!important;
+ flex:0 0 auto!important;
+ border:2px solid var(--gb-ink)!important;
+ background:var(--gb-light)!important;
+ align-items:center!important;
+}
+#weekrows .weekrow>span{display:block!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;min-width:0!important;line-height:1.25!important;color:var(--gb-ink)!important}
+#weekrows .weekrow>span:nth-child(1){font-size:19px!important;font-weight:900!important}
+#weekrows .weekrow>span:nth-child(2){font-size:16px!important;font-weight:900!important;text-align:right!important}
+#weekrows .weekrow>span:nth-child(3){font-size:20px!important;font-weight:900!important;letter-spacing:-.05em!important}
+#weekrows .weekrow>span:nth-child(4){font-size:16px!important;font-weight:800!important;text-align:right!important}
+#weekrows .weekrow>span:nth-child(3)::before{content:"最高 / 最低";display:block;font-size:10px;font-weight:700}
+#weekrows .weekrow>span:nth-child(4)::before{content:"降水確率";display:block;font-size:10px;font-weight:700}
+#weekrows .forecast-label{font-size:13px!important}
+@media(max-width:300px){
+ #weekrows .weekrow{padding:6px!important;min-height:79px!important;gap:3px!important}
+ #weekrows .weekrow>span:nth-child(1){font-size:16px!important}
+ #weekrows .weekrow>span:nth-child(2){font-size:14px!important}
+ #weekrows .weekrow>span:nth-child(3){font-size:17px!important}
+}
 </style>
 </head>
 
