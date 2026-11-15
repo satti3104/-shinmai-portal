@@ -85,8 +85,7 @@ button{touch-action:manipulation}
  cursor:pointer;
 }
 
-.btn:focus-visible,
-.btn.selected{
+.btn:focus-visible{
  outline:3px solid #7deaff;
  outline-offset:-3px;
  background:#174b63;
@@ -265,66 +264,12 @@ button{touch-action:manipulation}
    MAP
 ===================== */
 
-.map{
- position:relative;
- flex:1;
+.map-frame{
+ flex:1 1 0;
+ width:100%;
  min-height:0;
- overflow:hidden;
- border-radius:12px;
- background:#10131a;
- touch-action:none;
- cursor:grab;
-}
-.map.dragging{cursor:grabbing}
-
-.tile{
- position:absolute;
- width:256px;
- height:256px;
- max-width:none;
- pointer-events:none;
-}
-
-.pin{
- position:absolute;
- left:50%;
- top:50%;
- transform:translate(-50%,-50%);
- font-size:30px;
- color:#00dfff;
- text-shadow:0 0 12px #00dfff;
- pointer-events:none;
- z-index:2;
-}
-
-.attribution{
- position:absolute;
- left:7px;
- bottom:7px;
- padding:4px 6px;
- border-radius:5px;
- background:#151b25;
- font-size:11px;
- z-index:3;
-}
-
-.map-pan-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
-.map-pan-controls .btn{height:39px;min-height:39px;font-size:15px;padding:4px 2px}
-.mapcontrols{
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:6px;
-}
-
-.mapcontrols .btn{
- height:52px;
-}
-
-.map-hint{
- font-size:13px;
- color:#8ce6ff;
- text-align:center;
- line-height:19px;
+ border:0;
+ background:#000;
 }
 
 /* =====================
@@ -528,16 +473,6 @@ button{touch-action:manipulation}
   min-height:35px;
  }
 
- .mapcontrols .btn{
-  height:43px;
-  font-size:14px;
- }
-
- .map-hint{
-  font-size:11px;
-  line-height:15px;
- }
-
  #scout.active{
   grid-template-rows:
   minmax(40px,1fr)
@@ -562,24 +497,16 @@ body{background:radial-gradient(ellipse at top,#123a40,#020b10 70%);color:#edfdf
 .header{color:var(--cyan);letter-spacing:.04em}
 .header small{display:block;font-size:9px;letter-spacing:.13em;color:#b6d2c9;margin-top:3px}
 .btn{border-radius:3px;background:linear-gradient(110deg,#16444bde,#0b242fe8);border-color:#5e9898;transition:background .15s,box-shadow .15s}
-.btn:focus-visible,.btn.selected{outline:2px solid var(--gold);outline-offset:-2px;background:#4d4932;box-shadow:0 0 14px #ffe3a044}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:-2px;background:#4d4932;box-shadow:0 0 14px #ffe3a044}
 .sectiontitle{color:var(--cyan);font-weight:500;letter-spacing:.07em;border-left:3px solid var(--gold);padding-left:10px}
 .page.active{animation:materialize .18s ease-out}
-.dock{grid-template-columns:58px minmax(0,1fr) 58px 58px;gap:6px}
+.dock{grid-template-columns:58px minmax(0,1fr) 58px;gap:6px}
 .home-clock{text-shadow:0 0 20px #8ffff044}
 .radar{border-color:var(--cyan);box-shadow:0 0 20px #65f7da22,inset 0 0 26px #65f7da11}
 .url{border-radius:3px}
-.command-dialog{width:min(520px,calc(100% - 24px));max-height:calc(100dvh - 24px);overflow:auto;background:#0b242bf5;color:#edfdfa;border:1px solid var(--cyan);padding:18px;box-shadow:0 0 35px #59efd42b}
-.command-dialog::backdrop{background:#000a}
-.command-dialog h2{font-size:19px;color:var(--cyan);margin:0 0 12px}
-.command-dialog label{display:block;margin-bottom:7px}
-.command-dialog .note{line-height:1.5;margin:10px 0}
-.command-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.command-actions .btn{flex:1;min-width:85px;padding:8px}
-#commandStatus{color:var(--gold);min-height:1.5em}
 @keyframes materialize{from{opacity:.4;transform:translateX(6px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.page.active{animation:none}.btn{transition:none}}
-@media(max-width:360px){.dock{grid-template-columns:44px minmax(0,1fr) 44px 48px}.header{font-size:13px}.pageid{font-size:14px}}
+@media(max-width:360px){.dock{grid-template-columns:44px minmax(0,1fr) 44px}.header{font-size:13px}.pageid{font-size:14px}}
 
 /* V5.1.1: header participates in layout instead of overflowing a fixed row. */
 .app{grid-template-rows:minmax(64px,auto) minmax(0,1fr) 76px;gap:8px}
@@ -831,7 +758,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 :root{--gb-ink:#17391e;--gb-dark:#305a32;--gb-mid:#79a75d;--gb-light:#d4ef9d;--cyan:#17391e;--gold:#305a32;--panel:#c7e38c}
 html,body{background:#243d25!important;color:var(--gb-ink)!important;font-family:ui-monospace,"SFMono-Regular","Noto Sans Mono","Noto Sans JP",monospace!important}
 .app{background:var(--gb-light)!important;color:var(--gb-ink)!important;border:5px solid var(--gb-ink)!important;border-radius:9px!important;box-shadow:inset 0 0 0 3px var(--gb-mid);padding:7px!important}
-.header,.card,.pageid,.home-nearest,.station-panel,.station-row,.command-dialog,#ttDialog{
+.header,.card,.pageid,.home-nearest,.station-panel,.station-row,#ttDialog{
  background:var(--gb-light)!important;color:var(--gb-ink)!important;border:3px solid var(--gb-ink)!important;border-radius:0!important;box-shadow:4px 4px 0 var(--gb-dark)!important;text-shadow:none!important
 }
 .header{background:var(--gb-ink)!important;color:var(--gb-light)!important;padding:6px 8px!important}
@@ -840,14 +767,14 @@ html,body{background:#243d25!important;color:var(--gb-ink)!important;font-family
 .btn,.home-train-next,select,.url,.tt-step button{
  background:var(--gb-mid)!important;color:var(--gb-ink)!important;border:3px solid var(--gb-ink)!important;border-radius:0!important;box-shadow:3px 3px 0 var(--gb-dark)!important;text-shadow:none!important;font-weight:900!important
 }
-.btn:focus-visible,.btn.selected,.btn:active{background:var(--gb-ink)!important;color:var(--gb-light)!important;outline:2px dashed var(--gb-light)!important;outline-offset:-6px!important}
+.btn:focus-visible,.btn:active{background:var(--gb-ink)!important;color:var(--gb-light)!important;outline:2px dashed var(--gb-light)!important;outline-offset:-6px!important}
 .pageid{background:var(--gb-mid)!important;color:var(--gb-ink)!important;font-weight:900}
 .home-clock{color:var(--gb-ink)!important;font-family:ui-monospace,monospace!important;font-weight:900!important;letter-spacing:-.05em!important;text-shadow:none!important}
 .home-date{font-size:clamp(21px,5.5vw,30px)!important;line-height:1.3!important;font-weight:900!important;color:var(--gb-ink)!important}
 .home-place,.home-temp,.weather-name,.home-nearest-value{color:var(--gb-ink)!important;font-weight:900!important}
 .home-temp{font-size:clamp(32px,9vw,44px)!important}
 .home-weather{background:repeating-linear-gradient(135deg,var(--gb-light) 0 10px,#c6e38b 10px 12px)!important}
-.home-weather .meta,#details,#rainnext,.note,.station-note,.station-source,.scouttext,.map-hint{color:var(--gb-dark)!important}
+.home-weather .meta,#details,#rainnext,.note,.station-note,.station-source,.scouttext{color:var(--gb-dark)!important}
 .home-nearest{padding:6px 8px!important;margin-bottom:9px!important;min-height:93px!important;gap:3px!important}
 .home-nearest-label{color:var(--gb-ink)!important;font-size:12px!important;font-weight:900!important}
 .home-nearest-value{font-size:16px!important}
@@ -860,9 +787,7 @@ html,body{background:#243d25!important;color:var(--gb-ink)!important;font-family
 .radar{border:4px solid var(--gb-ink)!important;border-radius:50%!important;background:repeating-radial-gradient(circle,var(--gb-light) 0 18px,var(--gb-mid) 19px 21px)!important;box-shadow:none!important}
 .radar:before,.radar:after{background:var(--gb-ink)!important}
 .needle{background:var(--gb-ink)!important}
-.map{border:3px solid var(--gb-ink)!important;border-radius:0!important}
-.attribution{background:var(--gb-light)!important;color:var(--gb-ink)!important;border:1px solid var(--gb-ink)!important}
-.command-dialog::backdrop,#ttDialog::backdrop{background:#132d1cc9!important}
+#ttDialog::backdrop{background:#132d1cc9!important}
 a{color:var(--gb-dark)!important;text-decoration:underline!important}
 @media(max-height:470px){.home-date{font-size:clamp(18px,5vw,24px)!important}.home-nearest{min-height:86px!important}.home-train-row strong{font-size:17px!important}}
 @media(prefers-reduced-motion:reduce){.page.active{animation:none!important}}
@@ -1133,36 +1058,9 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
 
 <!-- MAP -->
 <section class="page" id="mapPage">
-
- <div class="map" id="map" aria-label="地図。ドラッグして移動できます">
-  <div class="pin">◎</div>
-  <div class="attribution" id="mapinfo">
-   国土地理院 / GPS待機
-  </div>
- </div>
-
- <div class="map-hint" id="mapHint">
-  方向ボタンで地図移動 / タッチでも操作可能
- </div>
-
- <div class="map-pan-controls" aria-label="地図移動">
-  <button class="btn" id="panUp" aria-label="北へ移動">↑ 北</button>
-  <button class="btn" id="panLeft" aria-label="西へ移動">← 西</button>
-  <button class="btn" id="panDown" aria-label="南へ移動">↓ 南</button>
-  <button class="btn" id="panRight" aria-label="東へ移動">→ 東</button>
- </div>
- <div class="mapcontrols">
-  <button class="btn" id="zin">
-   ＋ 拡大
-  </button>
-  <button class="btn" id="zout">
-   － 縮小
-  </button>
-  <button class="btn" id="center">
-   ◎ 現在地
-  </button>
- </div>
-
+ <iframe class="map-frame" id="mapFrame" title="MR Map"
+         data-src="https://mr-map.netlify.app/"
+         allow="geolocation; accelerometer; gyroscope; magnetometer; fullscreen"></iframe>
 </section>
 
 <!-- SCOUT -->
@@ -1201,27 +1099,9 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
   ● ○ ○ ○
  </div>
  <button class="btn" id="next" aria-label="次のページ">▶</button>
- <button class="btn" id="commandBtn" aria-label="音声コマンドを開く" aria-haspopup="dialog">🎙</button>
 </nav>
 
 </main>
-
-<dialog class="command-dialog" id="commandDialog" aria-labelledby="commandTitle">
- <h2 id="commandTitle">SYSTEM VOICE COMMAND</h2>
- <form id="commandForm">
-  <label for="commandInput">COMMAND INPUT</label>
-  <input class="url" id="commandInput" type="text" placeholder="例：マップを開いて" autocomplete="off" enterkeyhint="go">
-  <p class="note">入力欄で端末の音声入力、または文字入力を使えます。</p>
-  <div id="commandStatus" role="status" aria-live="polite">命令を入力してEXECUTEを押してください。</div>
-  <div class="command-actions">
-   <button class="btn" type="submit">EXECUTE</button>
-   <button class="btn" type="button" id="micBtn">MIC</button>
-   <button class="btn" type="button" id="commandClose">閉じる</button>
-  </div>
- </form>
- <p class="note">駅を探して / 駅を再検索 / ホーム / 天気 / マップ / スカウター / 現在地を更新 / 拡大 / 縮小 / 現在地に戻る / 次のページ / 前のページ</p>
- <p class="note" id="micHelp">MICは対応ブラウザで利用できます。音声はブラウザ提供元のサービスで処理される場合があります。</p>
-</dialog>
 
 <dialog id="ttDialog" aria-labelledby="ttTitle">
 <div class="tt-header"><h2 id="ttTitle">駅の時刻表</h2><button class="btn" id="ttClose">閉じる</button></div>
@@ -1260,61 +1140,14 @@ const ids=[
 const titles=[
  "HOME",
  "WEATHER",
- "TACTICAL MAP",
+ "MR MAP",
  "SCOUT"
 ];
 
 let page=0;
 let pos=null;
-let zoom=16;
 let sensorOn=false;
-let mapCenter=null;
-
-const mapButtons=["panUp","panLeft","panDown","panRight","zin","zout","center"];
-let mapFocus=-1;
-
-
-
-/* =====================
-   MAP FOCUS
-===================== */
-
-function updateMapFocus(){
-
- mapButtons.forEach((id,i)=>{
-  const b=$(id);
-  const selected=page===2&&mapFocus===i;
-
-  b.classList.toggle("selected",selected);
-  b.setAttribute("aria-selected",String(selected));
- });
-
- if(page===2){
-  $("mapHint").textContent=mapFocus>=0
-   ?"◀ ▶ ボタン選択 / 決定で実行 / ↓ 解除"
-   :"方向ボタンで地図移動 / ◀ ▶ ページ切替";
- }
-}
-
-function focusMap(i){
-
- mapFocus=(i+mapButtons.length)%mapButtons.length;
- updateMapFocus();
-
- const b=$(mapButtons[mapFocus]);
-
- try{
-  b.focus({preventScroll:true});
- }catch{
-  b.focus();
- }
-}
-
-function leaveMapFocus(){
- mapFocus=-1;
- updateMapFocus();
- document.activeElement?.blur?.();
-}
+const mapFrame=$("mapFrame");
 
 function show(n){
 
@@ -1330,16 +1163,9 @@ function show(n){
  $("pageid").textContent=
   ids.map((_,i)=>i===page?"●":"○").join(" ");
 
- if(page===2){
-  mapCenter=null;
-  drawMap();
-  leaveMapFocus();
- }else{
-  mapFocus=-1;
-  updateMapFocus();
+ if(ids[page]==="mapPage"&&!mapFrame.hasAttribute("src")){
+  mapFrame.src=mapFrame.dataset.src;
  }
-
-
 }
 
 $("prev").onclick=()=>show(page-1);
@@ -1358,22 +1184,16 @@ function moveHUDSelection(container,step){
 document.addEventListener("keydown",e=>{
  if(e.isComposing)return;
  const editing=e.target instanceof Element&&e.target.matches("input:not([type=file]),textarea,select,[contenteditable=true]");
- if(e.key==="Escape"||(e.key==="Backspace"&&!editing)){
-  if($("ttDialog").open){e.preventDefault();$("ttDialog").close();return;}
-  if($("commandDialog").open){e.preventDefault();$("commandDialog").close();return;}
- }
- if($("ttDialog").open){
+ const timetable=$("ttDialog");
+ if(timetable.open){
+  if(e.key==="Escape"||(e.key==="Backspace"&&!editing)){
+   e.preventDefault();timetable.close();return;
+  }
   if(editing)return;
   if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)){
-   e.preventDefault();moveHUDSelection($("ttDialog"),["ArrowUp","ArrowLeft"].includes(e.key)?-1:1);return;
+   e.preventDefault();moveHUDSelection(timetable,["ArrowUp","ArrowLeft"].includes(e.key)?-1:1);return;
   }
-  if((e.key==="Enter"||e.key===" ")&&document.activeElement?.tagName==="BUTTON"){
-   e.preventDefault();document.activeElement.click();return;
-  }
-  return;
- }
- if($("commandDialog").open)return;
- if(page===3&&["ArrowUp","ArrowDown"].includes(e.key)){
+ }else if(page===3&&["ArrowUp","ArrowDown"].includes(e.key)){
   e.preventDefault();moveHUDSelection($("scout"),e.key==="ArrowUp"?-1:1);return;
  }
  if((e.key==="Enter"||e.key===" ")&&document.activeElement?.tagName==="BUTTON"){
@@ -1381,40 +1201,7 @@ document.addEventListener("keydown",e=>{
  }
 
 
- if(e.target.matches("input,textarea"))return;
-
- if(page===2&&mapFocus>=0){
-
-  if(e.key==="ArrowLeft"){
-   e.preventDefault();
-   focusMap(mapFocus-1);
-   return;
-  }
-
-  if(e.key==="ArrowRight"){
-   e.preventDefault();
-   focusMap(mapFocus+1);
-   return;
-  }
-
-  if(e.key==="Enter"||e.key===" "){
-   e.preventDefault();
-   $(mapButtons[mapFocus]).click();
-   return;
-  }
-
-  if(e.key==="ArrowDown"||e.key==="Escape"){
-   e.preventDefault();
-   leaveMapFocus();
-   return;
-  }
- }
-
- if(page===2&&mapFocus<0&&e.key==="ArrowUp"){
-  e.preventDefault();
-  focusMap(0);
-  return;
- }
+ if(timetable.open||editing)return;
 
  if(e.key==="ArrowLeft"){
   e.preventDefault();
@@ -1425,12 +1212,6 @@ document.addEventListener("keydown",e=>{
   e.preventDefault();
   show(page+1);
  }
-});
-
-mapButtons.forEach((id,i)=>{
- $(id).addEventListener("pointerdown",()=>{
-  if(page===2)focusMap(i);
- });
 });
 
 /* =====================
@@ -1692,7 +1473,6 @@ async function gps(){
 
    locationName();
    weather();
-   drawMap();
    scanStations(p);
   }
  }catch(e){
@@ -1708,122 +1488,6 @@ async function gps(){
 
 $("gpsBtn").onclick=gps;
 $("homeTrainNextPage").onclick=()=>{homeTrainPage++;homeTrainPageAt=Date.now();refreshHomeTrainCountdown();};
-
-/* =====================
-   MAP
-===================== */
-
-function tileXY(lat,lon,z){
-
- const n=2**z;
-
- const rad=
-  Math.max(-85,Math.min(85,lat))*Math.PI/180;
-
- return {
-  x:(lon+180)/360*n,
-  y:(1-Math.log(
-   Math.tan(rad)+1/Math.cos(rad)
-  )/Math.PI)/2*n
- };
-}
-
-function drawMap(){
-
- const m=$("map");
-
- m.querySelectorAll(".tile").forEach(e=>e.remove());
-
- if(!pos)return;
-
- const center=mapCenter||{lat:pos.coords.latitude,lon:pos.coords.longitude};
- const c=tileXY(center.lat,center.lon,zoom);
-
- const w=m.clientWidth||540;
- const h=m.clientHeight||340;
- const n=2**zoom;
-
- for(let dx=-2;dx<=2;dx++){
-
-  for(let dy=-2;dy<=2;dy++){
-
-   const x=Math.floor(c.x)+dx;
-   const y=Math.floor(c.y)+dy;
-
-   if(y<0||y>=n)continue;
-
-   const im=document.createElement("img");
-   im.className="tile";
-   im.alt="";
-
-   im.src=
-    `https://cyberjapandata.gsi.go.jp/xyz/std/${zoom}/${
-     ((x%n)+n)%n
-    }/${y}.png`;
-
-   im.style.left=
-    (w/2+(x-c.x)*256)+"px";
-
-   im.style.top=
-    (h/2+(y-c.y)*256)+"px";
-
-   m.prepend(im);
-  }
- }
-
- $("mapinfo").textContent=
-  "国土地理院 / Z"+zoom;
-}
-
-function pixelToGeo(x,y,z){
- const n=2**z;
- const lon=x/n*360-180;
- const lat=Math.atan(Math.sinh(Math.PI*(1-2*y/n)))*180/Math.PI;
- return {lat:Math.max(-85,Math.min(85,lat)),lon};
-}
-
-// Pointer dragging pans the map; the center button restores the GPS location.
-{
- const m=$("map");
- let drag=null;
- m.addEventListener("pointerdown",e=>{
-  if(!pos||e.target.closest("a,button"))return;
-  drag={id:e.pointerId,x:e.clientX,y:e.clientY,center:mapCenter||{lat:pos.coords.latitude,lon:pos.coords.longitude}};
-  m.setPointerCapture(e.pointerId);
-  m.classList.add("dragging");
- });
- m.addEventListener("pointermove",e=>{
-  if(!drag||drag.id!==e.pointerId)return;
-  const p=tileXY(drag.center.lat,drag.center.lon,zoom);
-  mapCenter=pixelToGeo(p.x-(e.clientX-drag.x)/256,p.y-(e.clientY-drag.y)/256,zoom);
-  drawMap();
- });
- const stop=e=>{if(drag&&drag.id===e.pointerId){drag=null;m.classList.remove("dragging");}};
- m.addEventListener("pointerup",stop);
- m.addEventListener("pointercancel",stop);
-}
-
-function panMap(dx,dy){
- if(!pos)return;
- const center=mapCenter||{lat:pos.coords.latitude,lon:pos.coords.longitude};
- const p=tileXY(center.lat,center.lon,zoom);
- mapCenter=pixelToGeo(p.x+dx*0.5,p.y+dy*0.5,zoom);
- drawMap();
-}
-$("panUp").onclick=()=>panMap(0,-1);
-$("panDown").onclick=()=>panMap(0,1);
-$("panLeft").onclick=()=>panMap(-1,0);
-$("panRight").onclick=()=>panMap(1,0);
-
-function setZoom(z){
-
- zoom=Math.max(5,Math.min(18,z));
- drawMap();
-}
-
-$("zin").onclick=()=>setZoom(zoom+1);
-$("zout").onclick=()=>setZoom(zoom-1);
-$("center").onclick=()=>{mapCenter=null;drawMap();if(!pos)gps();};
 
 /* =====================
    SCOUT SENSOR
@@ -1915,97 +1579,6 @@ setInterval(()=>{
 
 
 },600000);
-
-/* Japanese commands share the existing page, map and GPS actions. */
-const commandDialog=$("commandDialog");
-const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-let recognition=null;
-let listening=false;
-
-function commandAction(raw){
- const text=raw.normalize("NFKC").replace(/[\s。、！？!?]/g,"").toLowerCase();
- if(!text)return null;
- if(/駅を探して|近くの駅|駅スキャン|駅検索|最寄り駅|駅を再検索/.test(text))return ()=>{show(3);scanStations();};
- if(/現在地.*(戻|もど)|現在地に移動/.test(text))return ()=>{show(2);gps();};
- if(/現在地.*更新|gps|天気.*更新/.test(text))return gps;
- if(/ズームイン|拡大/.test(text))return ()=>{show(2);setZoom(zoom+1);};
- if(/ズームアウト|縮小/.test(text))return ()=>{show(2);setZoom(zoom-1);};
- if(/次のページ|次へ/.test(text))return ()=>show(page+1);
- if(/前のページ|前へ/.test(text))return ()=>show(page-1);
- if(/ホーム|home/.test(text))return ()=>show(0);
- if(/天気|週間予報|weather/.test(text))return ()=>show(1);
- if(/マップ|地図|map/.test(text))return ()=>show(2);
- if(/スカウター|スカウト|レーダー|scout/.test(text))return ()=>show(3);
- return null;
-}
-
-function stopListening(){
- const active=recognition;
- recognition=null;
- listening=false;
- $("micBtn").textContent="MIC";
- if(active){try{active.abort();}catch{}}
-}
-
-function executeCommand(){
- const action=commandAction($("commandInput").value);
- if(!action){
-  $("commandStatus").textContent="命令を確認できません。下の例から入力してください。";
-  return;
- }
- commandDialog.close();
- action();
-}
-
-$("commandBtn").onclick=()=>{
- $("commandStatus").textContent="命令を入力してEXECUTEを押してください。";
- commandDialog.showModal();
- $("commandInput").focus();
-};
-$("commandClose").onclick=()=>commandDialog.close();
-commandDialog.addEventListener("close",()=>{
- stopListening();
- $("commandBtn").focus();
-});
-$("commandForm").onsubmit=e=>{e.preventDefault();executeCommand();};
-if(!SpeechRecognition){
- $("micBtn").disabled=true;
- $("micHelp").textContent="このブラウザのMICは非対応です。入力欄で端末の音声入力または文字入力を使ってください。";
-}
-$("micBtn").onclick=()=>{
- if(listening){stopListening();$("commandStatus").textContent="音声入力を停止しました。";return;}
- if(!SpeechRecognition)return;
- try{
-  const current=new SpeechRecognition();
-  recognition=current;
-  current.lang="ja-JP";
-  current.continuous=false;
-  current.interimResults=false;
-  current.onresult=e=>{
-   if(recognition!==current||!commandDialog.open)return;
-   $("commandInput").value=e.results[0][0].transcript;
-   executeCommand();
-  };
-  current.onerror=e=>{
-   if(recognition!==current)return;
-   $("commandStatus").textContent=e.error==="not-allowed"
-    ?"マイクが許可されていません。端末の音声入力または文字入力を使ってください。"
-    :"音声を取得できませんでした。再試行または文字入力を使ってください。";
-  };
-  current.onend=()=>{
-   if(recognition!==current)return;
-   recognition=null;listening=false;$("micBtn").textContent="MIC";
-   if($("commandStatus").textContent==="音声を聞き取り中…")$("commandStatus").textContent="音声入力が終了しました。再試行または文字入力を使ってください。";
-  };
-  current.start();
-  listening=true;
-  $("micBtn").textContent="STOP";
-  $("commandStatus").textContent="音声を聞き取り中…";
- }catch{
-  stopListening();
-  $("commandStatus").textContent="MICを開始できません。端末の音声入力または文字入力を使ってください。";
- }
-};
 
 /* STATION SCANNER: pure data helpers, then UI and network integration. */
 function stationDistance(a,b){
