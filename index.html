@@ -987,6 +987,9 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
 .tt-data-controls{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
 .tt-data-controls .btn{min-height:28px;padding:2px 6px;font-size:12px}
 #nearTrainTimetable{width:100%;margin-top:6px}
+.weather-heading{display:flex;align-items:baseline;gap:6px;min-width:0}
+.weather-heading #condition,.weather-heading #place{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.weather-heading #place{margin-left:auto;font-size:10px;line-height:1.2}
 </style>
 </head>
 
@@ -1010,17 +1013,14 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
 
   <div class="home-clock" id="clock">--:--</div>
 
-  <div class="home-place" id="place">
-   現在地を確認中
-  </div>
-
   <div class="home-temp" id="temp">
    --°
   </div>
 
   <div class="card home-weather">
-   <div class="weather-name" id="condition">
-    天気取得中
+   <div class="weather-heading">
+    <div class="weather-name" id="condition">天気取得中</div>
+    <a id="place" target="_blank" rel="noopener" aria-live="polite">取得中</a>
    </div>
    <div class="meta" id="details">
     体感 --° / 降水 --%
@@ -1046,9 +1046,7 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
   7日間予報
  </h2>
 
- <div class="note" id="weekplace">
-  現在地
- </div>
+ <a class="note" id="weekplace" target="_blank" rel="noopener" aria-live="polite">取得中</a>
 
  <div class="card week" id="weekrows">
   予報取得中
@@ -1166,6 +1164,7 @@ function show(n){
  if(ids[page]==="mapPage"&&!mapFrame.hasAttribute("src")){
   mapFrame.src=mapFrame.dataset.src;
  }
+ if(ids[page]==="weekly")weather();
 }
 
 $("prev").onclick=()=>show(page-1);
@@ -1243,7 +1242,7 @@ setInterval(tick,1000);
 ===================== */
 
 function weatherName(c){
-
+ if(!Number.isFinite(c))return ["未取得",""];
  return c===0?["☀️ 快晴","#ffe66d"]:
  c<=2?["🌤️ 晴れ","#ffe66d"]:
  c===3?["☁️ くもり","#fff"]:
@@ -1262,179 +1261,272 @@ function rainColor(p){
  p>=30?"#61d9ff":"#8ff0b3";
 }
 
-async function weather(){
+const nagoyaWeatherLocation={lat:35.1815,lon:136.9066,name:"名古屋"};
+const weatherRefreshInterval=300000;
+const jmaSource={name:"気象庁",url:"https://www.jma.go.jp/bosai/forecast/"};
+const openMeteoSource={name:"Open-Meteo",url:"https://open-meteo.com/"};
+let weatherLocation=nagoyaWeatherLocation;
+let weatherGpsAvailable=false;
+let weatherRequest=null;
+let lastWeather=null;
+let weatherUpdateFailed=false;
 
- if(!pos)return;
+function weatherValue(value){
+ if(value===null||value===undefined||value==="")return null;
+ const number=Number(value);
+ return Number.isFinite(number)?number:null;
+}
 
- const {latitude,longitude}=pos.coords;
-
+async function fetchWeatherData(url,format="json"){
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),8000);
  try{
+  const response=await fetch(url,{cache:"no-store",signal:controller.signal});
+  if(!response.ok)throw Error("HTTP "+response.status);
+  return await response[format]();
+ }finally{clearTimeout(timeout);}
+}
 
-  const url=
-   "https://api.open-meteo.com/v1/forecast?"+
-   new URLSearchParams({
-    latitude,
-    longitude,
-    current:
-     "temperature_2m,apparent_temperature,weather_code,precipitation_probability",
-    hourly:"precipitation_probability",
-    daily:
-     "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
-    timezone:"auto",
-    forecast_days:7
-   });
+function weatherDateTime(time){
+ return time.slice(5,16).replace("T"," ");
+}
 
-  const r=await fetch(url);
+async function openMeteoWeather(location){
+ const query=new URLSearchParams({
+  latitude:location.lat,longitude:location.lon,
+  current:"temperature_2m,apparent_temperature,weather_code",
+  hourly:"precipitation_probability",
+  daily:"weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+  timezone:"auto",forecast_days:7,
+ });
+ const {current,hourly,daily}=await fetchWeatherData("https://api.open-meteo.com/v1/forecast?"+query);
+ if(!current?.time||!Array.isArray(hourly?.time)||!Array.isArray(hourly.precipitation_probability)||
+  !Array.isArray(daily?.time)||daily.time.length!==7||!Number.isFinite(current.temperature_2m)){
+  throw Error("Incomplete weather forecast");
+ }
+ const probability=hourly.precipitation_probability;
+ const currentHour=hourly.time.findIndex(time=>time.slice(0,13)===current.time.slice(0,13));
+ const next=hourly.time.findIndex((time,i)=>time>current.time&&probability[i]>=50);
+ return {
+  location,source:openMeteoSource,temperature:current.temperature_2m,
+  apparent:current.apparent_temperature,condition:weatherName(current.weather_code),
+  chance:probability[currentHour],
+  rain:next<0?"予報期間内になし":weatherDateTime(hourly.time[next])+"頃 ("+probability[next]+"%)",
+  days:daily.time.map((date,i)=>({
+   date,condition:weatherName(daily.weather_code?.[i]),max:daily.temperature_2m_max?.[i],
+   min:daily.temperature_2m_min?.[i],chance:daily.precipitation_probability_max?.[i],
+  })),
+ };
+}
 
-  if(!r.ok)throw Error("HTTP "+r.status);
+function jmaSeries(report,code,field){
+ for(const series of report?.timeSeries||[]){
+  const area=series.areas.find(item=>item.area.code===code);
+  if(Array.isArray(area?.[field]))return series.timeDefines.map((time,i)=>[time,weatherValue(area[field][i])]);
+ }
+ return [];
+}
 
-  const d=await r.json();
-  const c=d.current;
-  const w=weatherName(c.weather_code);
+function jmaCondition(code){
+ const categories=[
+  ["☀️ 晴れ","#ffe66d"],["☁️ くもり","#fff"],["🌧️ 雨","#61d9ff"],
+  ["❄️ 雪","#d9f4ff"],["🌧️ 雨か雪","#d9f4ff"],
+ ];
+ return categories[Math.floor(code/100)-1]||["未取得",""];
+}
 
-  $("temp").textContent=
-   Math.round(c.temperature_2m)+"°";
+async function nagoyaTemperature(){
+ const base="https://www.jma.go.jp/bosai/amedas/data/";
+ const time=(await fetchWeatherData(base+"latest_time.txt","text")).trim();
+ if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$/.test(time))return null;
+ const day=time.slice(0,10).replace(/-/g,"");
+ const hours=String(Math.floor(Number(time.slice(11,13))/3)*3).padStart(2,"0");
+ const data=await fetchWeatherData(base+"point/51106/"+day+"_"+hours+".json");
+ const limit=time.replace(/\D/g,"").slice(0,14);
+ const latest=Object.keys(data).filter(key=>key<=limit&&Number.isFinite(data[key]?.temp?.[0])).sort().pop();
+ return data[latest]?.temp?.[0]??null;
+}
 
-  $("condition").textContent=w[0];
-  $("condition").style.color=w[1];
-
-  $("details").textContent=
-   "🌡️ 体感 "+
-   Math.round(c.apparent_temperature)+
-   "°\n💧 降水 "+
-   (c.precipitation_probability??"--")+"%";
-
-  const nowLocal=new Intl.DateTimeFormat(
-   "sv-SE",{
-    timeZone:d.timezone,
-    year:"numeric",
-    month:"2-digit",
-    day:"2-digit",
-    hour:"2-digit",
-    minute:"2-digit",
-    hour12:false
-   }
-  ).format(new Date()).replace(" ","T");
-
-  let next="予報期間内になし";
-
-  for(let i=0;i<d.hourly.time.length;i++){
-
-   const t=d.hourly.time[i];
-   const p=d.hourly.precipitation_probability[i];
-
-   if(t>nowLocal&&p>=50){
-    next=t.slice(5,16).replace("T"," ")+
-     "頃 ("+p+"%)";
-    break;
-   }
+async function jmaWeather(){
+ const [reports,temperature]=await Promise.all([
+  fetchWeatherData("https://www.jma.go.jp/bosai/forecast/data/forecast/230000.json"),
+  nagoyaTemperature().catch(()=>null),
+ ]);
+ const now=Date.now();
+ const hour=3600000;
+ const days=Array.from({length:7},(_,i)=>({
+  date:new Date(now+(9+i*24)*hour).toISOString().slice(0,10),
+  condition:["未取得",""],max:null,min:null,chance:null,
+ }));
+ const byDate=new Map(days.map(entry=>[entry.date,entry]));
+ const writeDays=(field,entries,convert=value=>value)=>{
+  for(const [time,value] of entries){
+   const day=byDate.get(time.slice(0,10));
+   if(day&&value!==null)day[field]=convert(value);
   }
+ };
+ const [short,weekly]=reports;
+ const shortCodes=jmaSeries(short,"230010","weatherCodes");
+ const weeklyCodes=jmaSeries(weekly,"230000","weatherCodes");
+ if(!shortCodes.length||!weeklyCodes.length)throw Error("Incomplete JMA forecast");
+ writeDays("condition",weeklyCodes,jmaCondition);
+ writeDays("condition",shortCodes,jmaCondition);
+ writeDays("chance",jmaSeries(weekly,"230000","pops"));
+ writeDays("min",jmaSeries(weekly,"51106","tempsMin"));
+ writeDays("max",jmaSeries(weekly,"51106","tempsMax"));
+ const temperatures=jmaSeries(short,"51106","temps");
+ writeDays("min",temperatures.filter(([time])=>time.slice(11,13)<"09"));
+ writeDays("max",temperatures.filter(([time])=>time.slice(11,13)>="09"));
+ const pops=jmaSeries(short,"230010","pops");
+ const shortDayChances=new Map();
+ for(const [time,chance] of pops){
+  if(chance===null)continue;
+  const date=time.slice(0,10);
+  shortDayChances.set(date,Math.max(shortDayChances.get(date)??0,chance));
+ }
+ writeDays("chance",shortDayChances);
+ const active=pops.find(([time])=>Date.parse(time)<=now&&now<Date.parse(time)+6*hour);
+ const next=pops.find(([time,chance])=>Date.parse(time)>now&&chance>=50);
+ const weekRain=days.slice(1).find(day=>day.chance>=50);
+ const [label,color]=days[0].condition;
+ return {
+  location:nagoyaWeatherLocation,source:jmaSource,temperature,apparent:null,
+  condition:[label==="未取得"?"予報未取得":label+"予報",color],
+  chance:active?.[1],
+  rain:next?weatherDateTime(next[0])+"〜 ("+next[1]+"%)":
+   weekRain?weekRain.date.slice(5)+" ("+weekRain.chance+"%)":"直近の予報でなし",
+  days,
+ };
+}
 
-  $("rainnext").textContent=
-   "☔ 次の雨："+next;
+function formatWeatherTemperature(value){
+ return Number.isFinite(value)?Math.round(value)+"°":"--°";
+}
+function formatWeatherChance(value){
+ return Number.isFinite(value)?value+"%":"--%";
+}
 
-  const wrap=$("weekrows");
-  wrap.replaceChildren();
-
-  d.daily.time.forEach((date,i)=>{
-
-   const row=document.createElement("div");
-   row.className="weekrow";
-
-   const day=new Date(date+"T12:00:00");
-   const wc=weatherName(d.daily.weather_code[i]);
-
-   const rp=
-    d.daily.precipitation_probability_max[i]??0;
-
-   const values=[
-    [
-     `${day.getMonth()+1}/${day.getDate()}${
-      "日月火水木金土"[day.getDay()]
-     }`,""
-    ],
-    [wc[0],wc[1]],
-    [
-     `${Math.round(d.daily.temperature_2m_max[i])}° / ${
-      Math.round(d.daily.temperature_2m_min[i])
-     }°`,""
-    ],
-    [rp+"%",rainColor(rp)]
-   ];
-
-   values.forEach(([value,color])=>{
-
-    const span=document.createElement("span");
-    span.textContent=value;
-    span.title=value;
-
-    if(value===wc[0]){
-     span.className="forecast-condition";
-     span.setAttribute("aria-label",value);
-     const icon=document.createElement("span");
-     icon.textContent=value.split(" ")[0];
-     icon.setAttribute("aria-hidden","true");
-     const label=document.createElement("span");
-     label.className="forecast-label";
-     label.textContent=" "+value.split(" ").slice(1).join(" ");
-     span.replaceChildren(icon,label);
-    }
-    if(color)span.style.color=color;
-
-    row.appendChild(span);
-   });
-
-   wrap.appendChild(row);
+function renderWeather(forecast){
+ const rows=document.createDocumentFragment();
+ for(const {date,condition,max,min,chance} of forecast.days){
+  const day=new Date(date+"T12:00:00Z");
+  const row=document.createElement("div");
+  row.className="weekrow";
+  const values=[
+   [(day.getUTCMonth()+1)+"/"+day.getUTCDate()+"日月火水木金土"[day.getUTCDay()],""],
+   condition,
+   [formatWeatherTemperature(max)+" / "+formatWeatherTemperature(min),""],
+   [formatWeatherChance(chance),Number.isFinite(chance)?rainColor(chance):""],
+  ];
+  values.forEach(([value,color],index)=>{
+   const span=document.createElement("span");
+   span.textContent=value;
+   span.title=value;
+   if(index===1){
+    span.className="forecast-condition";
+    span.setAttribute("aria-label",value);
+    const icon=document.createElement("span");
+    icon.textContent=value.split(" ")[0];
+    icon.setAttribute("aria-hidden","true");
+    const label=document.createElement("span");
+    label.className="forecast-label";
+    label.textContent=" "+value.split(" ").slice(1).join(" ");
+    span.replaceChildren(icon,label);
+   }
+   if(color)span.style.color=color;
+   row.appendChild(span);
   });
+  rows.appendChild(row);
+ }
+ $("temp").textContent=formatWeatherTemperature(forecast.temperature);
+ $("condition").textContent=forecast.condition[0];
+ $("condition").style.color=forecast.condition[1];
+ $("details").textContent=
+  "🌡️ 体感 "+formatWeatherTemperature(forecast.apparent)+" / 💧 降水 "+formatWeatherChance(forecast.chance);
+ $("rainnext").textContent="☔ 次の雨："+forecast.rain;
+ $("weekrows").replaceChildren(rows);
+}
 
-  $("state").textContent="SYNC OK";
-
- }catch(e){
-
-  $("state").textContent="WEATHER ERR";
-  $("condition").textContent="天気取得失敗";
-  $("weekrows").textContent="予報取得失敗";
+function updateWeatherLabel(){
+ const location=lastWeather?.forecast.location||weatherLocation;
+ const source=lastWeather?.forecast.source;
+ const time=lastWeather&&new Date(lastWeather.updatedAt).toLocaleTimeString("ja-JP",{
+  hour:"2-digit",minute:"2-digit",hourCycle:"h23",
+ });
+ const status=weatherUpdateFailed?(time?"取得失敗・前回 "+time:"取得失敗"):(time?"取得 "+time:"取得中");
+ const note=location===nagoyaWeatherLocation?(weatherGpsAvailable?"（代替）":"（GPS未取得）"):
+  weatherGpsAvailable?"":"（前回位置）";
+ const label=[status,location.name+note,source?.name].filter(Boolean).join(" · ");
+ for(const id of ["place","weekplace"]){
+  const link=$(id);
+  if(link.textContent!==label)link.textContent=label;
+  if(source){
+   link.href=source.url;
+   link.title=label+" · "+source.name+"の予報データを加工";
+  }
  }
 }
 
-/* =====================
-   LOCATION
-===================== */
-
-async function locationName(){
-
- if(!pos)return;
-
+async function weather(force=false){
+ const location=weatherLocation;
+ if(weatherRequest?.location===location)return;
+ if(!force&&!weatherUpdateFailed&&lastWeather?.requestedLocation===location&&
+  Date.now()-lastWeather.updatedAt<weatherRefreshInterval)return;
+ const request={location};
+ weatherRequest=request;
+ updateWeatherLabel();
+ const defaultLocation=location===nagoyaWeatherLocation;
  try{
-
-  const {latitude,longitude}=pos.coords;
-
-  const r=await fetch(
-   "https://api.bigdatacloud.net/data/reverse-geocode-client?"+
-   new URLSearchParams({
-    latitude,
-    longitude,
-    localityLanguage:"ja"
-   })
-  );
-
-  if(!r.ok)throw Error();
-
-  const d=await r.json();
-
-  const name=[
-   d.locality||d.city,
-   d.principalSubdivision
-  ].filter(Boolean).join(" / ")||"現在地";
-
-  $("place").textContent=name;
-  $("weekplace").textContent=name;
-
+  let forecast;
+  try{forecast=await (defaultLocation?jmaWeather():openMeteoWeather(location));}
+  catch{
+   if(weatherRequest!==request)return;
+   forecast=await (defaultLocation?openMeteoWeather(location):jmaWeather());
+  }
+  if(weatherRequest!==request)return;
+  renderWeather(forecast);
+  lastWeather={forecast,requestedLocation:location,updatedAt:Date.now()};
+  weatherUpdateFailed=false;
+  $("state").textContent="SYNC OK";
  }catch{
-
-  $("place").textContent="現在地取得済み";
+  if(weatherRequest!==request)return;
+  weatherUpdateFailed=true;
+  $("state").textContent="WEATHER ERR";
+  if(!lastWeather){
+   $("condition").textContent="天気取得失敗";
+   $("rainnext").textContent="☔ 次の雨：未取得";
+   $("weekrows").textContent="予報を取得できませんでした";
+  }
+ }finally{
+  if(weatherRequest===request){
+   weatherRequest=null;
+   updateWeatherLabel();
+  }
  }
 }
+
+async function locationName(location){
+ try{
+  const query=new URLSearchParams({latitude:location.lat,longitude:location.lon,localityLanguage:"ja"});
+  const data=await fetchWeatherData("https://api.bigdatacloud.net/data/reverse-geocode-client?"+query);
+  location.name=data.locality||data.city||data.principalSubdivision||"現在地";
+  updateWeatherLabel();
+ }catch{}
+}
+
+function setWeatherPosition(position){
+ const {latitude:lat,longitude:lon}=position.coords;
+ const location={lat,lon,name:"現在地"};
+ weatherGpsAvailable=true;
+ if(weatherLocation!==nagoyaWeatherLocation&&stationDistance(weatherLocation,location)<1000){
+  updateWeatherLabel();
+  return;
+ }
+ weatherLocation=location;
+ locationName(location);
+ weather();
+}
+
 
 let gpsBusy=false;
 function acquirePosition(){
@@ -1450,43 +1542,29 @@ async function gps(){
  if(gpsBusy)return;
  gpsBusy=true;
  invalidateStationResults();
-
- if(!navigator.geolocation){
-
-  $("state").textContent="GPS非対応";
-  gpsBusy=false;
-  showOfflineStations();
-  return;
- }
-
+ const previousPosition=pos;
  try{
   const p=await acquirePosition();
-  {
-
-   pos=p;
-
-   $("state").textContent="GPS LOCK";
-
-   $("coords").textContent=
-    "LAT "+p.coords.latitude.toFixed(4)+
-    " / LON "+p.coords.longitude.toFixed(4);
-
-   locationName();
-   weather();
-   scanStations(p);
+  if(!pos||!(p.timestamp<pos.timestamp))pos=p;
+  $("state").textContent="GPS LOCK";
+  $("coords").textContent=
+   "LAT "+pos.coords.latitude.toFixed(4)+" / LON "+pos.coords.longitude.toFixed(4);
+  setWeatherPosition(pos);
+  scanStations(pos);
+ }catch(error){
+  if(pos===previousPosition){
+   weatherGpsAvailable=false;
+   updateWeatherLabel();
   }
- }catch(e){
-
-   $("state").textContent=e.code===3?"GPS TIMEOUT":e.code===1?"GPS DENIED":"GPS ERROR "+e.code;
-   $("stationStatus").textContent=e.code===3?"GPS取得タイムアウト（駅通信前）":e.code===1?"位置情報の許可が必要":"GPS取得失敗";
-   if(pos){$("homeNearestStation").textContent="前回の位置情報を使用中";scanStations(pos);}
-   else { $("homeNearestStation").textContent="GPS取得失敗・位置情報なし"; showOfflineStations(); }
-
-   $("place").textContent=e.code===1?"位置情報の許可を確認":"GPSの再取得を待機中";
+  $("state").textContent=error.code===3?"GPS TIMEOUT":error.code===1?"GPS DENIED":error.code===0?"GPS非対応":"GPS ERROR";
+  $("stationStatus").textContent=error.code===3?"GPS取得タイムアウト（駅通信前）":
+   error.code===1?"位置情報の許可が必要":"GPS取得失敗";
+  if(pos){$("homeNearestStation").textContent="前回の位置情報を使用中";scanStations(pos);}
+  else showOfflineStations();
  }finally{gpsBusy=false;}
 }
 
-$("gpsBtn").onclick=gps;
+$("gpsBtn").onclick=()=>{weather(true);gps();};
 $("homeTrainNextPage").onclick=()=>{homeTrainPage++;homeTrainPageAt=Date.now();refreshHomeTrainCountdown();};
 
 /* =====================
@@ -1565,20 +1643,6 @@ $("scanBtn").onclick=()=>{
  sensor();
  scanStations();
 };
-
-/* =====================
-   AUTO UPDATE
-===================== */
-
-setInterval(()=>{
-
- if(document.hidden)return;
-
- if(pos)weather();
- else gps();
-
-
-},600000);
 
 /* STATION SCANNER: pure data helpers, then UI and network integration. */
 function stationDistance(a,b){
@@ -2150,21 +2214,24 @@ setInterval(()=>{if($('ttDialog').open)renderTimetable();},1000);
 
 /* START */
 
-// Keep the TOP screen fresh: GPS, location, weather, and nearest station.
-setInterval(()=>{if(!document.hidden&&!stationBusy)gps();},300000);
-// Refresh weather independently if GPS is temporarily unavailable.
-setInterval(()=>{if(!document.hidden&&pos)weather();},600000);
+setInterval(()=>{
+ if(document.hidden)return;
+ weather(true);
+ if(!stationBusy)gps();
+},weatherRefreshInterval);
 setInterval(()=>{if(!document.hidden&&$("ttDialog").open)renderTimetable();},60000);
 // Refresh immediately when the HUD is opened or returns to the foreground.
 let hudGeoWatch=null,hudLastStationCoords=null,hudLastStationAt=0;
 function hudApplyTrackedPosition(p){
  if(!p?.coords||!Number.isFinite(p.coords.latitude)||!Number.isFinite(p.coords.longitude))return;
+ if(pos&&p.timestamp<pos.timestamp)return;
  const current={lat:p.coords.latitude,lon:p.coords.longitude};
  const moved=!hudLastStationCoords||stationDistance(current,hudLastStationCoords)>180;
  const elapsed=Date.now()-hudLastStationAt;
  pos=p;
  $("state").textContent="GPS AUTO";
  $("coords").textContent="LAT "+current.lat.toFixed(4)+" / LON "+current.lon.toFixed(4);
+ setWeatherPosition(p);
  if(moved||elapsed>180000){
   if(!stationBusy){
    hudLastStationCoords=current;hudLastStationAt=Date.now();
@@ -2176,7 +2243,12 @@ function startHUDLocationWatch(){
  if(hudGeoWatch!==null||!navigator.geolocation||document.hidden)return;
  try{
   hudGeoWatch=navigator.geolocation.watchPosition(hudApplyTrackedPosition,e=>{
-   if(e.code===1){stopHUDLocationWatch();$("state").textContent="GPS 許可が必要";}
+   if(e.code===1){
+    stopHUDLocationWatch();
+    weatherGpsAvailable=false;
+    updateWeatherLabel();
+    $("state").textContent="GPS 許可が必要";
+   }
   },{enableHighAccuracy:false,maximumAge:30000,timeout:20000});
  }catch(e){$("state").textContent="GPS AUTO ERROR";}
 }
@@ -2199,8 +2271,8 @@ window.addEventListener("keydown",playHUDBootSound,{once:false});
 playHUDBootSound();
 function refreshHUDOnOpen(){
  tick();
- if(pos)weather(); // refresh forecast without waiting for another GPS fix
- if(!gpsBusy)gps();
+ weather();
+ gps();
  startHUDLocationWatch();
 }
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshHUDOnOpen();else stopHUDLocationWatch();});
