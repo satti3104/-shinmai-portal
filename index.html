@@ -5,1001 +5,276 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V5.4 — GAME BOY MONO</title>
+<title>COMMAND HUD V5.5 — DARK LCD</title>
 
 <style>
+/* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
+:root{
+ color-scheme:dark;
+ --bg:#030705;--surface:#0c1510;--raised:#121f16;--line:#324b38;
+ --text:#edf8e7;--muted:#afc4a7;--accent:#c5f59a;--gold:#ffe097;
+ --mono:ui-monospace,"SFMono-Regular",Consolas,monospace;
+ font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;
+ font-size:16px;
+}
 *{box-sizing:border-box}
-
-html,body{
- margin:0;
- width:100%;
- height:100%;
- overflow:hidden;
- background:#000;
- color:#fff;
- font-family:system-ui,-apple-system,
- "Noto Sans JP",sans-serif;
+[hidden]{display:none!important}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,input,select{font:inherit}
+button{touch-action:manipulation;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+a{color:var(--muted);text-underline-offset:3px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#stationList:focus-visible{
+ outline:3px solid var(--accent);outline-offset:2px;
 }
-
-button,input{font:inherit}
-button{touch-action:manipulation}
-
 .app{
- width:100%;
- max-width:600px;
- height:100%;
- height:100dvh;
- max-height:600px;
- margin:auto;
- padding:8px 14px 10px;
- display:grid;
- grid-template-rows:54px minmax(0,1fr) 76px;
- gap:6px;
- background:#000;
+ display:flex;flex-direction:column;gap:10px;width:100%;max-width:600px;
+ height:100%;height:100dvh;max-height:760px;margin:0 auto;
+ padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
+ background:var(--bg);
 }
-
-.header{
- display:flex;
- align-items:center;
- justify-content:space-between;
- padding:6px 10px;
- border-radius:10px;
- background:#0d1219;
- color:#80e9ff;
- font-size:16px;
- font-weight:750;
-}
-
-.state{
- font-size:12px;
- color:#a1efbd;
-}
-
-.content{
- min-height:0;
- overflow:hidden;
-}
-
-.page{
- display:none;
- width:100%;
- height:100%;
- min-height:0;
- overflow:hidden;
-}
-
-.page.active{
- display:flex;
- flex-direction:column;
- gap:7px;
-}
-
-.btn{
- border:1px solid #3e6b83;
- border-radius:12px;
- background:#101e2b;
- color:#fff;
- font-size:15px;
- font-weight:700;
- min-height:38px;
- cursor:pointer;
-}
-
-.btn:focus-visible{
- outline:3px solid #7deaff;
- outline-offset:-3px;
- background:#174b63;
- box-shadow:0 0 12px rgba(60,220,255,.4);
-}
-
-.dock{
- display:grid;
- grid-template-columns:72px 1fr 72px;
- gap:8px;
- align-items:start;
-}
-
-.dock .btn,.pageid{
- height:68px;
-}
-
-.pageid{
- display:grid;
- place-items:center;
- border-radius:12px;
- background:#10131a;
- color:#a8c7d8;
- font-size:16px;
-}
-
-.card{
- background:#101923;
- border:1px solid #1c4255;
- border-radius:12px;
- padding:9px;
-}
-
-.note{
- font-size:13px;
- color:#abb7c0;
-}
-
-.meta{
- font-size:14px;
- line-height:1.35;
-}
-
-.sectiontitle{
- margin:0;
- font-size:22px;
-}
-
-/* =====================
-   HOME
-===================== */
-
+.header{display:none}
+.content{flex:1 1 0;min-width:0;min-height:0;overflow:hidden}
+.page{display:none;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden}
+.page.active{display:flex;flex-direction:column;gap:10px}
 .home.active{display:block}
-
-.home{
- padding:0 2px;
- overflow:hidden;
-}
-
-.home-inner{
- height:100%;
- display:grid;
- grid-template-rows:
- 56px
- 43px
- 26px
- 51px
- minmax(0,1fr)
- 94px
- 43px;
- gap:4px;
- overflow:hidden;
-}
-
-.home-clock{
- font-size:48px;
- line-height:56px;
- height:56px;
- font-weight:350;
- letter-spacing:-1px;
- font-variant-numeric:tabular-nums;
- white-space:nowrap;
-}
-
-.home-date{
- font-size:clamp(28px, 7.5vw, 36px);
- font-weight:800;
- line-height:43px;
- white-space:nowrap;
-}
-
-.home-place{
- font-size:19px;
- line-height:26px;
- white-space:nowrap;
- overflow:hidden;
- text-overflow:ellipsis;
-}
-
-.home-temp{
- font-size:46px;
- line-height:51px;
- color:#ffb080;
-}
-
-.home-weather{
- min-height:0;
- display:flex;
- flex-direction:column;
- justify-content:center;
- gap:3px;
- overflow:hidden;
- padding:5px 10px;
-}
-.weather-name{
- font-size:27px;
- line-height:1.1;
- font-weight:800;
- color:#ffe66d;
-}
-.home-weather .meta{
- font-size:20px;
- line-height:1.15;
- font-weight:650;
- white-space:normal;
- overflow-wrap:anywhere;
-}
-#details{white-space:pre-line}
-#rainnext{font-size:18px;line-height:1.15}
-@media(max-height:380px){
- .weather-name{font-size:23px}
- .home-weather .meta{font-size:17px}
- #rainnext{font-size:15px}
-}
-
-.home-nearest{display:flex;flex-direction:column;justify-content:center;padding:5px 10px;min-height:0;border:1px solid #316178;border-radius:10px;background:#0b1823;overflow:hidden}
-.home-nearest-label{font-size:10px;color:#83dfff;letter-spacing:1px}
-.home-nearest-value{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.home-refresh{
- height:43px;
- min-height:43px;
- width:100%;
- font-size:17px;
-}
-
-/* =====================
-   WEATHER
-===================== */
-
-.week{
- min-height:0;
- overflow:auto;
- scrollbar-width:none;
-}
-
-.weekrow{
- display:grid;
- grid-template-columns:
- 76px minmax(0,1fr) 105px 48px;
- gap:4px;
- align-items:center;
- min-height:49px;
- padding:9px 3px;
- border-bottom:1px solid #38404c;
- font-size:17px;
-}
-
-.weekrow span{
- min-width:0;
- white-space:nowrap;
- overflow:hidden;
- text-overflow:ellipsis;
-}
-
-/* =====================
-   MAP
-===================== */
-
-.map-frame{
- flex:1 1 0;
- width:100%;
- min-height:0;
- border:0;
- background:#000;
-}
-
-/* =====================
-   SCOUT
-===================== */
-
-#scout.active{
- display:grid;
- grid-template-rows:
- minmax(50px,1fr)
- 28px
- 22px
- 22px
- 48px;
- gap:4px;
- align-items:center;
- overflow:hidden;
-}
-
-.radar{
- position:relative;
- width:auto;
- height:100%;
- max-height:210px;
- max-width:100%;
- aspect-ratio:1;
- justify-self:center;
- margin:0;
- border:2px solid #60d7ed;
- border-radius:50%;
- background:repeating-radial-gradient(
-  circle,
-  #000 0 40px,
-  #1a3640 41px 42px
- );
-}
-
-.radar:before,
-.radar:after{
- content:"";
- position:absolute;
- background:#5ddaf0;
-}
-
-.radar:before{
- width:80%;
- height:1px;
- left:10%;
- top:50%;
-}
-
-.radar:after{
- height:80%;
- width:1px;
- top:10%;
- left:50%;
-}
-
-.needle{
- position:absolute;
- left:50%;
- top:50%;
- width:4px;
- height:42%;
- background:linear-gradient(#ffe66d,transparent);
- transform-origin:50% 100%;
- transform:translate(-50%,-100%);
- display:none;
-}
-
-.scouttext{
- text-align:center;
- font-size:19px;
- line-height:28px;
- color:#a1efbd;
-}
-
-#coords,
-#sensorstatus{
- font-size:13px;
- line-height:20px;
- overflow:hidden;
- white-space:nowrap;
- text-overflow:ellipsis;
-}
-
-.scoutbuttons,
-.calendarbuttons{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:6px;
-}
-
-.scoutbuttons .btn{
- height:48px;
- min-height:0;
- font-size:16px;
-}
-
-/* =====================
-   CALENDAR
-===================== */
-
-.events{
- min-height:0;
- overflow:auto;
- scrollbar-width:none;
-}
-
-.event{
- display:grid;
- grid-template-columns:65px 1fr;
- gap:6px;
- padding:9px 0;
- border-bottom:1px solid #343c47;
-}
-
-.event time{color:#80dfff}
-.event strong{font-size:16px}
-.event small{
- display:block;
- color:#b0b3b8;
-}
-
-.url{
- width:100%;
- min-height:43px;
- padding:8px;
- border:1px solid #637b8d;
- border-radius:10px;
- background:#171c26;
- color:#fff;
- font-size:14px;
-}
-
-.calendarbuttons .btn{
- height:52px;
-}
-
-/* =====================
-   SMALL DISPLAY
-===================== */
-
-@media(max-height:470px){
-
- .app{
-  grid-template-rows:
-  43px minmax(0,1fr) 59px;
-  padding:4px 9px;
-  gap:4px;
- }
-
- .dock .btn,
- .pageid{
-  height:54px;
- }
-
- .home-inner{
-  grid-template-rows:
-  43px 20px 21px 37px
-  minmax(0,1fr) 35px;
-  gap:2px;
- }
-
- .home-clock{
-  height:43px;
-  line-height:43px;
-  font-size:37px;
- }
-
- .home-date{
-  font-size:15px;
-  line-height:20px;
- }
-
- .home-place{
-  font-size:16px;
-  line-height:21px;
- }
-
- .home-temp{
-  font-size:32px;
-  line-height:37px;
- }
-
- .home-weather{
-  padding:4px 7px;
-  gap:1px;
- }
-
- .home-weather .meta{
-  font-size:13px;
- }
-
- .weather-name{
-  font-size:17px;
- }
-
- .home-refresh{
-  height:35px;
-  min-height:35px;
- }
-
- #scout.active{
-  grid-template-rows:
-  minmax(40px,1fr)
-  24px 19px 19px 40px;
-  gap:3px;
- }
-
- .radar{
-  max-height:150px;
- }
-
- .scoutbuttons .btn{
-  height:40px;
-  font-size:14px;
- }
-}
-/* AINCRAD interface: retain the compact five-page layout. */
-:root{--cyan:#8ffff0;--gold:#ffe3a0;--panel:rgba(17,65,69,.78)}
-body{background:radial-gradient(ellipse at top,#123a40,#020b10 70%);color:#edfdfa}
-.app{background:linear-gradient(145deg,rgba(6,29,35,.94),rgba(0,8,14,.96));border-inline:1px solid #427a7b}
-.header,.card,.pageid{background:var(--panel);border:1px solid #5a9895;box-shadow:inset 0 1px rgba(205,255,246,.12),0 4px 16px #0005;border-radius:3px}
-.header{color:var(--cyan);letter-spacing:.04em}
-.header small{display:block;font-size:9px;letter-spacing:.13em;color:#b6d2c9;margin-top:3px}
-.btn{border-radius:3px;background:linear-gradient(110deg,#16444bde,#0b242fe8);border-color:#5e9898;transition:background .15s,box-shadow .15s}
-.btn:focus-visible{outline:2px solid var(--gold);outline-offset:-2px;background:#4d4932;box-shadow:0 0 14px #ffe3a044}
-.sectiontitle{color:var(--cyan);font-weight:500;letter-spacing:.07em;border-left:3px solid var(--gold);padding-left:10px}
-.page.active{animation:materialize .18s ease-out}
-.dock{grid-template-columns:58px minmax(0,1fr) 58px;gap:6px}
-.home-clock{text-shadow:0 0 20px #8ffff044}
-.radar{border-color:var(--cyan);box-shadow:0 0 20px #65f7da22,inset 0 0 26px #65f7da11}
-.url{border-radius:3px}
-@keyframes materialize{from{opacity:.4;transform:translateX(6px)}to{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){.page.active{animation:none}.btn{transition:none}}
-@media(max-width:360px){.dock{grid-template-columns:44px minmax(0,1fr) 44px}.header{font-size:13px}.pageid{font-size:14px}}
-
-/* V5.1.1: header participates in layout instead of overflowing a fixed row. */
-.app{grid-template-rows:minmax(64px,auto) minmax(0,1fr) 76px;gap:8px}
-.header{min-width:0;min-height:64px;gap:8px;line-height:1.35;align-items:center}
-.header>div{flex:1 1 0;min-width:0}
-#title{display:block;overflow-wrap:anywhere}
-.header small{line-height:1.4;letter-spacing:.08em;overflow-wrap:anywhere}
-.state{flex:0 1 32%;min-width:0;text-align:right;line-height:1.4;overflow-wrap:anywhere}
-.content{min-width:0}
-.home{overflow-y:auto}
-.home-inner{height:100%;min-height:310px;overflow:visible;grid-template-rows:64px 26px 28px 51px minmax(68px,1fr) 43px;gap:6px}
-.home-clock{height:64px;line-height:64px;font-size:clamp(32px,10vw,48px);min-width:0}
-.home-date{height:26px;line-height:26px;font-size:clamp(13px,3.8vw,18px)}
-.home-place{line-height:28px}
-@media(max-height:470px){
- .app{grid-template-rows:minmax(56px,auto) minmax(0,1fr) 59px;gap:6px}
- .header{min-height:56px;padding:6px 8px}
- .home-inner{min-height:259px;grid-template-rows:50px 22px 23px 37px minmax(72px,1fr) 35px;gap:4px}
- .home-clock{height:50px;line-height:50px;font-size:37px}
- .home-date{height:22px;line-height:22px;font-size:15px}
- .home-place{line-height:23px}
-}
-@media(max-width:360px){
- .app{padding-inline:8px}
- .header{padding:8px;column-gap:6px;font-size:13px}
- .header small{font-size:9px;letter-spacing:.03em}
- .state{font-size:10px;flex-basis:28%}
- .home-clock{font-size:36px}
- .home-date{font-size:13px}
-}
-@media(max-width:280px){
- .header{flex-wrap:wrap}
- .header>div{flex-basis:100%}
- .state{flex-basis:100%;text-align:left}
-}
-
-
-/* V5.1.2: use normal vertical flow for constrained glasses browsers. */
-html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-.app{display:flex;flex-direction:column;gap:0}
-.header{display:block;flex:0 0 auto;height:auto;min-height:0;padding:10px;overflow:hidden;position:relative;z-index:1;isolation:isolate}
-.header>div{display:block;width:100%;min-width:0}
-#title{display:block;margin:0;line-height:1.4;white-space:normal;word-wrap:break-word}
-.header small{display:block;margin-top:4px;line-height:1.5;white-space:normal;word-wrap:break-word}
-.state{display:block;margin-top:4px;line-height:1.4;text-align:left;white-space:normal}
-.content{flex:1 1 0;min-height:0;overflow:hidden;margin-top:12px;margin-bottom:8px;position:relative;isolation:isolate}
-.dock{flex:0 0 auto}
-.home.active{display:block;overflow-x:hidden;overflow-y:auto;animation:none}
-.home-inner{display:flex;flex-direction:column;height:auto;min-height:100%;gap:0;overflow:hidden;padding-top:8px}
-.home-inner>*{flex-shrink:0}
-.home-clock{height:auto;min-height:1.35em;line-height:1.35;padding:0 0 6px;margin:0;font-size:42px;white-space:nowrap;text-shadow:none;overflow:hidden}
-.home-date{height:auto;line-height:1.5;margin:0 0 4px;white-space:normal}
-.home-place{line-height:1.5;margin:0 0 4px}
-.home-temp{line-height:1.3;margin:0 0 8px}
-.home-weather{flex:1 0 auto;min-height:88px;margin-bottom:8px}
-.home-refresh{flex:0 0 auto}
-@media(max-height:470px){
- .header{min-height:0;padding:6px 8px}
- .content{margin-top:10px;margin-bottom:6px}
- .home-inner{min-height:100%;padding-top:6px}
- .home-clock{height:auto;line-height:1.35;font-size:34px}
- .home-weather{min-height:72px}
-}
-@media(max-width:360px){
- .header{font-size:13px}
- .header small{font-size:9px}
- .state{font-size:10px}
- .home-clock{font-size:32px}
-}
-
-/* V5.1.3: compact date above the clock; no HOME location row. */
-#home .home-date{font-size:15px;line-height:1.4;margin:0 0 4px}
-#home .home-place{display:none}
-/* V5.1.4: large, high-contrast clock with a stable line box. */
-#home .home-clock{
- font-size:64px;
- font-size:clamp(48px,20vw,80px);
- font-weight:700;
- font-variant-numeric:tabular-nums;
- letter-spacing:.01em;
- color:#fff;
- line-height:1.2;
- min-height:1.2em;
- height:auto;
- padding:0 0 8px;
- margin:0 0 4px;
- flex:0 0 auto;
- white-space:nowrap;
- text-shadow:none;
-}
-@media(max-width:280px){
- #home .home-clock{font-size:48px;font-size:clamp(36px,20vw,56px)}
-}
-/* Persistent clock shared by all five pages. */
-.header-clock{display:block;font-size:14px;font-weight:700;line-height:1.4;font-variant-numeric:tabular-nums;letter-spacing:.04em;color:#fff;margin:0 0 4px;text-align:left}
-@media(max-height:470px){.header-clock{font-size:12px;margin-bottom:3px}}
-
-/* V5.1.6: compact header and HOME, no scrolling at 240x320 and above. */
-.header{display:flex;flex-direction:row;align-items:center;gap:8px;padding:6px 8px;min-height:32px}
-.header-clock{flex:0 0 auto;margin:0;font-size:14px;line-height:20px}
-.header>div{flex:1;min-width:0;width:auto}
-#title{font-size:12px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.header small,.header .state{display:none}
-.content{margin-top:6px;margin-bottom:6px}
-.dock .btn,.pageid{height:44px;min-height:44px}
-.home.active{overflow:hidden}
-.home-inner{height:100%;min-height:0;padding:0;overflow:hidden}
-#home .home-date{font-size:13px;line-height:20px;margin:0}
-#home .home-clock{font-size:clamp(44px,16vw,72px);height:auto;min-height:0;line-height:1.1;padding:0;margin:0 0 2px}
-.home-temp{font-size:28px;line-height:32px;margin:0 0 2px}
-.home-weather{flex:1 1 auto;min-height:66px;padding:4px 7px;gap:1px;margin-bottom:4px}
-.weather-name{font-size:17px;line-height:22px}
-.home-weather .meta{font-size:13px;line-height:19px}
-.home-refresh{height:32px;min-height:32px;font-size:14px}
-@media(max-height:350px){
- .app{padding-top:3px;padding-bottom:3px}
- .header{padding:3px 6px;min-height:26px}
- .header-clock{font-size:12px}
- #title{font-size:11px}
- .content{margin-top:4px;margin-bottom:4px}
- .dock .btn,.pageid{height:36px;min-height:36px}
- #home .home-clock{font-size:44px;line-height:1.05}
- .home-temp{font-size:23px;line-height:26px}
- .home-refresh{height:28px;min-height:28px}
-}
-/* V5.1.7: seven flexible rows, compact forecast columns. */
-#weekly.active{gap:4px}
-#weekly .sectiontitle{font-size:18px;line-height:24px;flex:0 0 auto}
-#weekplace{font-size:11px;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 0 auto}
-#weekrows{flex:1 1 0;min-height:0;display:flex;flex-direction:column;padding:3px 5px;overflow:hidden}
-.weekrow{flex:1 1 0;min-height:0;padding:2px 0;grid-template-columns:50px minmax(0,1fr) 68px 34px;gap:3px;font-size:12px;line-height:1.25}
+.card,.home-nearest{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:0;min-height:44px;padding:8px 12px;border:1px solid #496149;border-radius:9px;background:var(--raised);color:var(--text);font-size:1rem;font-weight:650;line-height:1.25}
+.btn:hover{background:#1b2d1e}
+.btn:active{background:#29412a}
+.btn svg{width:20px;height:20px;flex:0 0 auto}
+.sectiontitle{margin:0;color:var(--text);font-size:1.4rem;line-height:1.3;font-weight:750;letter-spacing:.01em}
+.note,.station-note,.station-source{color:var(--muted);font-size:.8125rem;line-height:1.5}
+.meta{font-size:1rem;line-height:1.5}
+/* At a glance: date, time and temperature share one stable block. */
+.home-inner{height:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(96px,1fr) minmax(114px,1fr) minmax(142px,1.3fr) 44px;gap:10px}
+.home-overview{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 1fr;gap:2px 16px;align-items:center;padding:4px 6px;min-width:0;min-height:0}
+.home-date{grid-column:1/-1;color:var(--muted);font-size:1rem;line-height:1.4;white-space:nowrap;font-weight:550}
+.home-clock{display:block;min-width:0;margin:0;color:var(--text);font-family:var(--mono);font-size:clamp(42px,12vw,76px);line-height:1.08;letter-spacing:-.055em;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+.home-temperature{text-align:right;min-width:0;padding-left:14px;border-left:1px solid var(--line)}
+.overview-label{display:block;color:var(--muted);font-size:.8125rem;line-height:1.4}
+.home-temp{color:var(--accent);font-family:var(--mono);font-size:clamp(28px,8vw,46px);font-weight:600;line-height:1.2;letter-spacing:-.05em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.home-weather{display:flex;flex-direction:column;justify-content:center;gap:7px;min-height:0}
+.weather-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.weather-name{min-width:0;font-size:1.3rem;font-weight:750;line-height:1.3;white-space:nowrap}
+.weather-heading #place{display:block;min-width:0;max-width:54%;font-size:.75rem;line-height:1.4;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#details,#rainnext{margin:0;font-size:1rem;line-height:1.35;white-space:nowrap}
+#rainnext{color:var(--muted)}
+.home-nearest{display:flex;flex-direction:column;gap:5px;min-width:0;min-height:0;overflow:hidden}
+.home-nearest-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:22px}
+.home-nearest-label{color:var(--accent);font-size:.8125rem;font-weight:650;line-height:1.3}
+.home-nearest-value{min-width:0;color:var(--text);font-size:1.1rem;font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-train-countdown{display:flex;flex-direction:column;justify-content:center;gap:4px;flex:1 1 0;min-height:0;color:var(--muted);font-size:.875rem;line-height:1.3}
+.home-train-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-width:0;min-height:24px;font-size:.9375rem;line-height:1.3}
+.home-train-row span{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--muted)}
+.home-train-row strong{flex:0 0 auto;font-family:var(--mono);font-size:1.5rem;font-weight:650;letter-spacing:-.02em;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.home-train-next{flex:0 0 auto;background:transparent;border:1px solid var(--line);border-radius:5px;color:var(--muted);font-size:.75rem;line-height:1.2;min-height:26px;padding:3px 6px}
+.home-refresh{width:100%;color:var(--accent);font-size:.9375rem}
+/* Labeled pages stay visible, including when the map owns focus. */
+.dock{flex:0 0 auto;display:grid;grid-template-columns:36px minmax(0,1fr) 36px;gap:6px;align-items:stretch;padding-top:8px;border-top:1px solid var(--line);min-width:0}
+.dock>.btn{padding:0;min-height:48px;background:transparent;border-color:transparent;color:var(--muted)}
+.pageid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;min-width:0}
+.page-tab{min-width:0;padding:6px 2px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);font-size:.875rem;line-height:1.25;font-weight:600;white-space:nowrap}
+.page-tab[aria-current=page]{color:var(--accent);border-color:#527341;background:#1a2b18;font-weight:750}
+.page-tab:hover{background:#142017}
+.dock .btn:focus-visible,.page-tab:focus-visible{outline-offset:-3px}
+/* A shared column grid keeps dates and seven days fully visible. */
+.forecast-columns,.weekrow{display:grid;grid-template-columns:70px minmax(0,1fr) 108px 50px;column-gap:8px;align-items:center}
+.forecast-columns{padding:0 12px;color:var(--muted);font-size:.8125rem;line-height:1.2;flex:0 0 auto}
+.forecast-columns span:nth-child(n+3){text-align:right}
+#weekplace{display:block;flex:0 0 auto;font-size:.8125rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#weekrows{flex:1 1 0;min-height:0;display:grid;grid-template-rows:repeat(7,minmax(0,1fr));gap:0;overflow:hidden;padding:0 12px}
+.weekrow{min-height:0;padding:5px 0;border-bottom:1px solid var(--line);font-size:1rem;line-height:1.25;font-variant-numeric:tabular-nums}
 .weekrow:last-child{border-bottom:0}
-.weekrow span{overflow:hidden;text-overflow:clip}
-@media(min-width:400px) and (min-height:400px){
- .weekrow{grid-template-columns:62px minmax(0,1fr) 90px 42px;font-size:15px}
-}
-@media(max-height:350px){
- #weekly.active{gap:2px}
- #weekly .sectiontitle{font-size:15px;line-height:20px}
- #weekplace{font-size:10px;line-height:13px}
- .weekrow{font-size:11px;padding:1px 0;grid-template-columns:45px minmax(0,1fr) 62px 30px;gap:2px}
-}
-/* Keep HOME weather content-sized instead of filling unused height. */
-#home .home-weather{flex:0 0 auto;min-height:0;padding:4px 7px;gap:1px;justify-content:flex-start}
-/* Weather symbols remain readable on narrow displays. */
-.weekrow span:nth-child(2){font-size:11px}
-@media(min-width:400px){.weekrow span:nth-child(2){font-size:14px}}
-@media(max-width:280px){
- .weekrow{grid-template-columns:45px minmax(0,1fr) 62px 30px;gap:2px}
- .weekrow span:nth-child(2){font-size:18px;text-align:center}
-}
-@media(max-width:280px){.forecast-label{display:none}}
-/* V5.2 station scanner: only the station list scrolls. */
-#scout.active{display:flex;flex-direction:column;gap:4px;align-items:stretch;overflow:hidden}
-.scout-top{display:flex;align-items:center;gap:8px;flex:0 0 auto;min-width:0}
-#scout .radar{width:58px;height:58px;flex:0 0 58px;max-height:none}
-.scout-info{flex:1;min-width:0}
-#scout .scouttext{text-align:left;font-size:15px;line-height:20px}
-#scout #coords,#scout #sensorstatus{font-size:10px;line-height:15px}
-#scout .scoutbuttons{flex:0 0 auto}
-#scout .scoutbuttons .btn{height:28px;min-height:28px;font-size:12px}
-.station-panel{display:flex;flex-direction:column;flex:1 1 0;min-height:0;padding:5px;gap:3px;overflow:hidden}
-.station-panel h2{font-size:13px;line-height:18px;margin:0;flex-shrink:0;color:#8ffff0}
-.station-note,.station-source{font-size:10px;line-height:14px;flex-shrink:0}
-.station-source a{color:#a8ddd7}
-#stationScan{height:28px;min-height:28px;font-size:12px;flex-shrink:0}
-#stationStatus{font-size:11px;line-height:15px;flex-shrink:0;overflow-wrap:anywhere}
-#stationList{flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin}
-#stationList:focus-visible{outline:2px solid #ffe3a0;outline-offset:-2px}
-.station-row{padding:6px 2px;border-bottom:1px solid #376b70;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
-.station-row strong{font-size:15px;display:block;color:#fff}
-.station-distance{color:#ffe3a0;font-size:13px}
-.station-row small{color:#a8babf}
-#stationScan:disabled{opacity:.55;cursor:wait}
-@media(max-height:350px){
- #scout.active{gap:2px}
- #scout .radar{width:38px;height:38px;flex-basis:38px}
- #scout .scouttext{font-size:12px;line-height:14px}
- #scout #coords,#scout #sensorstatus{font-size:9px;line-height:11px}
- #scout .scoutbuttons .btn,#stationScan{height:24px;min-height:24px}
- .station-panel{gap:1px;padding:3px}
- .station-panel h2{font-size:11px;line-height:14px}
- .station-note,.station-source{font-size:9px;line-height:11px}
- #stationStatus{font-size:10px;line-height:12px}
-}
-.station-actions{display:grid;grid-template-columns:2fr 1fr;gap:4px;flex-shrink:0}.station-actions .btn{height:28px;min-height:28px;font-size:12px}.tt-station{display:block;width:100%;min-height:26px;margin:3px 0;font-size:12px}#ttDialog a{color:#a8eee4}#ttDialog{width:min(560px,96vw);max-width:96vw;max-height:94dvh;padding:10px;border:1px solid #8ffff0;border-radius:3px;background:#0c262d;color:white;overflow:auto}#ttDialog::backdrop{background:#000b}.tt-step{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:5px;align-items:center;margin:5px 0 9px}.tt-step .btn{min-height:42px;height:auto;font-size:13px;padding:5px 2px}.tt-step strong{text-align:center;font-size:15px;line-height:1.2;overflow-wrap:anywhere}#ttDialog select{display:none!important}#ttDialog .tt-header{z-index:2}.tt-header{display:flex;justify-content:space-between;align-items:center;gap:6px;position:sticky;top:0;background:#0c262d}#ttDialog h2{font-size:16px;margin:0}#ttDialog label{display:block;font-size:12px;margin-top:5px}#ttDialog select{display:block;width:100%;min-height:30px;background:#173e43;color:white;border:1px solid #86b7b1;font-size:13px}#ttDialog select:focus-visible,#ttDialog a:focus-visible{outline:2px solid #ffe3a0}#ttDialog p{font-size:11px;line-height:1.4;margin:5px 0}.tt-train{padding:6px 0;border-bottom:1px solid #376b70;font-size:12px}.tt-train b{font-size:18px;color:#ffe3a0}#ttClose{min-height:28px;font-size:12px}@media(max-height:350px){.station-actions .btn{height:24px;min-height:24px;font-size:10px}#ttDialog{padding:6px}#ttDialog select{min-height:26px;font-size:12px}#ttDialog label{margin-top:2px;font-size:10px}.tt-train{padding:4px 0}.tt-train b{font-size:15px}}
-
-/* SCOUTER VISUAL SYSTEM — green visor / red acquisition reticle */
-#scout{color:#c9ffb7;background:radial-gradient(ellipse at 52% 23%,rgba(52,180,58,.22),transparent 58%),linear-gradient(145deg,#071c13,#06110e 65%,#0b2616);position:relative}
-#scout:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.18;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 4px,rgba(130,255,120,.2) 5px,transparent 6px)}
-#scout>*{position:relative;z-index:1}
-#scout .radar{border-color:#8dff75!important;box-shadow:0 0 18px #36f46650,inset 0 0 24px #35f46622}
-#scout .radar:after{content:"";position:absolute;inset:30%;border:2px solid #ff554d;border-radius:50%;box-shadow:0 0 12px #ff554d;pointer-events:none}
-#scout .scouttext,#scout h2{color:#9dff77!important;text-shadow:0 0 9px #52ff5270;letter-spacing:.09em}
-#scout .station-panel{border-color:#5ee85e!important;background:#062015bd!important}
-#scout .station-row{border-color:#3b995d!important}
-#nearTrainCard{position:relative;overflow:hidden;border:1px solid #a0ff69!important;border-radius:5px!important;background:linear-gradient(120deg,#0c381dbb,#092017f2)!important;box-shadow:inset 0 0 28px #53ff4926,0 0 12px #49ff4133;padding:12px!important}
-#nearTrainCard:before{content:"";position:absolute;right:16px;top:28px;width:58px;height:58px;border:2px solid #ff4c46;border-radius:50%;box-shadow:0 0 12px #ff514a8c,inset 0 0 10px #ff514a40;pointer-events:none}
-#nearTrainCard:after{content:"+";position:absolute;right:34px;top:35px;color:#ff554d;font-size:42px;font-weight:200;text-shadow:0 0 8px #ff554d;pointer-events:none}
-#nearTrainCard strong{display:block;color:#9aff7d!important;font-size:15px!important;letter-spacing:.15em}
-#nearTrainCard strong:before{content:"◉ ";color:#ff6257}
-#nearTrainStation{color:#efffe2!important;font-size:clamp(24px,7vw,38px)!important;text-shadow:0 0 12px #b2ff8e80;max-width:75%;line-height:1.2}
-#nearTrainNext{color:#baff9f!important;font-family:ui-monospace,monospace;line-height:1.55;border-top:1px solid #76f56b6b;padding-top:9px}
-#nearTrainReload{background:#2d6639!important;border:1px solid #a4ff78!important;color:#f1ffe5!important;font-weight:800}
-#nearTrainCard small{display:block;color:#a3c4a0;margin-top:8px}
-@media(prefers-reduced-motion:no-preference){#nearTrainCard:before{animation:scouter-lock 2.8s ease-in-out infinite}@keyframes scouter-lock{50%{box-shadow:0 0 24px #ff514a,inset 0 0 16px #ff514a88}}}
-
-#nearTrainNext{white-space:normal!important}
-.scouter-direction{border-top:1px solid #7bff7880;padding:9px 0 6px}
-.scouter-direction-name{font-size:14px;font-weight:800;color:#b8ff9e;line-height:1.4;margin-bottom:7px}
+.weekrow>span{min-width:0;white-space:nowrap}
+.weekrow>span:first-child{font-weight:650;color:var(--text)}
+.weekrow>span:nth-child(2){overflow:hidden;text-overflow:ellipsis}
+.weekrow>span:nth-child(3){text-align:right;letter-spacing:-.035em}
+.weekrow>span:nth-child(4){text-align:right;font-weight:700}
+.forecast-condition{display:flex;align-items:center;gap:4px}
+.forecast-condition>span:first-child{font-size:1.25rem}
+.forecast-label{overflow:hidden;text-overflow:ellipsis}
+.map-frame{display:block;flex:1 1 0;width:100%;height:100%;min-height:0;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+/* The sensor controls stay still; long station results scroll inside their panel. */
+.scout-top{display:flex;align-items:center;gap:12px;flex:0 0 auto;min-width:0;padding:2px}
+.radar{position:relative;flex:0 0 54px;width:54px;height:54px;border:1px solid #71976a;border-radius:50%;background:repeating-radial-gradient(circle,transparent 0 12px,#293e2b 13px 14px)}
+.radar:before,.radar:after{content:"";position:absolute;background:#5b7955}
+.radar:before{height:1px;width:80%;left:10%;top:50%}
+.radar:after{width:1px;height:80%;top:10%;left:50%}
+.needle{display:none;position:absolute;left:50%;top:50%;width:3px;height:42%;transform-origin:50% 100%;transform:translate(-50%,-100%);background:var(--accent)}
+.scout-info{min-width:0;flex:1}
+.scouttext{color:var(--accent);font-size:1rem;font-weight:700;line-height:1.4}
+#coords,#sensorstatus{color:var(--muted);font-size:.75rem;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scoutbuttons,.station-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:0 0 auto}
+.scoutbuttons .btn,.station-actions .btn{font-size:.875rem;min-height:38px;padding:7px}
+.station-panel{display:flex;flex-direction:column;flex:1 1 0;min-height:0;gap:8px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#59754c transparent}
+.station-panel>*{flex-shrink:0}
+.station-panel h2{margin:0;font-size:1rem;line-height:1.4;color:var(--accent)}
+#stationStatus{font-size:.875rem;line-height:1.4;color:var(--muted)}
+#nearTrainCard{border-color:#527341;padding:12px;margin:0;background:#0f1c12}
+#nearTrainCard>strong{display:block;font-size:.8125rem;color:var(--accent);font-weight:650;letter-spacing:.02em}
+#nearTrainStation{font-size:1.4rem;line-height:1.35;font-weight:750;margin:5px 0 10px;overflow-wrap:anywhere}
+#nearTrainNext{font-size:.9375rem;white-space:normal;line-height:1.4;color:var(--text)}
+#nearTrainCard>small{display:block;font-size:.75rem;line-height:1.4;color:var(--muted);margin-top:10px}
+#nearTrainReload,#nearTrainTimetable{width:100%;margin-top:8px;font-size:.875rem;min-height:38px}
+.scouter-direction{border-top:1px solid var(--line);padding:10px 0}
+.scouter-direction-name{color:var(--muted);font-size:.875rem;font-weight:650;line-height:1.4;margin-bottom:8px}
 .scouter-departures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.scouter-departure{display:flex;flex-direction:column;gap:2px;border:1px solid #65d56b75;background:#143b25a8;padding:8px;border-radius:4px;min-width:0}
-.scouter-departure strong{font-size:clamp(23px,6vw,31px)!important;color:#f0ffe6!important;letter-spacing:0!important}
-.scouter-departure span{color:#ffdd80;font-size:18px;font-weight:800}
-.scouter-departure small{font-size:11px;margin:0;line-height:1.25}
-
-/* Prevent direction groups being clipped on compact phone / glasses displays */
-#scout.page.active{overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain;display:flex}
-#scout .station-panel{flex:0 0 auto!important;min-height:0!important;overflow:visible!important}
-#scout #nearTrainCard{flex:0 0 auto!important;overflow:visible!important}
-#scout #stationList{flex:0 0 auto!important;max-height:180px;overflow-y:auto!important}
-#scout .scouter-direction{break-inside:avoid}
-#scout .scout-top,#scout .scoutbuttons{flex-shrink:0}
-@media(max-height:520px){
- #scout .scout-top{gap:5px}
- #scout .radar{width:42px;height:42px;flex-basis:42px}
- #scout .station-panel{padding:4px}
- #nearTrainCard{padding:7px!important}
- #nearTrainStation{font-size:24px!important}
- .scouter-departure{padding:5px}
- .scouter-departure strong{font-size:22px!important}
-}
-
-.home-train-countdown{display:flex;flex-direction:column;gap:2px;min-width:0;overflow-y:auto;max-height:100%}
-.home-train-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;line-height:1.2;min-width:0}
-.home-train-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;color:#b3ffdc}
-.home-train-row strong{font-size:19px;letter-spacing:.05em;color:#ffec79;white-space:nowrap;font-variant-numeric:tabular-nums}
-.home-nearest{overflow:hidden}
-.home-nearest-value{font-size:12px!important;line-height:1.2!important}
-@media(max-height:500px){.home-train-row{font-size:10px}.home-train-row strong{font-size:16px}}
-
-.home-nearest{justify-content:flex-start!important;gap:2px!important}
-.home-train-countdown{flex:1 1 auto;overflow:hidden!important}
-.home-train-row{min-height:19px}
-.home-train-next{flex:0 0 auto;border:0;background:transparent;color:#8eefff;font-size:11px;text-align:right;padding:0 2px;min-height:15px;cursor:pointer}
-.home-train-next[hidden]{display:none!important}
-
-/* GAME BOY MONO THEME — visual replacement only; keep GPS, timetables and controls. */
-:root{--gb-ink:#17391e;--gb-dark:#305a32;--gb-mid:#79a75d;--gb-light:#d4ef9d;--cyan:#17391e;--gold:#305a32;--panel:#c7e38c}
-html,body{background:#243d25!important;color:var(--gb-ink)!important;font-family:ui-monospace,"SFMono-Regular","Noto Sans Mono","Noto Sans JP",monospace!important}
-.app{background:var(--gb-light)!important;color:var(--gb-ink)!important;border:5px solid var(--gb-ink)!important;border-radius:9px!important;box-shadow:inset 0 0 0 3px var(--gb-mid);padding:7px!important}
-.header,.card,.pageid,.home-nearest,.station-panel,.station-row,#ttDialog{
- background:var(--gb-light)!important;color:var(--gb-ink)!important;border:3px solid var(--gb-ink)!important;border-radius:0!important;box-shadow:4px 4px 0 var(--gb-dark)!important;text-shadow:none!important
-}
-.header{background:var(--gb-ink)!important;color:var(--gb-light)!important;padding:6px 8px!important}
-.header small,.header .state,.header-clock{color:var(--gb-light)!important}
-#title{font-weight:900!important;letter-spacing:.05em}
-.btn,.home-train-next,select,.url,.tt-step button{
- background:var(--gb-mid)!important;color:var(--gb-ink)!important;border:3px solid var(--gb-ink)!important;border-radius:0!important;box-shadow:3px 3px 0 var(--gb-dark)!important;text-shadow:none!important;font-weight:900!important
-}
-.btn:focus-visible,.btn:active{background:var(--gb-ink)!important;color:var(--gb-light)!important;outline:2px dashed var(--gb-light)!important;outline-offset:-6px!important}
-.pageid{background:var(--gb-mid)!important;color:var(--gb-ink)!important;font-weight:900}
-.home-clock{color:var(--gb-ink)!important;font-family:ui-monospace,monospace!important;font-weight:900!important;letter-spacing:-.05em!important;text-shadow:none!important}
-.home-date{font-size:clamp(21px,5.5vw,30px)!important;line-height:1.3!important;font-weight:900!important;color:var(--gb-ink)!important}
-.home-place,.home-temp,.weather-name,.home-nearest-value{color:var(--gb-ink)!important;font-weight:900!important}
-.home-temp{font-size:clamp(32px,9vw,44px)!important}
-.home-weather{background:repeating-linear-gradient(135deg,var(--gb-light) 0 10px,#c6e38b 10px 12px)!important}
-.home-weather .meta,#details,#rainnext,.note,.station-note,.station-source,.scouttext{color:var(--gb-dark)!important}
-.home-nearest{padding:6px 8px!important;margin-bottom:9px!important;min-height:93px!important;gap:3px!important}
-.home-nearest-label{color:var(--gb-ink)!important;font-size:12px!important;font-weight:900!important}
-.home-nearest-value{font-size:16px!important}
-.home-train-row{font-size:clamp(11px,3vw,15px)!important;line-height:1.35!important}
-.home-train-row span{color:var(--gb-ink)!important}
-.home-train-row strong{color:var(--gb-ink)!important;font-size:clamp(17px,5vw,23px)!important}
-.home-train-next{align-self:flex-end;font-size:11px!important;min-height:20px!important;padding:0 5px!important;box-shadow:none!important}
-.sectiontitle,.station-panel h2{color:var(--gb-ink)!important;border-left:5px solid var(--gb-ink)!important;font-weight:900!important}
-.weekrow,.event{border-bottom:2px dashed var(--gb-dark)!important}
-.radar{border:4px solid var(--gb-ink)!important;border-radius:50%!important;background:repeating-radial-gradient(circle,var(--gb-light) 0 18px,var(--gb-mid) 19px 21px)!important;box-shadow:none!important}
-.radar:before,.radar:after{background:var(--gb-ink)!important}
-.needle{background:var(--gb-ink)!important}
-#ttDialog::backdrop{background:#132d1cc9!important}
-a{color:var(--gb-dark)!important;text-decoration:underline!important}
-@media(max-height:470px){.home-date{font-size:clamp(18px,5vw,24px)!important}.home-nearest{min-height:86px!important}.home-train-row strong{font-size:17px!important}}
-@media(prefers-reduced-motion:reduce){.page.active{animation:none!important}}
-
-/* Game Boy HUD: keep the full HH:MM clock visible on narrow smart-glasses screens. */
-.home-clock{
- display:block!important;
- width:100%!important;
- max-width:100%!important;
- box-sizing:border-box!important;
- font-size:clamp(24px,10vw,42px)!important;
- letter-spacing:-.07em!important;
- line-height:1.2!important;
- min-height:1.2em!important;
- height:auto!important;
- padding:0!important;
- overflow:visible!important;
- white-space:nowrap!important;
- font-variant-numeric:tabular-nums!important;
-}
-@media(max-width:380px){.home-clock{font-size:clamp(24px,10vw,36px)!important}}
-@media(max-width:280px){.home-clock{font-size:clamp(22px,9vw,27px)!important}}
-
-/* Keep the full Reiwa date visible on narrow smart-glasses viewports. */
-.home-date{
- display:block!important;
- box-sizing:border-box!important;
- width:100%!important;
- max-width:100%!important;
- height:auto!important;
- min-height:1.35em!important;
- font-size:clamp(15px,5vw,25px)!important;
- line-height:1.35!important;
- letter-spacing:-.035em!important;
- white-space:nowrap!important;
- overflow:visible!important;
- overflow-wrap:normal!important;
- word-break:keep-all!important;
-}
-@media(max-width:380px){.home-date{font-size:clamp(14px,4.8vw,19px)!important}}
-@media(max-width:280px){.home-date{font-size:clamp(12px,4.7vw,15px)!important}}
-
-/* Compact temperature to reclaim vertical space on smart glasses. */
-.home-temp{
- font-size:clamp(24px,6.5vw,32px)!important;
- line-height:1.12!important;
- height:auto!important;
- min-height:0!important;
- margin:0 0 3px!important;
- padding:0!important;
- font-weight:800!important;
-}
-@media(max-height:470px){.home-temp{font-size:clamp(22px,6vw,28px)!important;margin-bottom:2px!important}}
-
-/* Hide redundant global header; HOME already contains a large clock and date. */
-.app>.header{display:none!important}
-.app{padding-top:7px!important}
-.content{margin-top:0!important;flex:1 1 auto!important;min-height:0!important}
-@media(max-height:470px){.content{margin-top:0!important}}
-
-/* Seven-day forecast: large, two-line Game Boy cards for glasses. */
-#weekly.active{gap:7px!important;overflow:hidden!important}
-#weekplace{font-size:13px!important;line-height:1.3!important;flex-shrink:0}
-#weekrows{display:flex!important;flex-direction:column!important;gap:7px!important;overflow-y:auto!important;overscroll-behavior:contain;padding:7px!important;min-height:0!important;scrollbar-width:thin!important}
-#weekrows .weekrow{
- display:grid!important;
- grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
- grid-template-rows:auto auto!important;
- gap:5px 8px!important;
- padding:9px!important;
- min-height:89px!important;
- flex:0 0 auto!important;
- border:2px solid var(--gb-ink)!important;
- background:var(--gb-light)!important;
- align-items:center!important;
-}
-#weekrows .weekrow>span{display:block!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;min-width:0!important;line-height:1.25!important;color:var(--gb-ink)!important}
-#weekrows .weekrow>span:nth-child(1){font-size:19px!important;font-weight:900!important}
-#weekrows .weekrow>span:nth-child(2){font-size:16px!important;font-weight:900!important;text-align:right!important}
-#weekrows .weekrow>span:nth-child(3){font-size:20px!important;font-weight:900!important;letter-spacing:-.05em!important}
-#weekrows .weekrow>span:nth-child(4){font-size:16px!important;font-weight:800!important;text-align:right!important}
-#weekrows .weekrow>span:nth-child(3)::before{content:"最高 / 最低";display:block;font-size:10px;font-weight:700}
-#weekrows .weekrow>span:nth-child(4)::before{content:"降水確率";display:block;font-size:10px;font-weight:700}
-#weekrows .forecast-label{font-size:13px!important}
-@media(max-width:300px){
- #weekrows .weekrow{padding:6px!important;min-height:79px!important;gap:3px!important}
- #weekrows .weekrow>span:nth-child(1){font-size:16px!important}
- #weekrows .weekrow>span:nth-child(2){font-size:14px!important}
- #weekrows .weekrow>span:nth-child(3){font-size:17px!important}
-}
-
-/* High-contrast compact seven-day forecast for optical smart glasses. */
-#weekly{color:#e3f7b2!important}
-#weekly .sectiontitle{color:#d7f59c!important;border-left-color:#b7dc7c!important}
-#weekplace{color:#b9d99b!important}
-#weekrows{
- background:#101e13!important;
- border:2px solid #82ae67!important;
- box-shadow:none!important;
- padding:4px!important;
- gap:2px!important;
-}
-#weekrows .weekrow{
- display:grid!important;
- grid-template-columns:56px minmax(0,1fr) 92px 47px!important;
- grid-template-rows:1fr!important;
- gap:4px!important;
- min-height:42px!important;
- padding:5px 4px!important;
- background:#172a1a!important;
- border:0!important;
- border-bottom:1px solid #476c43!important;
- box-shadow:none!important;
-}
-#weekrows .weekrow>span{
- color:#e6f6c3!important;
- font-size:clamp(12px,3.3vw,15px)!important;
- line-height:1.2!important;
- font-weight:750!important;
- white-space:nowrap!important;
- overflow:hidden!important;
- text-overflow:ellipsis!important;
- text-align:left!important;
-}
-#weekrows .weekrow>span:nth-child(1){font-size:clamp(12px,3.4vw,15px)!important;color:#f4ffd4!important}
-#weekrows .weekrow>span:nth-child(2){font-size:clamp(12px,3.3vw,15px)!important;text-align:left!important}
-#weekrows .weekrow>span:nth-child(3){font-size:clamp(12px,3.3vw,15px)!important;text-align:right!important;letter-spacing:-.04em!important}
-#weekrows .weekrow>span:nth-child(4){font-size:clamp(12px,3.3vw,15px)!important;text-align:right!important;color:#f5e68a!important}
-#weekrows .weekrow>span:nth-child(3)::before,#weekrows .weekrow>span:nth-child(4)::before{content:none!important;display:none!important}
-#weekrows .forecast-label{font-size:inherit!important}
-@media(max-width:330px){
- #weekrows .weekrow{grid-template-columns:48px minmax(0,1fr) 76px 40px!important;gap:2px!important}
- #weekrows .weekrow>span{font-size:11px!important}
- #weekrows .forecast-label{display:none!important}
-}
-
-/* Weekly forecast: all seven days visible without scrolling. */
-#weekly.active{display:flex!important;flex-direction:column!important;gap:3px!important;overflow:hidden!important;min-height:0!important}
-#weekly .sectiontitle{font-size:clamp(15px,4vw,20px)!important;line-height:1.15!important;margin:0!important;flex:0 0 auto!important}
-#weekplace{font-size:11px!important;line-height:1.1!important;max-height:15px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;margin:0!important;flex:0 0 auto!important}
-#weekrows{
- display:grid!important;
- grid-template-rows:repeat(7,minmax(0,1fr))!important;
- flex:1 1 0!important;
- min-height:0!important;
- height:100%!important;
- overflow:hidden!important;
- gap:1px!important;
- padding:2px!important;
-}
-#weekrows .weekrow{
- min-height:0!important;
- height:100%!important;
- padding:1px 3px!important;
- margin:0!important;
- align-items:center!important;
-}
-#weekrows .weekrow>span,#weekrows .forecast-label{font-size:clamp(10px,2.9vw,14px)!important;line-height:1.05!important}
-@media(max-height:430px){
- #weekly.active{gap:2px!important}
- #weekly .sectiontitle{font-size:15px!important}
- #weekplace{font-size:10px!important;max-height:12px!important}
- #weekrows .weekrow>span,#weekrows .forecast-label{font-size:11px!important}
-}
-
-/* V5.4.1: reserve enough width for weekly dates without clipping. */
-#weekrows .weekrow{
- grid-template-columns:74px minmax(0,1fr) 82px 43px!important;
- column-gap:3px!important;
-}
-#weekrows .weekrow>span:first-child{
- min-width:0!important;
- white-space:nowrap!important;
- overflow:visible!important;
- text-overflow:clip!important;
- font-size:clamp(11px,3vw,14px)!important;
- font-variant-numeric:tabular-nums;
- letter-spacing:-.03em!important;
-}
-@media(max-width:330px){
- #weekrows .weekrow{
-  grid-template-columns:62px minmax(0,1fr) 69px 36px!important;
-  column-gap:2px!important;
- }
- #weekrows .weekrow>span:first-child{font-size:11px!important}
- #weekrows .weekrow>span:nth-child(3),
- #weekrows .weekrow>span:nth-child(4){font-size:10px!important}
-}
-
-.tt-filter{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:6px}
-.tt-filter .url{width:100%;min-height:30px;padding:4px 6px;font-size:13px}
-#ttDialog #ttOperator,#ttDialog #ttDay{display:block!important}
-#ttDialog .tt-header{background:var(--gb-light);color:var(--gb-ink);border-bottom:1px solid var(--gb-dark);padding-bottom:4px}
-#ttDialog .tt-step{margin:3px 0 5px}
-#ttDialog .tt-step .btn{min-height:32px;padding:3px 2px}
+.scouter-departure{display:flex;flex-direction:column;gap:3px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.scouter-departure strong{font-family:var(--mono);font-size:1.6rem;line-height:1.2;color:var(--text);font-variant-numeric:tabular-nums}
+.scouter-departure span{color:var(--accent);font-size:1rem;font-weight:650}
+.scouter-departure small{color:var(--muted);font-size:.75rem;line-height:1.4}
+#stationList{min-height:0;max-height:240px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.station-row{padding:10px 0;border-bottom:1px solid var(--line);font-size:.875rem;line-height:1.5;overflow-wrap:anywhere}
+.station-row strong{display:block;color:var(--text);font-size:1rem}
+.station-distance{color:var(--accent);font-size:.875rem}
+.station-row small{color:var(--muted)}
+.tt-station{display:block;width:100%;margin-top:6px;font-size:.875rem;min-height:38px}
+#stationOffline{font-size:.875rem;min-height:38px;height:auto}
+.station-source{font-size:.75rem}
+/* Timetable dialog: clear filters, stable focus, readable departure times. */
+#ttDialog{width:min(560px,calc(100vw - 16px));max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);padding:14px;border:1px solid #71976a;border-radius:14px;background:var(--surface);color:var(--text);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#ttDialog::backdrop{background:#000b}
+.tt-header{display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:-14px;z-index:2;margin-top:-2px;padding:4px 0 10px;background:var(--surface);border-bottom:1px solid var(--line)}
+#ttDialog h2{margin:0;font-size:1.125rem;line-height:1.4}
+#ttClose{font-size:.875rem;min-height:36px;padding:6px 10px}
+.tt-filter{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:8px;margin-bottom:8px}
+#ttDialog label{display:block;font-size:.875rem;line-height:1.4;color:var(--muted);margin:8px 0 4px}
+.url,#ttDialog select{width:100%;min-width:0;min-height:40px;padding:7px 10px;border:1px solid #59724f;border-radius:7px;background:var(--raised);color:var(--text);font-size:1rem}
+#ttDialog select{display:none;appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23c5f59a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+#ttDialog #ttOperator,#ttDialog #ttDay{display:block}
+.tt-step{display:grid;grid-template-columns:1fr 1.5fr 1fr;align-items:center;gap:6px;margin:4px 0 10px}
+.tt-step .btn{font-size:.875rem;min-height:40px;padding:6px 3px}
+.tt-step strong{text-align:center;font-size:1rem;line-height:1.4;overflow-wrap:anywhere;color:var(--accent)}
+#ttDialog p{font-size:.8125rem;line-height:1.55;color:var(--muted);margin:10px 0}
 #ttMeta:empty,#ttNotes:empty,#ttRevision:empty,#ttDataStatus:empty{display:none}
-.tt-data-controls{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
-.tt-data-controls .btn{min-height:28px;padding:2px 6px;font-size:12px}
-#nearTrainTimetable{width:100%;margin-top:6px}
-.weather-heading{display:flex;align-items:baseline;gap:6px;min-width:0}
-.weather-heading #condition,.weather-heading #place{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.weather-heading #place{margin-left:auto;font-size:10px;line-height:1.2}
+#ttResults{font-size:1rem;line-height:1.5;padding:4px 0}
+.tt-train{padding:12px 0;border-bottom:1px solid var(--line);font-size:1rem;line-height:1.5}
+.tt-train b{display:block;color:var(--accent);font-size:1.125rem;font-variant-numeric:tabular-nums}
+.tt-data-controls{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tt-data-controls .btn{font-size:.875rem;min-height:36px;padding:6px 8px}
+@media(min-width:640px){.app{margin-top:12px;height:calc(100dvh - 24px);border:1px solid #25382b;border-radius:18px}}
+@media(max-width:420px){
+ .app{padding:10px;gap:8px}
+ .home-inner{gap:8px}
+ .home-overview{column-gap:10px;padding-inline:2px}
+ .home-temperature{padding-left:10px}
+ .home-weather,.home-nearest{padding:10px}
+ .weather-name{font-size:1.125rem}
+ #details,#rainnext{font-size:.875rem}
+ .weather-heading #place{font-size:.75rem;max-width:48%}
+ .forecast-columns,.weekrow{grid-template-columns:56px minmax(0,1fr) 88px 42px;column-gap:5px}
+ .weekrow{font-size:.875rem}
+ .forecast-columns,#weekrows{padding-inline:8px}
+ .forecast-columns{font-size:.75rem}
+ .forecast-label{display:none}
+ .forecast-condition>span:first-child{font-size:1.25rem}
+ .home-nearest-value{font-size:1rem}
+ .home-train-row{font-size:.875rem}
+ .home-train-row strong{font-size:1.35rem}
+ .dock{grid-template-columns:28px minmax(0,1fr) 28px;gap:3px}
+ .dock>.btn{min-height:44px}
+ .page-tab{font-size:.875rem}
+}
+@media(max-width:280px){
+ .app{padding:7px}
+ .card,.home-nearest{border-radius:8px;padding:8px}
+ .home-inner{grid-template-rows:minmax(74px,1fr) minmax(86px,1fr) minmax(126px,1.3fr) 40px}
+ .home-date{font-size:.875rem}
+ .home-clock{font-size:40px}
+ .home-temp{font-size:28px}
+ .overview-label{font-size:.75rem}
+ .home-temperature{padding-left:8px}
+ .weather-name{font-size:1rem}
+ .weather-heading #place{max-width:42%;font-size:.6875rem}
+ #details,#rainnext{font-size:.8125rem;letter-spacing:-.03em}
+ .home-nearest-label{font-size:.75rem}
+ .home-nearest-value{font-size:.875rem}
+ .home-train-row{font-size:.8125rem}
+ .home-train-row strong{font-size:1.125rem}
+ .home-train-next{font-size:.6875rem;min-height:22px;padding:2px 4px}
+ .forecast-columns,.weekrow{grid-template-columns:48px minmax(0,1fr) 76px 32px;column-gap:2px}
+ .forecast-columns,#weekrows{padding-inline:5px}
+ .forecast-columns{font-size:.6875rem}
+ .weekrow{font-size:.8125rem}
+ .weekrow>span:nth-child(3){font-size:.75rem}
+ .dock{grid-template-columns:22px minmax(0,1fr) 22px;gap:2px}
+ .pageid{gap:2px}
+ .page-tab{font-size:.8125rem}
+ .station-panel{padding:8px}
+ .tt-filter{grid-template-columns:1fr}
+}
+/* Compact optical displays: full HOME and all seven forecast rows, no page scroll. */
+@media(max-height:470px){
+ .app{gap:6px;padding:8px;max-height:none}
+ .home-inner{gap:5px;grid-template-rows:minmax(66px,.8fr) minmax(74px,1fr) minmax(98px,1.2fr) 32px}
+ .home-overview{padding:0 2px;gap:0 8px}
+ .home-date{font-size:.875rem;line-height:18px}
+ .home-clock{font-size:clamp(36px,12vw,54px);line-height:1.05}
+ .home-temperature{padding-left:8px}
+ .overview-label{font-size:.75rem;line-height:15px}
+ .home-temp{font-size:28px;line-height:1.1}
+ .home-weather,.home-nearest{padding:7px 9px;border-radius:8px}
+ .home-weather{gap:3px}
+ .weather-name{font-size:1rem;line-height:20px}
+ .weather-heading #place{font-size:.6875rem;line-height:14px}
+ #details,#rainnext{font-size:.8125rem;line-height:18px}
+ .home-nearest{gap:2px}
+ .home-nearest-head{min-height:20px}
+ .home-nearest-label{font-size:.75rem;line-height:16px}
+ .home-nearest-value{font-size:.875rem;line-height:19px}
+ .home-train-countdown{gap:1px;font-size:.8125rem;line-height:17px}
+ .home-train-row{font-size:.8125rem;line-height:17px;min-height:17px}
+ .home-train-row strong{font-size:1rem;line-height:17px}
+ .home-train-next{min-height:20px;font-size:.6875rem;padding:2px 4px}
+ .home-refresh{min-height:32px;padding:4px 8px;font-size:.875rem}
+ .home-refresh svg{width:16px;height:16px}
+ .dock{padding-top:5px}
+ .dock>.btn{min-height:36px}
+ .page-tab{padding:5px 1px;font-size:.8125rem}
+ .page.active{gap:5px}
+ .sectiontitle{font-size:1.125rem;line-height:23px}
+ #weekplace{font-size:.75rem;line-height:15px}
+ .forecast-columns{font-size:.75rem;line-height:14px}
+ .weekrow{padding:1px 0;font-size:.875rem}
+ .forecast-condition>span:first-child{font-size:1.125rem}
+ .scout-top{gap:8px}
+ .radar{width:36px;height:36px;flex-basis:36px}
+ .scouttext{font-size:.875rem;line-height:18px}
+ #coords,#sensorstatus{font-size:.6875rem;line-height:14px}
+ .scoutbuttons .btn{min-height:30px;padding:4px;font-size:.8125rem}
+ .station-panel{padding:8px}
+ #ttDialog{padding:10px}
+ .tt-header{top:-10px}
+}
+@media(max-height:350px){
+ .app{padding:5px;gap:4px}
+ .home-inner{grid-template-rows:64px 68px minmax(91px,1fr) 30px;gap:4px}
+ .home-weather,.home-nearest{padding:5px 7px}
+ .home-weather{gap:2px}
+ .weather-name{line-height:18px}
+ #details,#rainnext{line-height:17px}
+ .home-overview{padding:0 3px}
+ .home-clock{font-size:clamp(36px,12vw,46px)}
+ .home-refresh{min-height:30px}
+ .dock{padding-top:4px}
+ .dock>.btn{min-height:34px}
+ #weekly.active{gap:4px}
+ .forecast-columns{font-size:.6875rem;line-height:12px}
+ .weekrow{font-size:.8125rem}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
 </style>
 </head>
 
 <body>
 
-<main class="app">
+<main class="app" aria-label="COMMAND HUD">
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.4 / GAME BOY MONO</small></div>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.5 / DARK LCD</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
@@ -1009,12 +284,10 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
 <section class="page active home" id="home">
  <div class="home-inner">
 
-  <div class="home-date" id="date">--/-- (-)</div>
-
-  <div class="home-clock" id="clock">--:--</div>
-
-  <div class="home-temp" id="temp">
-   --°
+  <div class="home-overview">
+   <div class="home-date" id="date">--/-- (-)</div>
+   <time class="home-clock" id="clock" aria-label="現在時刻">--:--</time>
+   <div class="home-temperature"><span class="overview-label">現在気温</span><div class="home-temp" id="temp">--°</div></div>
   </div>
 
   <div class="card home-weather">
@@ -1030,10 +303,14 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
    </div>
   </div>
 
-  <div class="home-nearest" role="status" aria-live="polite"><span class="home-nearest-label">◇ NEXT TRAIN / 最寄り駅</span><span class="home-nearest-value" id="homeNearestStation">GPS待機中</span><div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div><button id="homeTrainNextPage" class="home-train-next" type="button" aria-label="次の方面を表示" hidden>方面を切替 ▶ <span id="homeTrainPageIndicator"></span></button></div>
+  <div class="home-nearest">
+   <div class="home-nearest-head"><span class="home-nearest-label">最寄り駅・発車まで</span><button id="homeTrainNextPage" class="home-train-next" type="button" aria-label="次の方面を表示" hidden>方面切替 <span id="homeTrainPageIndicator"></span></button></div>
+   <span class="home-nearest-value" id="homeNearestStation" role="status" aria-live="polite">GPS待機中</span>
+   <div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div>
+  </div>
 
   <button class="btn home-refresh" id="gpsBtn">
-   GPS / 天気を更新
+   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 6.1a8.3 8.3 0 0 1 13.4 4.4M17.9 17.9A8.3 8.3 0 0 1 4.5 13.5"/></svg>GPS / 天気を更新
   </button>
 
  </div>
@@ -1048,7 +325,8 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
 
  <a class="note" id="weekplace" target="_blank" rel="noopener" aria-live="polite">取得中</a>
 
- <div class="card week" id="weekrows">
+ <div class="forecast-columns" aria-hidden="true"><span>日付</span><span>天気</span><span>最高 / 最低</span><span>降水</span></div>
+ <div class="card week" id="weekrows" role="list" aria-label="7日間の天気予報">
   予報取得中
  </div>
 
@@ -1072,18 +350,18 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
   </div>
  </div>
  <div class="scoutbuttons">
-  <button class="btn" id="sensorBtn">SENSOR</button>
-  <button class="btn" id="scanBtn">RESCAN</button>
+  <button class="btn" id="sensorBtn">方位センサー</button>
+  <button class="btn" id="scanBtn">GPSを更新</button>
  </div>
  <div class="station-panel card">
-  <h2>◇ NEARBY STATION SCAN</h2>
+  <h2>周辺の駅</h2>
   <div class="station-note">半径1km / 直線距離 / 方角は真北基準</div>
-  <div class="station-actions"><button class="btn" id="stationScan">◎ SCAN STATIONS</button><button class="btn" id="timetableBtn">時刻表</button></div>
+  <div class="station-actions"><button class="btn" id="stationScan">周辺駅を検索</button><button class="btn" id="timetableBtn">時刻表</button></div>
   <div id="stationAccuracy" class="station-note">GPS精度：未確認</div>
   <div id="stationStatus" role="status" aria-live="polite">SCAN STATIONSで駅を検索</div>
-  <div id="nearTrainCard" class="card" style="padding:10px;margin:6px 0;border:1px solid #52dbe4"><strong style="font-size:19px">SCOUTER / RAIL TARGET</strong><div id="nearTrainStation" style="font-size:24px;font-weight:800;margin:7px 0">駅検索待ち</div><div id="nearTrainNext" style="font-size:17px;white-space:pre-line">次発時刻を確認中</div><button class="btn" id="nearTrainTimetable" hidden>この駅の時刻表</button><button class="btn" id="nearTrainReload" style="width:100%;margin-top:8px;min-height:38px">Reload / 更新</button><small>時刻表上の予定時刻。遅延・運休は未反映</small></div>
+  <div id="nearTrainCard" class="card"><strong>最寄り駅の発車予定</strong><div id="nearTrainStation">駅検索待ち</div><div id="nearTrainNext">次発時刻を確認中</div><button class="btn" id="nearTrainTimetable" hidden>この駅の時刻表</button><button class="btn" id="nearTrainReload">発車予定を更新</button><small>時刻表上の予定時刻。遅延・運休は未反映</small></div>
   <div id="stationList" tabindex="0" role="region" aria-label="周辺の駅一覧・上下キーでスクロール"></div>
-  <button class="btn" id="stationOffline" style="height:28px;min-height:28px;font-size:12px">通信不要：駅一覧</button>
+  <button class="btn" id="stationOffline">通信不要：駅一覧</button>
   <div class="station-source">国土交通省の<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N02-2025.html" target="_blank" rel="noopener">鉄道</a>・<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2026.html" target="_blank" rel="noopener">行政区域</a>データを加工（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>） / 外部検索は現在地を送信 · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a></div>
  </div>
 </section>
@@ -1092,11 +370,14 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
 </div>
 
 <nav class="dock" aria-label="ページ切替">
- <button class="btn" id="prev" aria-label="前のページ">◀</button>
+ <button class="btn" id="prev" aria-label="前のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
  <div class="pageid" id="pageid">
-  ● ○ ○ ○
+  <button class="page-tab" type="button" data-page="0" aria-controls="home" aria-current="page">ホーム</button>
+  <button class="page-tab" type="button" data-page="1" aria-controls="weekly">天気</button>
+  <button class="page-tab" type="button" data-page="2" aria-controls="mapPage">地図</button>
+  <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button>
  </div>
- <button class="btn" id="next" aria-label="次のページ">▶</button>
+ <button class="btn" id="next" aria-label="次のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
 </nav>
 
 </main>
@@ -1107,8 +388,8 @@ a{color:var(--gb-dark)!important;text-decoration:underline!important}
  <div><label for="ttOperator">事業者</label><select id="ttOperator"><option value="">全事業者</option><option value="subway">地下鉄</option><option value="jr">JR東海</option><option value="meitetsu">名鉄</option></select></div>
  <div><label for="ttStationSearch">駅名検索</label><input id="ttStationSearch" class="url" type="search" autocomplete="off" placeholder="例：金山"></div>
 </div>
-<label for="ttStation">駅</label><select id="ttStation"></select><div class="tt-step"><button class="btn" id="ttStationPrev">◀ 前の駅</button><strong id="ttStationLabel">駅</strong><button class="btn" id="ttStationNext">次の駅 ▶</button></div>
-<div id="ttDirectionControls" hidden><label for="ttDirection">路線・方面</label><select id="ttDirection"></select><div class="tt-step"><button class="btn" id="ttDirPrev">◀ 前の方面</button><strong id="ttDirLabel">方面</strong><button class="btn" id="ttDirNext">次の方面 ▶</button></div></div>
+<label for="ttStation">駅</label><select id="ttStation"></select><div class="tt-step"><button class="btn" id="ttStationPrev">前の駅</button><strong id="ttStationLabel">駅</strong><button class="btn" id="ttStationNext">次の駅</button></div>
+<div id="ttDirectionControls" hidden><label for="ttDirection">路線・方面</label><select id="ttDirection"></select><div class="tt-step"><button class="btn" id="ttDirPrev">前の方面</button><strong id="ttDirLabel">方面</strong><button class="btn" id="ttDirNext">次の方面</button></div></div>
 <p id="ttMeta"></p><div id="ttResults"></div>
 <div id="ttDayControls" hidden><label for="ttDay">ダイヤ</label><select id="ttDay"><option value="auto">自動（日本時間・祝日対応）</option><option value="weekday">平日（手動）</option><option value="holiday">土曜・日曜・休日（手動）</option></select></div>
 <p id="ttNotes"></p><p id="ttRevision"></p>
@@ -1158,8 +439,10 @@ function show(n){
  $("title").textContent=
   "SHINMAI / "+titles[page];
 
- $("pageid").textContent=
-  ids.map((_,i)=>i===page?"●":"○").join(" ");
+ document.querySelectorAll(".page-tab").forEach((tab,i)=>{
+  if(i===page)tab.setAttribute("aria-current","page");
+  else tab.removeAttribute("aria-current");
+ });
 
  if(ids[page]==="mapPage"&&!mapFrame.hasAttribute("src")){
   mapFrame.src=mapFrame.dataset.src;
@@ -1169,6 +452,9 @@ function show(n){
 
 $("prev").onclick=()=>show(page-1);
 $("next").onclick=()=>show(page+1);
+document.querySelectorAll(".page-tab").forEach(tab=>{
+ tab.onclick=()=>show(Number(tab.dataset.page));
+});
 
 /* META NEURAL BAND: arrows navigate, Enter selects, Escape returns */
 function moveHUDSelection(container,step){
@@ -1412,6 +698,8 @@ function renderWeather(forecast){
   const day=new Date(date+"T12:00:00Z");
   const row=document.createElement("div");
   row.className="weekrow";
+  row.setAttribute("role","listitem");
+  row.setAttribute("aria-label",date+" "+condition[0]+"、最高 "+formatWeatherTemperature(max)+"、最低 "+formatWeatherTemperature(min)+"、降水確率 "+formatWeatherChance(chance));
   const values=[
    [(day.getUTCMonth()+1)+"/"+day.getUTCDate()+"日月火水木金土"[day.getUTCDay()],""],
    condition,
@@ -1757,6 +1045,7 @@ function refreshHomeTrainCountdown(){
   const value=document.createElement("strong");
   const min=Math.floor(row.secondsLeft/60),sec=row.secondsLeft%60;
   value.textContent=String(min).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+  value.setAttribute("aria-label","発車まで "+min+"分"+sec+"秒");
   item.append(label,value);box.append(item);
  }
 }
@@ -2285,6 +1574,7 @@ refreshHUDOnOpen();
 
 </body>
 </html>
+
 
 
 
