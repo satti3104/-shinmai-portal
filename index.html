@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V5.5 — DARK LCD</title>
+<title>COMMAND HUD V5.5.1 — DARK LCD</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -265,6 +265,40 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
+/* Map controls belong to the HUD document, including on glasses browsers. */
+#mapPage{gap:7px}
+.map-status{flex:0 0 auto;min-height:21px;font-size:.875rem;line-height:1.5;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-map-canvas{position:relative;flex:1 1 0;width:100%;min-height:40px;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:#13201a;isolation:isolate;touch-action:none}
+.hud-map-tiles{position:absolute;inset:0;overflow:hidden;filter:invert(1) hue-rotate(180deg) saturate(.45) brightness(.88)}
+.hud-map-tile{position:absolute;width:256px;height:256px;max-width:none;user-select:none}
+.hud-map-location,.hud-map-target{position:absolute;z-index:2;transform:translate(-50%,-50%);pointer-events:none}
+.hud-map-location{width:17px;height:17px;border:3px solid #fff;border-radius:50%;background:#3185ff;box-shadow:0 0 0 7px #3185ff44}
+.hud-map-target{width:15px;height:15px;border:3px solid #fff;border-radius:2px;background:#e46b5a;box-shadow:0 2px 8px #0008}
+.hud-map-center{display:none;position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%);border:2px solid #dfffac;border-radius:50%;pointer-events:none;z-index:3;box-shadow:0 0 0 2px #0009}
+.hud-map-canvas[data-pan=true] .hud-map-center{display:block}
+.map-attribution{position:absolute;right:0;bottom:0;z-index:4;background:#061008ed;padding:3px 6px;color:#d7e8d1;font-size:11px;line-height:1.2;text-decoration:none}
+.map-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;flex:0 0 auto}
+.map-controls .btn{min-height:40px;padding:7px 4px;font-size:.875rem;text-decoration:none;text-align:center}
+.map-controls :focus{outline:3px solid var(--accent);outline-offset:-3px;background:#29412a;color:#f4ffe7}
+.map-controls [aria-pressed=true]{border-color:var(--accent);background:#29412a;color:var(--accent)}
+.map-hint{flex:0 0 auto;margin:0;color:var(--muted);font-size:.75rem;line-height:1.4;text-align:center}
+#mapSearchDialog{width:min(480px,calc(100vw - 16px));max-height:calc(100dvh - 16px);padding:12px;border:1px solid #71976a;border-radius:12px;background:var(--surface);color:var(--text);overflow:auto;overscroll-behavior:contain}
+#mapSearchDialog::backdrop{background:#000b}
+.map-search-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.map-search-heading h2{font-size:1.125rem;margin:0}
+.map-search-heading .btn{min-height:36px;font-size:.875rem}
+#mapSearchDialog label{display:block;margin:8px 0 5px;font-size:.875rem;color:var(--muted)}
+#mapStationResults{display:flex;flex-direction:column;gap:5px}
+.map-station-result{width:100%;justify-content:flex-start;font-size:.9375rem;text-align:left}
+#mapSearchStatus,.map-search-note{font-size:.75rem;color:var(--muted);line-height:1.4;margin:8px 0}
+@media(max-height:470px){
+ #mapPage.active{gap:4px}
+ .map-status{min-height:18px;line-height:18px;font-size:.8125rem}
+ .map-controls{gap:4px}
+ .map-controls .btn{min-height:32px;padding:5px 3px;font-size:.8125rem}
+ .map-hint{font-size:11px;line-height:14px}
+}
+
 </style>
 </head>
 
@@ -274,7 +308,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.5 / DARK LCD</small></div>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.5.1 / DARK LCD</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
@@ -333,10 +367,24 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
 </section>
 
 <!-- MAP -->
-<section class="page" id="mapPage">
- <iframe class="map-frame" id="mapFrame" title="MR Map"
-         data-src="https://mr-map.netlify.app/"
-         allow="geolocation; accelerometer; gyroscope; magnetometer; fullscreen"></iframe>
+<section class="page" id="mapPage" aria-label="地図">
+ <div id="mapStatus" class="map-status" role="status" aria-live="polite">上下でボタンを選択・決定で操作</div>
+ <div id="mapFrame" class="hud-map-canvas" role="img" aria-label="周辺の地図" data-tile-template="https://tile.openstreetmap.org/{z}/{x}/{y}.png">
+  <div id="hudMapTiles" class="hud-map-tiles" aria-hidden="true"></div>
+  <span id="hudMapLocation" class="hud-map-location" aria-label="現在地" hidden></span>
+  <span id="hudMapTarget" class="hud-map-target" aria-label="選択した駅" hidden></span>
+  <span class="hud-map-center" aria-hidden="true"></span>
+  <a class="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>
+ </div>
+ <div id="mapControls" class="map-controls" role="group" aria-label="地図の操作">
+  <button id="mapLocate" class="btn" type="button">現在地</button>
+  <button id="mapZoomIn" class="btn" type="button">拡大</button>
+  <button id="mapZoomOut" class="btn" type="button">縮小</button>
+  <button id="mapPan" class="btn" type="button" aria-pressed="false">移動</button>
+  <button id="mapStationSearch" class="btn" type="button">駅検索</button>
+  <a id="mapExternal" class="btn" href="https://mr-map.netlify.app/" target="_blank" rel="noopener">MR Map</a>
+ </div>
+ <p class="map-hint">上下：選択　決定：実行　左右：画面切替</p>
 </section>
 
 <!-- SCOUT -->
@@ -381,6 +429,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
 </nav>
 
 </main>
+
+<dialog id="mapSearchDialog" aria-labelledby="mapSearchTitle">
+ <div class="map-search-heading"><h2 id="mapSearchTitle">駅を地図で探す</h2><button class="btn" id="mapSearchClose" type="button">閉じる</button></div>
+ <label for="mapStationInput">駅名</label><input id="mapStationInput" class="url" type="search" autocomplete="off" placeholder="例：丸の内">
+ <p class="map-search-note">愛知県内の駅を検索。入力後、下で候補を選んで決定。</p>
+ <p id="mapSearchStatus" role="status" aria-live="polite"></p><div id="mapStationResults"></div>
+</dialog>
 
 <dialog id="ttDialog" aria-labelledby="ttTitle">
 <div class="tt-header"><h2 id="ttTitle">駅の時刻表</h2><button class="btn" id="ttClose">閉じる</button></div>
@@ -444,9 +499,8 @@ function show(n){
   else tab.removeAttribute("aria-current");
  });
 
- if(ids[page]==="mapPage"&&!mapFrame.hasAttribute("src")){
-  mapFrame.src=mapFrame.dataset.src;
- }
+ if(ids[page]==="mapPage")openHUDMap();
+ else stopHUDMapPan(false);
  if(ids[page]==="weekly")weather();
 }
 
@@ -468,6 +522,7 @@ function moveHUDSelection(container,step){
 }
 document.addEventListener("keydown",e=>{
  if(e.isComposing)return;
+ if(handleHUDMapKey(e))return;
  const editing=e.target instanceof Element&&e.target.matches("input:not([type=file]),textarea,select,[contenteditable=true]");
  const timetable=$("ttDialog");
  if(timetable.open){
@@ -498,6 +553,176 @@ document.addEventListener("keydown",e=>{
   show(page+1);
  }
 });
+
+/* HUD-owned map: every control receives the same key events as the other pages. */
+const hudMapState={lat:35.1815,lon:136.9066,zoom:16,started:false,follow:true,pan:false,target:null,revision:0};
+const hudMapTiles=new Map();
+let hudMapDraw=0,hudMapLocateBusy=false;
+const hudMapWrap=value=>((value+180)%360+360)%360-180;
+function hudMapProject(lat,lon,zoom){
+ const scale=256*2**zoom;
+ const latitude=Math.max(-85.05112878,Math.min(85.05112878,lat))*Math.PI/180;
+ return {x:(lon+180)/360*scale,y:(1-Math.asinh(Math.tan(latitude))/Math.PI)/2*scale};
+}
+function hudMapUnproject(x,y,zoom){
+ const scale=256*2**zoom;
+ return {lat:Math.atan(Math.sinh(Math.PI*(1-2*Math.max(0,Math.min(scale,y))/scale)))*180/Math.PI,lon:hudMapWrap(x/scale*360-180)};
+}
+function hudMapStatus(text){$("mapStatus").textContent=text;}
+function queueHUDMapDraw(){
+ if(hudMapDraw)return;
+ hudMapDraw=requestAnimationFrame(()=>{hudMapDraw=0;renderHUDMap();});
+}
+function renderHUDMap(){
+ if(page!==2)return;
+ const width=mapFrame.clientWidth,height=mapFrame.clientHeight;
+ if(!width||!height)return;
+ const state=hudMapState,center=hudMapProject(state.lat,state.lon,state.zoom),count=2**state.zoom;
+ const left=center.x-width/2,top=center.y-height/2,visible=new Set();
+ const template=mapFrame.dataset.tileTemplate;
+ state.revision++;
+ mapFrame.dataset.zoom=String(state.zoom);
+ mapFrame.dataset.center=state.lat.toFixed(6)+","+state.lon.toFixed(6);
+ mapFrame.dataset.pan=String(state.pan);
+ const revision=state.revision;
+ for(let x=Math.floor(left/256);x<=Math.floor((left+width-1)/256);x++){
+  for(let y=Math.max(0,Math.floor(top/256));y<=Math.min(count-1,Math.floor((top+height-1)/256));y++){
+   const tileX=((x%count)+count)%count,key=state.zoom+"/"+x+"/"+y;
+   visible.add(key);
+   let img=hudMapTiles.get(key);
+   if(!img){
+    img=document.createElement("img");img.alt="";img.className="hud-map-tile";img.draggable=false;img.decoding="async";
+    img.src=template.replace("{z}",state.zoom).replace("{x}",tileX).replace("{y}",y);
+    hudMapTiles.set(key,img);
+   }
+   img.onerror=()=>{if(page===2&&hudMapState.revision===revision)hudMapStatus("地図画像を取得できません。通信を確認してください");};
+   img.style.left=Math.round(x*256-left)+"px";img.style.top=Math.round(y*256-top)+"px";
+   $("hudMapTiles").append(img);
+  }
+ }
+ for(const [key,img] of hudMapTiles){if(!visible.has(key))img.remove();}
+ if(hudMapTiles.size>64)for(const [key] of hudMapTiles){if(!visible.has(key))hudMapTiles.delete(key);if(hudMapTiles.size<=64)break;}
+ function marker(id,point){
+  const element=$(id);element.hidden=!point;
+  if(!point)return;
+  const p=hudMapProject(point.lat,point.lon,state.zoom),scale=256*count;
+  let dx=p.x-center.x;dx-=Math.round(dx/scale)*scale;
+  const x=width/2+dx,y=p.y-top;
+  element.hidden=x<0||x>width||y<0||y>height;
+  element.style.left=x+"px";element.style.top=y+"px";
+ }
+ marker("hudMapLocation",pos?{lat:pos.coords.latitude,lon:pos.coords.longitude}:null);
+ marker("hudMapTarget",state.target);
+ $("mapZoomIn").disabled=state.zoom>=19;
+ $("mapZoomOut").disabled=state.zoom<=3;
+}
+function openHUDMap(){
+ const state=hudMapState;
+ if(!state.started){
+  state.started=true;
+  if(pos){state.lat=pos.coords.latitude;state.lon=pos.coords.longitude;hudMapStatus("現在地を表示中");}
+  else hudMapStatus("名古屋を表示中・現在地は未取得");
+ }
+ queueHUDMapDraw();
+ $("mapLocate").focus({preventScroll:true});
+}
+function updateHUDMapPosition(position){
+ const state=hudMapState;
+ if(!state.started||!position?.coords)return;
+ const {latitude:lat,longitude:lon}=position.coords;
+ if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
+ if(state.follow){state.lat=lat;state.lon=lon;}
+ if(page===2)queueHUDMapDraw();
+}
+function stopHUDMapPan(restoreFocus=true){
+ if(!hudMapState.pan)return;
+ hudMapState.pan=false;mapFrame.dataset.pan="false";
+ $("mapPan").setAttribute("aria-pressed","false");
+ hudMapStatus("移動を終了・上下でボタンを選択");
+ if(restoreFocus)$("mapPan").focus({preventScroll:true});
+}
+function handleHUDMapKey(event){
+ if(page!==2||$("ttDialog").open)return false;
+ const search=$("mapSearchDialog"),editing=event.target instanceof Element&&event.target.matches("input,textarea,select,[contenteditable=true]");
+ if(search.open){
+  if(event.key==="Escape"||(event.key==="Backspace"&&!editing)){event.preventDefault();search.close();return true;}
+  if(editing){
+   if(event.key==="ArrowDown"){event.preventDefault();moveHUDSelection(search,1);return true;}
+   if(event.key==="Enter"&&!event.isComposing){event.preventDefault();$("mapStationResults").querySelector("button")?.focus();return true;}
+   return true;
+  }
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(event.key)){
+   event.preventDefault();moveHUDSelection(search,["ArrowUp","ArrowLeft"].includes(event.key)?-1:1);return true;
+  }
+  return true;
+ }
+ if(editing)return false;
+ if(hudMapState.pan){
+  if(["Enter"," ","Escape","Backspace"].includes(event.key)){event.preventDefault();stopHUDMapPan();return true;}
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(event.key)){
+   event.preventDefault();
+   const p=hudMapProject(hudMapState.lat,hudMapState.lon,hudMapState.zoom);
+   const step=Math.max(40,Math.round(Math.min(mapFrame.clientWidth,mapFrame.clientHeight)/3));
+   const dx=event.key==="ArrowLeft"?-step:event.key==="ArrowRight"?step:0;
+   const dy=event.key==="ArrowUp"?-step:event.key==="ArrowDown"?step:0;
+   Object.assign(hudMapState,hudMapUnproject(p.x+dx,p.y+dy,hudMapState.zoom),{follow:false});
+   queueHUDMapDraw();return true;
+  }
+ }
+ if(event.key==="ArrowUp"||event.key==="ArrowDown"){
+  event.preventDefault();moveHUDSelection($("mapControls"),event.key==="ArrowUp"?-1:1);return true;
+ }
+ if((event.key==="Enter"||event.key===" ")&&document.activeElement?.closest("#mapControls")){
+  event.preventDefault();document.activeElement.click();return true;
+ }
+ return false;
+}
+$("mapLocate").onclick=async()=>{
+ if(hudMapLocateBusy)return;
+ hudMapLocateBusy=true;$("mapLocate").setAttribute("aria-busy","true");hudMapStatus("現在地を取得中…");
+ try{
+  const position=await acquirePosition();
+  if(!pos||position.timestamp>=pos.timestamp)pos=position;
+  Object.assign(hudMapState,{lat:pos.coords.latitude,lon:pos.coords.longitude,follow:true,target:null});
+  hudMapStatus("現在地を表示中");queueHUDMapDraw();
+ }catch(error){hudMapStatus(error.code===1?"位置情報の許可が必要です":error.code===0?"位置情報はこのブラウザで利用できません":"現在地を取得できませんでした。もう一度お試しください");}
+ finally{hudMapLocateBusy=false;$("mapLocate").removeAttribute("aria-busy");}
+};
+for(const [id,delta] of [["mapZoomIn",1],["mapZoomOut",-1]])$(id).onclick=()=>{
+ const next=Math.max(3,Math.min(19,hudMapState.zoom+delta));
+ if(next===hudMapState.zoom)return;
+ hudMapState.zoom=next;hudMapStatus(delta>0?"地図を拡大しました":"地図を縮小しました");queueHUDMapDraw();
+};
+$("mapPan").onclick=()=>{
+ hudMapState.pan=!hudMapState.pan;hudMapState.follow=false;
+ $("mapPan").setAttribute("aria-pressed",String(hudMapState.pan));
+ mapFrame.dataset.pan=String(hudMapState.pan);
+ hudMapStatus(hudMapState.pan?"上下左右で地図を移動・決定で終了":"移動を終了・上下でボタンを選択");
+};
+function renderHUDMapStations(){
+ const query=$("mapStationInput").value.normalize("NFKC").trim().replace(/駅$/,"");
+ const stations=positionedRailStations.filter(s=>s.name.normalize("NFKC").includes(query));
+ stations.sort((a,b)=>stationDistance(hudMapState,a)-stationDistance(hudMapState,b));
+ const results=$("mapStationResults");results.replaceChildren();
+ for(const station of stations.slice(0,12)){
+  const button=document.createElement("button");button.className="btn map-station-result";
+  button.textContent=railStationLabel(station);
+  button.onclick=()=>{
+   Object.assign(hudMapState,{lat:station.lat,lon:station.lon,follow:false,target:{lat:station.lat,lon:station.lon}});
+   hudMapStatus(railStationLabel(station)+"を表示中");$("mapSearchDialog").close();queueHUDMapDraw();
+  };
+  results.append(button);
+ }
+ $("mapSearchStatus").textContent=stations.length?Math.min(12,stations.length)+"件を表示":"一致する駅がありません";
+}
+$("mapStationSearch").onclick=()=>{
+ $("mapSearchDialog").showModal();renderHUDMapStations();$("mapStationInput").focus();
+};
+$("mapStationInput").addEventListener("input",renderHUDMapStations);
+$("mapSearchClose").onclick=()=>$("mapSearchDialog").close();
+$("mapSearchDialog").addEventListener("close",()=>{if(page===2)$("mapStationSearch").focus({preventScroll:true});});
+if(typeof ResizeObserver!=="undefined")new ResizeObserver(queueHUDMapDraw).observe(mapFrame);
+else window.addEventListener("resize",queueHUDMapDraw);
 
 /* =====================
    CLOCK
@@ -834,6 +1059,7 @@ async function gps(){
  try{
   const p=await acquirePosition();
   if(!pos||!(p.timestamp<pos.timestamp))pos=p;
+  updateHUDMapPosition(pos);
   $("state").textContent="GPS LOCK";
   $("coords").textContent=
    "LAT "+pos.coords.latitude.toFixed(4)+" / LON "+pos.coords.longitude.toFixed(4);
@@ -1518,6 +1744,7 @@ function hudApplyTrackedPosition(p){
  const moved=!hudLastStationCoords||stationDistance(current,hudLastStationCoords)>180;
  const elapsed=Date.now()-hudLastStationAt;
  pos=p;
+ updateHUDMapPosition(p);
  $("state").textContent="GPS AUTO";
  $("coords").textContent="LAT "+current.lat.toFixed(4)+" / LON "+current.lon.toFixed(4);
  setWeatherPosition(p);
