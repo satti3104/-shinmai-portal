@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V5.5.1 — DARK LCD</title>
+<title>COMMAND HUD V5.6 — DARK LCD</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -299,6 +299,130 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
  .map-hint{font-size:11px;line-height:14px}
 }
 
+/* V5.6: consistent focus, compact state and paged station information. */
+:root{--line:#354b3c;--muted:#bdd0b5;--focus:#d8ffa9}
+.btn,.page-tab,.home-train-next,.url{transition:background-color .12s,border-color .12s}
+.btn:focus,.page-tab:focus,.home-train-next:focus,.url:focus,summary:focus,button.weather-name:focus,button.home-nearest-value:focus{
+ outline:3px solid var(--focus);outline-offset:-3px;background:#2a4024;color:#f5ffe9;box-shadow:none;
+}
+a:focus-visible{outline:3px solid var(--focus);outline-offset:1px}
+.btn[aria-busy=true]{border-style:dashed}
+.page-tab[aria-current=page]{box-shadow:inset 0 -3px var(--accent)}
+.overview-meta{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.overview-meta .home-date{min-width:0;font-weight:600}
+.status-chip{flex:0 0 auto;min-height:27px;padding:3px 7px;border:1px solid #536d46;border-radius:6px;background:#172219;color:var(--muted);font-size:12px;line-height:1.25}
+.status-chip[data-status=ready]{color:var(--accent);border-color:#718a55}
+.status-chip[data-status=waiting]{color:#ffe0a1;border-color:#766341}
+.status-chip:focus{outline:3px solid var(--focus);outline-offset:-3px}
+button.weather-name,button.home-nearest-value{display:block;max-width:100%;border:0;padding:2px 3px;margin:-2px -3px;border-radius:5px;background:transparent;color:inherit;font:inherit;font-weight:750;text-align:left;cursor:pointer;white-space:nowrap}
+button.weather-name{font-size:1.3rem;line-height:1.3;flex-shrink:0}
+button.home-nearest-value{font-size:1.1rem;line-height:1.3;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.home-weather[data-status=error]{border-color:#b78b4b}
+.home-weather #place{font-variant-numeric:tabular-nums}
+.home-clock{align-self:center}
+.home-train-countdown{justify-content:flex-start;padding-top:6px}
+.home-train-row{padding:3px 0;border-bottom:1px solid #253a2c}
+.home-train-row:last-child{border-bottom:0}
+.home-train-row strong{font-size:1.65rem}
+.home-nearest-label{letter-spacing:.02em}
+.weekly-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto}
+.weekly-heading .btn{min-height:34px;padding:5px 10px;font-size:.875rem}
+.weather-state{flex:0 0 auto;margin:0;padding:4px 7px;color:#ffe1ab;border-left:2px solid #c4934e;font-size:.8125rem;line-height:1.4}
+.weekrow[data-today=true]{background:#18291b;margin-inline:-6px;padding-inline:6px;border-radius:6px}
+.weekrow[data-weekend=saturday]>span:first-child{color:#a6d9f0}
+.weekrow[data-weekend=sunday]>span:first-child{color:#f0b9bd}
+.weather-high{color:#ffe0ab}.weather-low{color:#b5d8f4}
+#weekrows[data-empty=true]{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.875rem;text-align:center;padding:12px}
+.rail-heading{display:flex;align-items:center;justify-content:space-between;gap:5px;flex-shrink:0}
+.rail-heading h2{font-size:1rem}
+.rail-mode{font-size:.75rem;color:var(--muted);white-space:nowrap}
+.station-panel{overflow:hidden;gap:7px;padding:12px}
+.rail-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;flex-shrink:0}
+.rail-tabs .btn{min-height:34px;padding:6px;font-size:.875rem}
+.rail-tabs [aria-pressed=true]{color:var(--accent);border-color:#8bab66;background:#22331e}
+#stationStatus{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.8125rem;line-height:1.3}
+.rail-body{flex:1 1 0;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+#nearTrainCard{display:flex;flex-direction:column;flex:1 1 0;min-height:0;overflow:hidden;border:0;background:transparent;padding:0}
+#nearTrainCard>strong,#nearTrainCard>small,#nearTrainTimetable,#nearTrainReload{display:none}
+#nearTrainStation{flex:0 0 auto;font-size:1.1rem;line-height:1.4;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rail-direction-controls{display:flex;align-items:center;gap:4px;flex:0 0 auto;margin-bottom:6px}
+.rail-direction-controls .btn{flex:0 0 36px;min-height:30px;padding:2px;font-size:.875rem}
+.rail-direction-title{min-width:0;flex:1}
+#railDirectionLabel{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.8125rem;line-height:1.4;color:var(--muted)}
+#railDirectionCount{display:block;font:12px/1.3 var(--mono);color:var(--accent)}
+#nearTrainNext{flex:1 1 0;min-height:0;overflow-y:auto;font-size:.875rem;color:var(--muted);scrollbar-width:thin}
+.scouter-direction{padding:0;border:0}
+.scouter-direction[hidden]{display:none!important}
+.rail-direction-controls:not([hidden])+#nearTrainNext .scouter-direction-name{display:none}
+.scouter-departure{padding:8px}
+.scouter-departure strong{font-size:1.6rem;font-weight:650}
+.rail-disclaimer{flex:0 0 auto;color:var(--muted);font-size:11px;line-height:1.3;margin-top:5px}
+#stationList{flex:1 1 0;max-height:none;overflow:auto;padding:0 3px 2px}
+#stationList .url{position:sticky;top:0;z-index:1;min-height:36px;background:var(--surface)}
+.station-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.station-actions .btn,#stationOffline{min-height:34px;font-size:.8125rem;padding:6px 2px}
+.station-row{padding:7px 0}
+.station-row .tt-station{font-size:.8125rem;min-height:32px}
+.hud-map-tiles{filter:invert(1) hue-rotate(180deg) saturate(.45) brightness(1.05) contrast(1.08)}
+.hud-map-canvas{cursor:grab}
+.hud-map-canvas:active{cursor:grabbing}
+dialog{scrollbar-color:#6b8557 var(--surface)}
+.tt-header,.map-search-heading{position:sticky;top:-12px;z-index:3;background:var(--surface);border-bottom:1px solid var(--line);padding:5px 0 9px}
+.tt-train{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:7px;background:var(--raised)}
+.tt-step strong{font-size:.9375rem}
+#hudHelpDialog{width:min(500px,calc(100vw - 16px));max-height:calc(100dvh - 16px);overflow:auto;padding:12px;border:1px solid #71976a;border-radius:12px;background:var(--surface);color:var(--text)}
+#hudHelpDialog::backdrop{background:#000b}
+.help-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;position:sticky;top:-12px;padding:4px 0 9px;background:var(--surface);z-index:2;border-bottom:1px solid var(--line)}
+.help-heading h2{margin:0;font-size:1.125rem}.help-heading .btn{min-height:34px;font-size:.875rem}
+.help-status{margin:12px 0;padding:10px;background:var(--raised);border-radius:8px}
+.help-status dt{color:var(--accent);font-size:.875rem;font-weight:700;margin-top:8px}.help-status dt:first-child{margin-top:0}
+.help-status dd{font-size:.875rem;line-height:1.5;margin:3px 0 0;color:var(--muted)}
+.help-keys{display:grid;grid-template-columns:90px 1fr;gap:8px;margin:12px 0;font-size:.875rem;line-height:1.4}
+.help-keys dt{font-weight:700;color:var(--text)}.help-keys dd{margin:0;color:var(--muted)}
+#hudRefreshAll{width:100%}.help-sources{font-size:.8125rem;line-height:1.5;margin-top:12px;color:var(--muted)}
+.help-sources summary{cursor:pointer;padding:6px 0;color:var(--text)}
+@media(max-width:420px){
+ button.weather-name{font-size:1.125rem}button.home-nearest-value{font-size:1rem}
+ .home-train-row strong{font-size:1.35rem}
+}
+@media(max-height:470px){
+ #scout #coords{display:none}
+ #scout .rail-heading{display:none}
+ #scout[data-departures-ready=true] #stationStatus{display:none}
+ .status-chip{min-height:21px;padding:2px 4px;font-size:11px}
+ button.weather-name{font-size:1rem;line-height:18px}
+ button.home-nearest-value{font-size:.875rem;line-height:19px}
+ .home-train-countdown{padding-top:0;justify-content:center}
+ .home-train-row{padding:0;border:0}
+ .home-train-row strong{font-size:1rem}
+ .weekly-heading .btn{min-height:26px;padding:3px 7px;font-size:.8125rem}
+ .weather-state{font-size:11px;line-height:13px;padding:2px 4px}
+ .station-panel{gap:4px;padding:6px 8px}
+ .rail-heading h2{font-size:.875rem;line-height:18px}
+ .rail-mode{font-size:11px}
+ .rail-tabs .btn{min-height:26px;padding:3px;font-size:.8125rem}
+ #stationStatus{font-size:11px;line-height:14px}
+ #nearTrainStation{font-size:.875rem;line-height:18px;margin:0 0 3px}
+ .rail-direction-controls{margin-bottom:3px;gap:3px}
+ .rail-direction-controls .btn{min-height:24px;flex-basis:30px;font-size:12px}
+ #railDirectionLabel{font-size:11px;line-height:13px}
+ #railDirectionCount{font-size:10px;line-height:11px}
+ .scouter-departures{gap:5px}
+ .scouter-departure{padding:2px 6px;gap:0}
+ .scouter-departure strong{font-size:20px;line-height:23px}
+ .scouter-departure span{font-size:12px;line-height:16px}
+ .scouter-departure small{font-size:10px;line-height:12px}
+ .station-actions .btn,#stationOffline{min-height:27px;padding:3px 1px;font-size:12px}
+ .rail-disclaimer{font-size:10px;line-height:12px;margin-top:3px}
+ #hudHelpDialog{padding:9px}.help-heading{top:-9px}
+}
+@media(max-width:280px){
+ .overview-meta{gap:3px}.status-chip{font-size:10px;padding:2px 3px}
+ button.home-nearest-value{font-size:.875rem}
+ .rail-mode{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.btn,.page-tab,.home-train-next,.url{transition:none}}
+
 </style>
 </head>
 
@@ -308,7 +432,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.5.1 / DARK LCD</small></div>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.6 / DARK LCD</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
@@ -319,15 +443,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
  <div class="home-inner">
 
   <div class="home-overview">
-   <div class="home-date" id="date">--/-- (-)</div>
+   <div class="overview-meta"><div class="home-date" id="date">--/-- (-)</div><button id="helpBtn" class="status-chip" type="button" aria-haspopup="dialog" aria-label="状態と操作方法を開く"><span id="gpsStatus">GPS未取得</span></button></div>
    <time class="home-clock" id="clock" aria-label="現在時刻">--:--</time>
    <div class="home-temperature"><span class="overview-label">現在気温</span><div class="home-temp" id="temp">--°</div></div>
   </div>
 
   <div class="card home-weather">
    <div class="weather-heading">
-    <div class="weather-name" id="condition">天気取得中</div>
-    <a id="place" target="_blank" rel="noopener" aria-live="polite">取得中</a>
+    <button class="weather-name" id="condition" type="button" aria-label="7日間予報を開く">天気取得中</button>
+    <a id="place" target="_blank" rel="noopener" aria-live="polite" data-hud-skip>取得中</a>
    </div>
    <div class="meta" id="details">
     体感 --° / 降水 --%
@@ -339,7 +463,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
 
   <div class="home-nearest">
    <div class="home-nearest-head"><span class="home-nearest-label">最寄り駅・発車まで</span><button id="homeTrainNextPage" class="home-train-next" type="button" aria-label="次の方面を表示" hidden>方面切替 <span id="homeTrainPageIndicator"></span></button></div>
-   <span class="home-nearest-value" id="homeNearestStation" role="status" aria-live="polite">GPS待機中</span>
+   <button class="home-nearest-value" id="homeNearestStation" type="button" title="駅の発車案内を開く">GPS待機中</button>
    <div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div>
   </div>
 
@@ -353,9 +477,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
 <!-- WEATHER -->
 <section class="page" id="weekly">
 
- <h2 class="sectiontitle">
-  7日間予報
- </h2>
+ <div class="weekly-heading"><h2 class="sectiontitle">7日間予報</h2><button id="weeklyRefresh" class="btn" type="button">更新</button></div>
+ <p id="weatherState" class="weather-state" role="status" aria-live="polite" hidden></p>
 
  <a class="note" id="weekplace" target="_blank" rel="noopener" aria-live="polite">取得中</a>
 
@@ -402,15 +525,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
   <button class="btn" id="scanBtn">GPSを更新</button>
  </div>
  <div class="station-panel card">
-  <h2>周辺の駅</h2>
-  <div class="station-note">半径1km / 直線距離 / 方角は真北基準</div>
-  <div class="station-actions"><button class="btn" id="stationScan">周辺駅を検索</button><button class="btn" id="timetableBtn">時刻表</button></div>
-  <div id="stationAccuracy" class="station-note">GPS精度：未確認</div>
-  <div id="stationStatus" role="status" aria-live="polite">SCAN STATIONSで駅を検索</div>
-  <div id="nearTrainCard" class="card"><strong>最寄り駅の発車予定</strong><div id="nearTrainStation">駅検索待ち</div><div id="nearTrainNext">次発時刻を確認中</div><button class="btn" id="nearTrainTimetable" hidden>この駅の時刻表</button><button class="btn" id="nearTrainReload">発車予定を更新</button><small>時刻表上の予定時刻。遅延・運休は未反映</small></div>
-  <div id="stationList" tabindex="0" role="region" aria-label="周辺の駅一覧・上下キーでスクロール"></div>
-  <button class="btn" id="stationOffline">通信不要：駅一覧</button>
-  <div class="station-source">国土交通省の<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N02-2025.html" target="_blank" rel="noopener">鉄道</a>・<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2026.html" target="_blank" rel="noopener">行政区域</a>データを加工（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>） / 外部検索は現在地を送信 · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a></div>
+  <div class="rail-heading"><h2>駅・発車案内</h2><span class="rail-mode" id="railMode">現在地周辺</span></div>
+  <div class="rail-tabs" role="group" aria-label="駅情報の表示"><button id="railDeparturesTab" class="btn" type="button" aria-pressed="true" aria-controls="nearTrainCard">発車予定</button><button id="railStationsTab" class="btn" type="button" aria-pressed="false" aria-controls="stationList">駅一覧</button></div>
+  <div id="stationStatus" role="status" aria-live="polite">再検索、または駅を選択</div>
+  <div class="rail-body">
+   <div id="nearTrainCard" class="card"><strong>最寄り駅の発車予定</strong><div id="nearTrainStation">駅検索待ち</div>
+    <div class="rail-direction-controls" id="railDirectionControls" hidden><button id="railDirectionPrev" class="btn" type="button" aria-label="前の方面">前</button><div class="rail-direction-title"><span id="railDirectionLabel">方面</span><span id="railDirectionCount"></span></div><button id="railDirectionNext" class="btn" type="button" aria-label="次の方面">次</button></div>
+    <div id="nearTrainNext">次発時刻を確認中</div><button class="btn" id="nearTrainTimetable" hidden>この駅の時刻表</button><button class="btn" id="nearTrainReload">発車予定を更新</button><small>時刻表上の予定時刻。遅延・運休は未反映</small></div>
+   <div id="stationList" tabindex="0" role="region" aria-label="周辺の駅一覧" hidden></div>
+  </div>
+  <div class="station-actions"><button class="btn" id="stationScan">再検索</button><button class="btn" id="stationOffline">駅を選ぶ</button><button class="btn" id="timetableBtn">時刻表</button></div>
+  <div class="rail-disclaimer">予定時刻・遅延や運休は未反映</div>
  </div>
 </section>
 
@@ -429,6 +554,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,#s
 </nav>
 
 </main>
+
+<dialog id="hudHelpDialog" aria-labelledby="hudHelpTitle">
+ <div class="help-heading"><h2 id="hudHelpTitle">状態と操作</h2><button class="btn" id="hudHelpClose" type="button">閉じる</button></div>
+ <dl class="help-status"><dt>位置情報</dt><dd id="hudGpsDetail">未取得</dd><dt>天気</dt><dd id="hudWeatherDetail">未取得</dd></dl>
+ <button class="btn" id="hudRefreshAll" type="button">GPS・天気を再取得</button>
+ <dl class="help-keys"><dt>上下</dt><dd>ボタンや候補を選択</dd><dt>決定</dt><dd>選んだ操作を実行</dd><dt>左右</dt><dd>画面を切替</dd><dt>戻る</dt><dd>開いた画面を閉じる。通常画面ではホームへ</dd></dl>
+ <p class="map-search-note">地図で「移動」を選ぶと、上下左右で地図を動かせます。決定で移動を終了します。</p>
+ <details class="help-sources"><summary>測位精度と駅データの出典</summary><div id="stationAccuracy">GPS精度：未確認</div><p>周辺駅は半径1kmの直線距離。方角は真北基準。</p><div class="station-source">国土交通省の<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N02-2025.html" target="_blank" rel="noopener">鉄道</a>・<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2026.html" target="_blank" rel="noopener">行政区域</a>データを加工（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>） / 外部検索は現在地を送信 · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a></div></details>
+</dialog>
 
 <dialog id="mapSearchDialog" aria-labelledby="mapSearchTitle">
  <div class="map-search-heading"><h2 id="mapSearchTitle">駅を地図で探す</h2><button class="btn" id="mapSearchClose" type="button">閉じる</button></div>
@@ -474,7 +608,7 @@ const ids=[
 const titles=[
  "HOME",
  "WEATHER",
- "MR MAP",
+ "MAP",
  "SCOUT"
 ];
 
@@ -502,6 +636,7 @@ function show(n){
  if(ids[page]==="mapPage")openHUDMap();
  else stopHUDMapPan(false);
  if(ids[page]==="weekly")weather();
+ focusHUDPage();
 }
 
 $("prev").onclick=()=>show(page-1);
@@ -510,48 +645,152 @@ document.querySelectorAll(".page-tab").forEach(tab=>{
  tab.onclick=()=>show(Number(tab.dataset.page));
 });
 
-/* META NEURAL BAND: arrows navigate, Enter selects, Escape returns */
+/* One selection model across HOME, weather, stations and dialogs. */
+const hudFocusMemory=new Map();
+let hudReturnFocus=null,ttReturnFocus=null;
+function hudControls(container){
+ return [...container.querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),summary')]
+  .filter(el=>!el.closest('[hidden]')&&!el.hasAttribute('data-hud-skip')&&el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden");
+}
+function focusHUDControl(element){
+ if(!element)return;
+ element.focus({preventScroll:true});
+ element.scrollIntoView({block:"nearest",inline:"nearest"});
+}
 function moveHUDSelection(container,step){
- const controls=[...container.querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled)')]
-  .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden");
+ const controls=hudControls(container);
  if(!controls.length)return;
  const current=controls.indexOf(document.activeElement);
- const next=controls[(current+step+controls.length)%controls.length];
- next.focus({preventScroll:true});
- next.scrollIntoView({block:"nearest",inline:"nearest"});
+ const next=current<0?(step>0?0:controls.length-1):(current+step+controls.length)%controls.length;
+ focusHUDControl(controls[next]);
 }
-document.addEventListener("keydown",e=>{
- if(e.isComposing)return;
- if(handleHUDMapKey(e))return;
- const editing=e.target instanceof Element&&e.target.matches("input:not([type=file]),textarea,select,[contenteditable=true]");
- const timetable=$("ttDialog");
- if(timetable.open){
-  if(e.key==="Escape"||(e.key==="Backspace"&&!editing)){
-   e.preventDefault();timetable.close();return;
+function focusHUDPage(){
+ const container=$(ids[page]),remembered=hudFocusMemory.get(ids[page]);
+ if(remembered&&container.contains(remembered)&&hudControls(container).includes(remembered))focusHUDControl(remembered);
+ else focusHUDControl(page===0?$("condition"):page===1?$("weeklyRefresh"):page===2?$("mapLocate"):$("railDeparturesTab"));
+}
+function openHUDHelp(){
+ hudReturnFocus=document.activeElement;renderHUDStatus();
+ $("hudHelpDialog").showModal();focusHUDControl($("hudHelpClose"));
+}
+$("helpBtn").onclick=openHUDHelp;
+$("hudHelpClose").onclick=()=>$("hudHelpDialog").close();
+$("hudHelpDialog").addEventListener("close",()=>focusHUDControl(hudReturnFocus));
+$("ttDialog").addEventListener("close",()=>{
+ if(ttReturnFocus?.isConnected&&ttReturnFocus.getClientRects().length)focusHUDControl(ttReturnFocus);
+ else focusHUDPage();
+});
+$("hudRefreshAll").onclick=()=>{weather(true);gps();};
+$("condition").onclick=()=>show(1);
+$("homeNearestStation").onclick=()=>{show(3);setRailView(homeTrainStation?"departures":"stations");if(!homeTrainStation)showOfflineStations();};
+$("weeklyRefresh").onclick=()=>weather(true);
+document.addEventListener("focusin",event=>{
+ const target=event.target;
+ if(target instanceof HTMLElement&&target.closest(".page.active")&&!target.closest("dialog"))hudFocusMemory.set(ids[page],target);
+});
+document.addEventListener("keydown",event=>{
+ if(event.isComposing)return;
+ const editing=event.target instanceof Element&&event.target.matches('input:not([type=file]),textarea,select,[contenteditable=true]');
+ const dialog=document.querySelector("dialog[open]");
+ if(dialog){
+  if(event.key==="Escape"||(event.key==="Backspace"&&!editing)){event.preventDefault();dialog.close();return;}
+  if(editing){
+   if(event.key==="ArrowDown"&&event.target.tagName!=="SELECT"){event.preventDefault();moveHUDSelection(dialog,1);}
+   if(event.key==="Enter"&&dialog.id==="mapSearchDialog"){event.preventDefault();focusHUDControl($("mapStationResults").querySelector("button"));}
+   return;
   }
-  if(editing)return;
-  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)){
-   e.preventDefault();moveHUDSelection(timetable,["ArrowUp","ArrowLeft"].includes(e.key)?-1:1);return;
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(event.key)){
+   event.preventDefault();moveHUDSelection(dialog,["ArrowUp","ArrowLeft"].includes(event.key)?-1:1);return;
   }
- }else if(page===3&&["ArrowUp","ArrowDown"].includes(e.key)){
-  e.preventDefault();moveHUDSelection($("scout"),e.key==="ArrowUp"?-1:1);return;
+  if((event.key==="Enter"||event.key===" ")&&document.activeElement?.matches("button,a[href],summary")){
+   event.preventDefault();document.activeElement.click();
+  }
+  return;
  }
- if((e.key==="Enter"||e.key===" ")&&document.activeElement?.tagName==="BUTTON"){
-  e.preventDefault();document.activeElement.click();return;
+ if(editing){
+  if(event.key==="ArrowDown"&&page===3){event.preventDefault();moveHUDSelection($("scout"),1);}
+   if(event.key==="Escape"){event.preventDefault();focusHUDPage();}
+  return;
  }
-
-
- if(timetable.open||editing)return;
-
- if(e.key==="ArrowLeft"){
-  e.preventDefault();
-  show(page-1);
+ if(event.key==="?"||event.key==="F1"){event.preventDefault();openHUDHelp();return;}
+ if(handleHUDMapKey(event))return;
+ if(event.key==="Escape"||event.key==="Backspace"){
+  event.preventDefault();if(page!==0)show(0);else focusHUDPage();return;
  }
-
- if(e.key==="ArrowRight"){
-  e.preventDefault();
-  show(page+1);
+ if(event.key==="ArrowUp"||event.key==="ArrowDown"){
+  event.preventDefault();moveHUDSelection($(ids[page]),event.key==="ArrowUp"?-1:1);return;
  }
+ if((event.key==="Enter"||event.key===" ")&&document.activeElement?.matches("button,a[href],summary")){
+  event.preventDefault();document.activeElement.click();return;
+ }
+ if(event.key==="ArrowLeft"||event.key==="ArrowRight"){
+  event.preventDefault();show(page+(event.key==="ArrowLeft"?-1:1));
+ }
+});
+
+function renderHUDStatus(){
+ const available=Boolean(pos?.coords),age=available?Date.now()-pos.timestamp:Infinity;
+ const current=available&&age<=300000;
+ const text=gpsBusy?"GPS取得中":current?"GPS取得済":available?"前回の位置":"GPS未取得";
+ $("gpsStatus").textContent=text;
+ $("helpBtn").dataset.status=gpsBusy?"busy":current?"ready":"waiting";
+ $("helpBtn").setAttribute("aria-label",text+"・状態と操作方法を開く");
+ $("hudGpsDetail").textContent=available?text+" / 精度 "+(Number.isFinite(pos.coords.accuracy)?"±"+Math.round(pos.coords.accuracy)+"m":"不明"):"現在地は未取得。位置情報を許可するか、駅を手動選択してください。";
+ const source=lastWeather?.forecast.source?.name;
+ const time=lastWeather&&new Date(lastWeather.updatedAt).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+ $("hudWeatherDetail").textContent=lastWeather?(weatherUpdateFailed?"更新失敗・前回の情報 / ":"最終更新 ")+time+" / "+source:"天気は未取得です。";
+ $("gpsBtn").setAttribute("aria-busy",String(Boolean(gpsBusy||weatherRequest)));
+ $("weeklyRefresh").setAttribute("aria-busy",String(Boolean(weatherRequest)));
+}
+
+let railView="departures",railDirectionIndex=0,railDirectionStation=null,stationSelectionMode="auto";
+function setRailView(view){
+ railView=view;
+ $("railDeparturesTab").setAttribute("aria-pressed",String(view==="departures"));
+ $("railStationsTab").setAttribute("aria-pressed",String(view==="stations"));
+ $("nearTrainCard").hidden=view!=="departures";
+ $("stationList").hidden=view!=="stations";
+}
+function renderRailDirection(){
+ const groups=[...$("nearTrainNext").querySelectorAll(".scouter-direction")];
+ $("scout").dataset.departuresReady=String(groups.length>0);
+ if(railDirectionStation!==homeTrainStation?.id){railDirectionIndex=0;railDirectionStation=homeTrainStation?.id;}
+ railDirectionIndex=groups.length?railDirectionIndex%groups.length:0;
+ groups.forEach((group,i)=>group.hidden=i!==railDirectionIndex);
+ $("railDirectionControls").hidden=groups.length<2;
+ const name=groups[railDirectionIndex]?.querySelector(".scouter-direction-name")?.textContent||"方面未取得";
+ $("railDirectionLabel").textContent=name;
+ $("railDirectionLabel").title=name;
+ $("railDirectionCount").textContent=groups.length>1?(railDirectionIndex+1)+"/"+groups.length:"";
+ $("railMode").textContent=stationSelectionMode==="manual"?"手動選択":"現在地周辺";
+ if(stationSelectionMode==="manual"&&homeTrainStation)$("stationStatus").textContent="選択した駅の発車予定を表示";
+}
+$("railDeparturesTab").onclick=()=>setRailView("departures");
+$("railStationsTab").onclick=()=>setRailView("stations");
+for(const [id,step] of [["railDirectionPrev",-1],["railDirectionNext",1]])$(id).onclick=()=>{
+ const count=$("nearTrainNext").querySelectorAll(".scouter-direction").length;
+ if(count){railDirectionIndex=(railDirectionIndex+step+count)%count;renderRailDirection();}
+};
+// Generated timetable content changes while the direction controls keep their focus.
+new MutationObserver(renderRailDirection).observe($("nearTrainNext"),{childList:true});
+
+/* Pointer dragging complements the same map controls on a phone or desktop. */
+let hudMapDrag=null;
+mapFrame.addEventListener("pointerdown",event=>{
+ if(event.button!==0||event.target.closest("a"))return;
+ stopHUDMapPan(false);
+ hudMapDrag={id:event.pointerId,x:event.clientX,y:event.clientY,center:hudMapProject(hudMapState.lat,hudMapState.lon,hudMapState.zoom)};
+ mapFrame.setPointerCapture(event.pointerId);
+});
+mapFrame.addEventListener("pointermove",event=>{
+ if(!hudMapDrag||event.pointerId!==hudMapDrag.id)return;
+ const dx=event.clientX-hudMapDrag.x,dy=event.clientY-hudMapDrag.y;
+ if(Math.abs(dx)+Math.abs(dy)<3)return;
+ Object.assign(hudMapState,hudMapUnproject(hudMapDrag.center.x-dx,hudMapDrag.center.y-dy,hudMapState.zoom),{follow:false});
+ queueHUDMapDraw();
+});
+for(const type of ["pointerup","pointercancel","lostpointercapture"])mapFrame.addEventListener(type,()=>{
+ if(hudMapDrag){hudMapDrag=null;hudMapStatus("移動しました・現在地ボタンで追従");}
 });
 
 /* HUD-owned map: every control receives the same key events as the other pages. */
@@ -624,7 +863,6 @@ function openHUDMap(){
   else hudMapStatus("名古屋を表示中・現在地は未取得");
  }
  queueHUDMapDraw();
- $("mapLocate").focus({preventScroll:true});
 }
 function updateHUDMapPosition(position){
  const state=hudMapState;
@@ -741,6 +979,7 @@ function tick(){
 
  $("headerClock").textContent=$("clock").textContent;
  if(typeof refreshHomeTrainCountdown==="function")refreshHomeTrainCountdown();
+ renderHUDStatus();
 
  $("date").textContent=
   `令和${d.getFullYear()-2018}年${d.getMonth()+1}月${String(d.getDate()).padStart(2,"0")}日`;
@@ -923,6 +1162,8 @@ function renderWeather(forecast){
   const day=new Date(date+"T12:00:00Z");
   const row=document.createElement("div");
   row.className="weekrow";
+  row.dataset.today=String(date===new Date(Date.now()+9*3600000).toISOString().slice(0,10));
+  row.dataset.weekend=day.getUTCDay()===0?"sunday":day.getUTCDay()===6?"saturday":"";
   row.setAttribute("role","listitem");
   row.setAttribute("aria-label",date+" "+condition[0]+"、最高 "+formatWeatherTemperature(max)+"、最低 "+formatWeatherTemperature(min)+"、降水確率 "+formatWeatherChance(chance));
   const values=[
@@ -945,6 +1186,11 @@ function renderWeather(forecast){
     label.className="forecast-label";
     label.textContent=" "+value.split(" ").slice(1).join(" ");
     span.replaceChildren(icon,label);
+   }
+   if(index===2){
+    const high=document.createElement("span");high.className="weather-high";high.textContent=formatWeatherTemperature(max);
+    const low=document.createElement("span");low.className="weather-low";low.textContent=formatWeatherTemperature(min);
+    span.replaceChildren(high,document.createTextNode(" / "),low);
    }
    if(color)span.style.color=color;
    row.appendChild(span);
@@ -972,12 +1218,18 @@ function updateWeatherLabel(){
  const label=[status,location.name+note,source?.name].filter(Boolean).join(" · ");
  for(const id of ["place","weekplace"]){
   const link=$(id);
-  if(link.textContent!==label)link.textContent=label;
+  const short=id==="place"?(weatherUpdateFailed?(lastWeather?"更新失敗・前回の情報":"天気を取得できません"):location.name+(time?" "+time:"")):label;
+  if(link.textContent!==short)link.textContent=short;
+  link.setAttribute("aria-label",label);
   if(source){
    link.href=source.url;
    link.title=label+" · "+source.name+"の予報データを加工";
   }
  }
+ $("weatherState").hidden=!weatherUpdateFailed;
+ $("weatherState").textContent=lastWeather?"更新失敗・前回の予報を表示しています":"予報未取得・更新をお試しください";
+ $("home").querySelector(".home-weather").dataset.status=weatherUpdateFailed?"error":"ready";
+ $("weekrows").dataset.empty=String(!$("weekrows").querySelector(".weekrow"));
 }
 
 async function weather(force=false){
@@ -1073,8 +1325,10 @@ async function gps(){
   $("state").textContent=error.code===3?"GPS TIMEOUT":error.code===1?"GPS DENIED":error.code===0?"GPS非対応":"GPS ERROR";
   $("stationStatus").textContent=error.code===3?"GPS取得タイムアウト（駅通信前）":
    error.code===1?"位置情報の許可が必要":"GPS取得失敗";
-  if(pos){$("homeNearestStation").textContent="前回の位置情報を使用中";scanStations(pos);}
-  else showOfflineStations();
+  if(stationSelectionMode!=="manual"){
+   if(pos){$("homeNearestStation").textContent="前回の位置情報を使用中";scanStations(pos);}
+   else showOfflineStations();
+  }
  }finally{gpsBusy=false;}
 }
 
@@ -1153,10 +1407,7 @@ async function sensor(){
 
 $("sensorBtn").onclick=sensor;
 
-$("scanBtn").onclick=()=>{
- sensor();
- scanStations();
-};
+$("scanBtn").onclick=()=>{stationSelectionMode="auto";gps();};
 
 /* STATION SCANNER: pure data helpers, then UI and network integration. */
 function stationDistance(a,b){
@@ -1282,7 +1533,9 @@ function updateNearTrain(station,detail=""){
  const label=station?railStationLabel(station):"1km以内に駅なし";
  const description=label+(detail?"　"+detail:"");
  $("nearTrainStation").textContent=description;
+ $("nearTrainStation").title=description;
  $("homeNearestStation").textContent=description;
+ $("homeNearestStation").title=description+"・駅の発車案内を開く";
  $("nearTrainTimetable").hidden=!timetableStations.has(station?.id);
  const panel=$("nearTrainNext");panel.replaceChildren();
  if(!station){
@@ -1309,7 +1562,7 @@ function updateNearTrain(station,detail=""){
    for(const [minute,flag] of departures){
     const cell=document.createElement("div");cell.className="scouter-departure";
     const t=document.createElement("strong");t.textContent=String(Math.floor(minute/60)%24).padStart(2,"0")+":"+String(minute%60).padStart(2,"0");
-    const countdown=document.createElement("span");countdown.textContent="あと "+(minute-clock.minutes)+"分";
+    const countdown=document.createElement("span");countdown.textContent=minute===clock.minutes?"まもなく":"あと "+(minute-clock.minutes)+"分";
     cell.append(t,countdown);
     if(flag){const dest=document.createElement("small");dest.textContent=timetableDestination(record,flag);cell.append(dest);}
     times.append(cell);
@@ -1320,8 +1573,9 @@ function updateNearTrain(station,detail=""){
  }
 }
 function renderStations(stations,origin,cached){
+ if(stationSelectionMode==="manual")return;
  const list=$("stationList");list.replaceChildren();
- $("stationStatus").textContent=stations.length?`STATIONS DETECTED: ${stations.length}${cached?"（キャッシュ）":""}`:"半径1km以内に駅が見つかりません";
+ $("stationStatus").textContent=stations.length?`周辺 ${stations.length}駅${cached?"（前回データ）":""}`:"半径1km以内に駅が見つかりません";
  const nearest=stations[0];
  updateNearTrain(nearest||null,nearest?`${stationDirection(nearest.bearing)} 約${Math.round(nearest.distance)}m`:"");
  for(const s of stations){
@@ -1333,8 +1587,9 @@ function renderStations(stations,origin,cached){
   row.append(title,distance,lines);
   if(timetableStations.has(s.id)){
    const button=document.createElement("button");button.className="btn tt-station";
-   button.textContent=railStationLabel(s)+"の時刻表";
-   button.onclick=()=>openTimetable(s.id);row.append(button);
+   button.textContent="発車案内を表示";
+   button.setAttribute("aria-label",railStationLabel(s)+"の発車案内");
+   button.onclick=()=>{stationSelectionMode="manual";updateNearTrain(s,"手動選択");setRailView("departures");focusHUDControl($("railDirectionControls").hidden?$("timetableBtn"):$("railDirectionNext"));};row.append(button);
   }
   list.append(row);
  }
@@ -1351,20 +1606,21 @@ function showOfflineStations(){
   for(const station of filterTimetableStations(search.value)){
    const button=document.createElement("button");button.className="btn tt-station";
    button.textContent=railStationLabel(station)+" / 時刻表";
-   button.onclick=()=>{updateNearTrain(station,"手動選択");openTimetable(station.id);};
+   button.onclick=()=>{stationSelectionMode="manual";updateNearTrain(station,"手動選択");setRailView("departures");openTimetable(station.id);};
    results.append(button);
   }
   if(!results.children.length)results.textContent="一致する駅がありません";
  };
  search.addEventListener("input",render);render();list.append(search,results);
  $("stationStatus").textContent="オフライン駅一覧（距離順ではありません）";
- if(page===3){const first=results.querySelector("button");if(first)first.focus({preventScroll:true});}
+ setRailView("stations");
+ if(page===3)search.focus({preventScroll:true});
  if(!homeTrainStation){
-  $("homeNearestStation").textContent="駅一覧から手動選択できます";
+  $("homeNearestStation").textContent="駅を選んで発車案内を表示";
   $("homeTrainCountdown").textContent="";
  }
 }
-$("stationOffline").onclick=showOfflineStations;
+$("stationOffline").onclick=()=>{stationSelectionMode="manual";showOfflineStations();};
 function heartRailsNearby(lat,lon){
  return new Promise((resolve,reject)=>{
   const callback="hudNearStation_"+Date.now()+"_"+Math.floor(Math.random()*100000);
@@ -1392,11 +1648,11 @@ function heartRailsStationRecords(payload){
  });
 }
 async function scanStations(knownPosition=null){
- if(stationBusy)return;
+ if(stationBusy||(knownPosition?.coords&&stationSelectionMode==="manual"))return;
  stationBusy=true;const generation=++stationGeneration;
  const button=$("stationScan");button.disabled=true;button.setAttribute("aria-busy","true");
  $("stationAccuracy").textContent="GPS精度：確認中";
- $("stationStatus").textContent="GPS ACQUIRING...";
+ $("stationStatus").textContent="現在地を確認中…";
  $("homeNearestStation").textContent="最寄駅を検索中...";
  try{
   if(!navigator.geolocation)throw {gps:true,message:"このブラウザはGPS非対応です"};
@@ -1413,7 +1669,7 @@ async function scanStations(knownPosition=null){
   if(cached){records=stationCache.records;}
   else{
    if(Date.now()-stationLastRequest<30000&&stationCache){records=stationCache.records;renderStations(nearbyStations(records,origin),origin,true);return;}
-   stationLastRequest=Date.now();$("stationStatus").textContent="SCANNING STATIONS...";
+   stationLastRequest=Date.now();$("stationStatus").textContent="周辺の駅を検索中…";
    try{
     const payload=await heartRailsNearby(origin.lat,origin.lon);
     const found=heartRailsStationRecords(payload);
@@ -1463,12 +1719,12 @@ async function scanStations(knownPosition=null){
  }
 }
 function invalidateStationResults(){
- if(stationBusy)return;
+ if(stationBusy||stationSelectionMode==="manual")return;
  stationGeneration++;
  $("stationStatus").textContent="現在地を更新中（前回の駅一覧を保持）";
  $("stationAccuracy").textContent="GPS精度：未確認";
 }
-$("stationScan").onclick=()=>scanStations();
+$("stationScan").onclick=()=>{stationSelectionMode="auto";scanStations();};
 /* END STATION SCANNER */
 
 /* Nagoya City CC BY 4.0 pocket timetables, transformed to service-day minutes. */
@@ -1628,6 +1884,7 @@ function populateTimetableStations(preferredId=$("ttStation").value){
  populateDirections();
 }
 function openTimetable(stationId){
+ ttReturnFocus=document.activeElement;
  const station=timetableStations.get(stationId);
  if(station){
   $("ttOperator").value="";
