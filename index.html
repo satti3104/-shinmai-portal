@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>COMMAND HUD V5.6.1 — DARK LCD</title>
+<title>COMMAND HUD V5.7 — ORBITAL COCKPIT</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -432,6 +432,90 @@ dialog{scrollbar-color:#6b8557 var(--surface)}
 .home-train-row strong{display:block;min-width:6ch;text-align:right;line-height:1.5;font-size:18px;letter-spacing:0;white-space:nowrap}
 @media(min-height:471px){.home-train-row{min-height:32px}.home-train-row strong{font-size:20px}}
 
+
+/* V5.7 — orbital cockpit: monochrome instruments, vermilion navigation. */
+:root{
+ --bg:#050607;--surface:#0c0e10;--raised:#171b1f;--line:#485057;
+ --text:#f2f3ef;--muted:#bdc3c7;--accent:#f3f4ee;--gold:#ffd3a3;
+ --focus:#ffffff;--signal:#ff594d;
+}
+.app{background:var(--bg);border-color:var(--line);border-radius:2px}
+.card,.home-nearest,.hud-map-canvas{border-radius:1px;border-color:var(--line)}
+.home-weather,.home-nearest,.station-panel,#weekrows{
+ background-color:var(--surface);
+ background-image:linear-gradient(var(--text),var(--text)),linear-gradient(var(--text),var(--text)),linear-gradient(var(--signal),var(--signal));
+ background-size:12px 2px,2px 12px,2px 20px;
+ background-position:left top,left top,right bottom;background-repeat:no-repeat;
+}
+.home-overview{border-top:2px solid var(--signal)}
+.home-date{color:var(--text)}
+.home-clock{font-weight:500;letter-spacing:-.065em}
+.home-temperature{border-left-color:#727b82}
+.overview-label,.home-nearest-label,.forecast-columns,.rail-heading h2{
+ color:var(--muted);font-family:var(--mono);font-weight:650;letter-spacing:.04em;
+}
+.home-temp,.home-train-row strong{color:var(--text)}
+.home-nearest-label{padding-left:8px;border-left:3px solid var(--signal)}
+.home-train-row{border-bottom-color:#31373c}
+.btn,.page-tab,.home-train-next,.status-chip,.url,
+button.weather-name,button.home-nearest-value,
+.scouter-departure,.tt-train,.help-status,#ttDialog,#mapSearchDialog,#hudHelpDialog{
+ border-radius:1px;
+}
+.btn{border-color:#626a70;background:#15191c;color:var(--text);font-weight:600}
+.btn:hover,.page-tab:hover{background:#292e32}
+.btn:active{background:#4a2422}
+.home-refresh{background:#171516;border-color:#88605c;color:var(--text)}
+.home-refresh svg{color:var(--signal)}
+.home-train-next{background:#181c1f;color:var(--text)}
+.status-chip{background:#15191c;border-color:#626a70;color:var(--muted);font-family:var(--mono)}
+.status-chip[data-status=ready]{color:#e4f2f3;border-color:#7f9c9f}
+.status-chip[data-status=waiting]{color:#ffd3a3;border-color:#ac7953}
+.home-weather[data-status=error]{border-color:var(--signal)}
+.weather-state{background:#281311;border-left-color:var(--signal);color:#ffc1b9}
+.dock{border-top-color:#626a70}
+.dock>.btn{color:var(--text);background:#101315;border-color:#32383c}
+.page-tab{color:var(--muted);border-color:#32383c;background:#0c0e10}
+.page-tab[aria-current=page]{
+ color:#fff;border-color:var(--signal);background:#301b1a;
+ box-shadow:inset 0 -3px var(--signal);font-weight:750;
+}
+.btn:focus,.page-tab:focus,.home-train-next:focus,.url:focus,summary:focus,
+button.weather-name:focus,button.home-nearest-value:focus,
+.status-chip:focus,.map-controls :focus{
+ outline:3px solid var(--focus);outline-offset:-3px;background:#343a3f;color:#fff;box-shadow:none;
+}
+.rail-tabs [aria-pressed=true],.map-controls [aria-pressed=true]{
+ color:#fff;background:#301b1a;border-color:var(--signal);box-shadow:inset 3px 0 var(--signal);
+}
+.weekrow[data-today=true]{background:#252b30;border-radius:0}
+.weekrow[data-weekend=saturday]>span:first-child{color:#b8e0f0}
+.weekrow[data-weekend=sunday]>span:first-child{color:#ffaca3}
+.weather-high{color:#ffb4a4}.weather-low{color:#b8e0f0}
+.scouter-departure{background:#171b1e;border-color:#626a70;border-top:2px solid #b8c0c6}
+.scouter-departure strong{color:#fff}
+.scouter-departure span{color:#ffc1b9}
+#nearTrainCard{background:transparent;border:0}
+.radar{
+ border-color:#c6cdd1;
+ background:repeating-radial-gradient(circle,transparent 0 12px,#41494f 13px 14px);
+}
+.radar:before,.radar:after{background:#778188}
+.needle{background:var(--signal)}
+.scouttext{color:var(--text);font-family:var(--mono)}
+.hud-map-canvas{background:#111518}
+.hud-map-tiles{filter:invert(1) grayscale(1) brightness(1.1) contrast(1.12)}
+.hud-map-location{background:#e6f7ff;box-shadow:0 0 0 7px #cae5ff33;border-color:#171c20}
+.hud-map-target{background:var(--signal)}
+.hud-map-center{border-color:#fff}
+.map-attribution{background:#080a0ded;color:#dce0e3}
+.url,#ttDialog select{background-color:var(--raised);border-color:#626a70;color:var(--text)}
+#ttDialog,#mapSearchDialog,#hudHelpDialog{border-color:#90999f;border-top:3px solid var(--signal)}
+.tt-train{background:#171b1f}
+dialog,.station-panel{scrollbar-color:#79838b var(--surface)}
+@media(min-width:640px){.app{box-shadow:0 0 0 4px #050607,0 0 0 5px #333a3f}}
+@media(prefers-contrast:more){:root{--muted:#e1e5e7;--line:#8a9298}}
+
 </style>
 </head>
 
@@ -441,7 +525,7 @@ dialog{scrollbar-color:#6b8557 var(--surface)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.6.1 / DARK LCD</small></div>
+ <div><span id="title">SHINMAI / HOME</span><small>COMMAND HUD V5.7 / ORBITAL COCKPIT</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
