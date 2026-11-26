@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>CommandHUB AURA Edition V0.5</title>
+<title>CommandHUB AURA Edition V0.6</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -594,6 +594,15 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 .aura-target-distance{font:12px var(--mono);color:var(--muted);text-align:center}
 @media(max-height:500px) and (min-width:700px) and (orientation:landscape){.aura-nav .aura-reticle{max-height:100px}.aura-nav{gap:1px}.home-weather{gap:4px}}
 @media(max-width:699px),(orientation:portrait){.aura-nav{display:none}}
+</style><style>
+.aura-power{display:flex;flex-direction:column;gap:2px;min-width:100px;color:var(--accent);font-size:10px;line-height:1.2}
+.aura-power-row{display:flex;gap:8px;align-items:center}.aura-power-row strong{font:700 19px var(--mono);white-space:nowrap}
+.aura-battery{display:block;width:47px;height:15px;border:1px solid currentColor;padding:2px;position:relative;border-radius:2px}
+.aura-battery:after{content:"";position:absolute;right:-4px;top:4px;width:3px;height:5px;background:currentColor}
+#auraBatteryFill{display:block;width:0;height:100%;background:currentColor}
+.aura-power[data-level=low]{color:#ffcb70}.aura-power[data-level=critical]{color:#ff6868}.aura-power[data-level=unknown]{color:var(--muted)}
+#auraBatteryTime:empty{display:none}
+@media(max-width:699px),(orientation:portrait){.header{display:flex!important;gap:5px;flex-wrap:wrap}.header-clock{display:none}.header small{font-size:9px}.aura-power{min-width:82px}.aura-power-row strong{font-size:15px}.aura-battery{width:32px}.aura-power-label{font-size:9px}.aura-power-row{gap:6px}}
 </style></head>
 
 <body>
@@ -602,8 +611,8 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.5</small></div>
- <span class="state" id="state">READY</span>
+ <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.6</small></div>
+ <div class="aura-power" id="auraPower" data-level="unknown" role="status" aria-live="polite"><span class="aura-power-label">電力残量</span><div class="aura-power-row"><span class="aura-battery" aria-hidden="true"><span id="auraBatteryFill"></span></span><strong id="auraBatteryPercent">--%</strong></div><span id="auraBatteryStatus">確認中</span><span id="auraBatteryTime"></span></div><span class="state" id="state">READY</span>
 </header>
 
 <div class="content">
@@ -721,7 +730,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
   <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button>
  </div>
  <button class="btn" id="next" aria-label="次のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
-</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.5</span></div>
+</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.6</span></div>
 
 </main>
 
@@ -2248,6 +2257,33 @@ refreshHUDOnOpen();
 })();
 </script>
 
+<script>
+(()=>{
+"use strict";
+const $=id=>document.getElementById(id);
+const panel=$("auraPower"),percent=$("auraBatteryPercent"),fill=$("auraBatteryFill"),status=$("auraBatteryStatus"),time=$("auraBatteryTime");
+function unavailable(message){panel.dataset.level="unknown";percent.textContent="--%";fill.style.width="0%";status.textContent=message;time.textContent="";}
+function duration(seconds){if(!Number.isFinite(seconds)||seconds<=0)return "";const minutes=Math.ceil(seconds/60),hours=Math.floor(minutes/60);return (hours?hours+"時間":"")+minutes%60+"分";}
+async function init(){
+ if(typeof navigator.getBattery!=="function"){unavailable("取得非対応");return;}
+ try{
+ const battery=await navigator.getBattery();
+ function update(){
+ if(!Number.isFinite(battery.level)||battery.level<0||battery.level>1){unavailable("残量不明");return;}
+ const n=Math.round(battery.level*100);percent.textContent=n+"%";fill.style.width=n+"%";
+ panel.dataset.level=n<=10?"critical":n<=20?"low":"normal";
+ status.textContent=(battery.charging?(n===100?"充電完了":"充電中"):"放電中")+(n<=10?" / 残量警告":n<=20?" / 残量低下":"");
+ const d=duration(battery.charging?battery.chargingTime:battery.dischargingTime);
+ time.textContent=d?(battery.charging?"満充電まで約":"残り約")+d:"";
+ }
+ update();
+ for(const event of ["levelchange","chargingchange","chargingtimechange","dischargingtimechange"])battery.addEventListener(event,update);
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden)update();});
+ }catch(e){unavailable("取得不可");}
+}
+init();
+})();
+</script>
 </body>
 </html>
 
