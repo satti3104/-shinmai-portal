@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>CommandHUB AURA Edition V0.6</title>
+<title>CommandHUB AURA Edition V0.6.1</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -593,7 +593,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 .aura-target-name{font-weight:700;color:var(--gold);font-size:clamp(12px,1.5vw,20px);text-align:center;overflow-wrap:anywhere}
 .aura-target-distance{font:12px var(--mono);color:var(--muted);text-align:center}
 @media(max-height:500px) and (min-width:700px) and (orientation:landscape){.aura-nav .aura-reticle{max-height:100px}.aura-nav{gap:1px}.home-weather{gap:4px}}
-@media(max-width:699px),(orientation:portrait){.aura-nav{display:none}}
+
 </style><style>
 .aura-power{display:flex;flex-direction:column;gap:2px;min-width:100px;color:var(--accent);font-size:10px;line-height:1.2}
 .aura-power-row{display:flex;gap:8px;align-items:center}.aura-power-row strong{font:700 19px var(--mono);white-space:nowrap}
@@ -603,6 +603,21 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 .aura-power[data-level=low]{color:#ffcb70}.aura-power[data-level=critical]{color:#ff6868}.aura-power[data-level=unknown]{color:var(--muted)}
 #auraBatteryTime:empty{display:none}
 @media(max-width:699px),(orientation:portrait){.header{display:flex!important;gap:5px;flex-wrap:wrap}.header-clock{display:none}.header small{font-size:9px}.aura-power{min-width:82px}.aura-power-row strong{font-size:15px}.aura-battery{width:32px}.aura-power-label{font-size:9px}.aura-power-row{gap:6px}}
+</style><style id="aura-v061">
+/* Keep the real station radar visible at every viewport size. */
+#home.active{overflow:auto}
+.home-inner{height:auto;min-height:100%;grid-template-rows:auto auto auto auto}
+.home-weather{overflow:visible;justify-content:flex-start}
+.aura-nav{display:flex!important;flex:0 0 auto;min-height:0;margin:6px 0}
+.aura-nav .aura-reticle{display:block!important;width:min(100%,220px);height:auto;max-height:none;flex:none;opacity:1}
+@media(min-width:700px) and (orientation:landscape){
+.home-inner{height:100%;min-height:0;grid-template-rows:minmax(0,1fr) auto}
+.home-weather{overflow:auto}
+.aura-nav .aura-reticle{max-height:24vh}
+}
+@media(max-height:500px) and (min-width:700px) and (orientation:landscape){
+.aura-nav .aura-reticle{max-height:100px}
+}
 </style></head>
 
 <body>
@@ -611,7 +626,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.6</small></div>
+ <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.6.1</small></div>
  <div class="aura-power" id="auraPower" data-level="unknown" role="status" aria-live="polite"><span class="aura-power-label">電力残量</span><div class="aura-power-row"><span class="aura-battery" aria-hidden="true"><span id="auraBatteryFill"></span></span><strong id="auraBatteryPercent">--%</strong></div><span id="auraBatteryStatus">確認中</span><span id="auraBatteryTime"></span></div><span class="state" id="state">READY</span>
 </header>
 
@@ -730,7 +745,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
   <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button>
  </div>
  <button class="btn" id="next" aria-label="次のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
-</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.6</span></div>
+</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.6.1</span></div>
 
 </main>
 
