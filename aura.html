@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>CommandHUB AURA Edition V0.3</title>
+<title>CommandHUB AURA Edition V0.4</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -540,6 +540,53 @@ body{background:var(--bg)}
 .dock{flex-shrink:0}
 .page.active:not(.home){overflow:auto}
 }
+</style><style id="aura-v04">
+:root{--bg:#040b11;--surface:#0a1923;--raised:#102631;--line:#315966;--text:#e3f3f5;--muted:#a0bec8;--accent:#7ee7ed;--signal:#f5a85c;--focus:#fff;--gold:#ffda91}
+.app{background:radial-gradient(ellipse at 50% 0,#15303e55,transparent 70%),var(--bg);box-shadow:none}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:8px 4px;color:var(--accent)}
+.header small{display:block;font-size:10px;color:var(--muted)}.header-clock{font:600 18px var(--mono)}.state{font-size:11px;text-align:right}
+.aura-label{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin:0 0 8px}
+.home-overview,.home-weather,.home-nearest,.station-panel,#weekrows{border:1px solid var(--line);background:linear-gradient(135deg,#102631,#08151e);border-radius:3px;position:relative}
+.home-overview:before,.home-weather:before,.home-nearest:before{content:"";position:absolute;top:0;left:0;width:36px;height:3px;background:var(--accent);pointer-events:none}
+.btn,.page-tab,.status-chip,.home-train-next{background:#102631;border-color:#38616f;color:var(--text)}
+.page-tab[aria-current=page],.rail-tabs [aria-pressed=true],.map-controls [aria-pressed=true]{background:#173b48;border-color:var(--accent);box-shadow:inset 0 -3px var(--accent);color:#fff}
+.home-refresh{border-color:var(--line);background:#102631}.home-refresh svg{color:var(--accent)}
+.home-nearest-label{border-left-color:var(--signal)}.home-train-row{border-color:#27434e}.home-train-row strong{color:var(--gold)}
+.home-clock{color:var(--text);letter-spacing:-.04em}.home-temp{color:var(--accent)}
+.aura-footer{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;letter-spacing:.08em;border-top:1px solid var(--line);padding-top:5px}
+.aura-reticle{display:none}
+@media (min-width:700px) and (orientation:landscape){
+.app{max-width:1800px;width:100%;height:100dvh;max-height:none;margin:0;padding:clamp(8px,1.6vw,24px);gap:10px;border:0}
+.header{flex:0 0 auto}.header-clock{font-size:20px}
+.home-inner{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) minmax(0,1.25fr);grid-template-rows:minmax(0,1fr) 42px;gap:12px}
+.home-overview,.home-weather,.home-nearest{grid-row:1;padding:clamp(10px,1.6vw,24px);justify-content:flex-start;overflow:auto}
+.home-overview{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+.overview-meta{flex-wrap:wrap;justify-content:space-between}.home-date{font-size:clamp(12px,1.5vw,20px)}
+.home-clock{align-self:flex-start;font-size:clamp(30px,5vw,84px);line-height:1.1}
+.home-temperature{border:0;border-top:1px solid var(--line);padding:8px 0 0;text-align:left}
+.home-temp{font-size:clamp(26px,4vw,60px)}
+.home-weather{gap:12px}.weather-heading{flex-wrap:wrap}.weather-heading #place{max-width:100%}
+button.weather-name{font-size:clamp(16px,2.4vw,34px)}
+#details,#rainnext{white-space:normal;font-size:clamp(12px,1.45vw,20px)}
+.home-nearest-head{flex-wrap:wrap}.home-nearest-value{white-space:normal}
+.home-train-countdown{overflow:auto;min-height:0}.home-train-row{min-height:30px;gap:6px}
+.home-train-row strong{font-size:clamp(16px,2vw,30px)}
+.home-refresh{grid-column:1/-1;grid-row:2;min-height:36px}
+.aura-reticle{display:block;width:min(100%,150px);height:auto;margin:auto;opacity:.65;flex-shrink:1;min-height:0}
+#mapPage.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,24%);grid-template-rows:auto minmax(0,1fr) auto;gap:10px}
+#mapStatus{grid-column:1/-1}#mapFrame{grid-column:1;grid-row:2;min-height:0;height:100%}
+#mapControls{grid-column:2;grid-row:2;display:flex;flex-direction:column;justify-content:center;overflow:auto}
+#mapControls .btn{flex:0 0 auto;min-height:36px}.map-hint{grid-column:1/-1}
+#scout.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.8fr);grid-template-rows:minmax(0,1fr) auto;gap:12px}
+#scout .scout-top{grid-column:1;grid-row:1;flex-direction:column;justify-content:center;align-items:center;overflow:auto}
+#scout .scoutbuttons{grid-column:1;grid-row:2}
+#scout .station-panel{grid-column:2;grid-row:1/3;min-height:0}
+#scout #coords,#scout .rail-heading{display:block}
+#weekly.active{overflow:auto}.weekrow{min-height:32px}
+.dock{flex-shrink:0}.dock .page-tab{min-height:38px}
+}
+@media(max-height:500px){.aura-reticle{display:none}.aura-label{margin-bottom:3px}.aura-footer{display:none}.header{padding:2px 0}.home-overview,.home-weather,.home-nearest{padding:8px}}
+@media(max-width:699px),(orientation:portrait){.header{display:none}.aura-label{display:none}.aura-footer{display:none}}
 </style></head>
 
 <body>
@@ -548,7 +595,7 @@ body{background:var(--bg)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.3</small></div>
+ <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.4</small></div>
  <span class="state" id="state">READY</span>
 </header>
 
@@ -558,13 +605,13 @@ body{background:var(--bg)}
 <section class="page active home" id="home">
  <div class="home-inner">
 
-  <div class="home-overview">
+  <div class="home-overview"><div class="aura-label">01 / 時刻・気温</div>
    <div class="overview-meta"><div class="home-date" id="date">--/-- (-)</div><button id="helpBtn" class="status-chip" type="button" aria-haspopup="dialog" aria-label="状態と操作方法を開く"><span id="gpsStatus">GPS未取得</span></button></div>
    <time class="home-clock" id="clock" aria-label="現在時刻">--:--</time>
    <div class="home-temperature"><span class="overview-label">現在気温</span><div class="home-temp" id="temp">--°</div></div>
   </div>
 
-  <div class="card home-weather">
+  <div class="card home-weather"><div class="aura-label">02 / 気象観測</div>
    <div class="weather-heading">
     <button class="weather-name" id="condition" type="button" aria-label="7日間予報を開く">天気取得中</button>
     <a id="place" target="_blank" rel="noopener" aria-live="polite" data-hud-skip>取得中</a>
@@ -572,12 +619,12 @@ body{background:var(--bg)}
    <div class="meta" id="details">
     体感 --° / 降水 --%
    </div>
-   <div class="meta" id="rainnext">
+   <svg class="aura-reticle" viewBox="0 0 160 110" aria-hidden="true"><g fill="none" stroke="#79cad4" stroke-width="1"><circle cx="80" cy="55" r="44" stroke-dasharray="2 5"/><circle cx="80" cy="55" r="34"/><circle cx="80" cy="55" r="17"/><path d="M80 3V107M28 55H132M44 19L116 91M116 19L44 91" opacity=".55"/><path d="M80 44L90 55L80 66L70 55Z" stroke="#f5a85c"/></g></svg><div class="meta" id="rainnext">
     次の雨：確認中
    </div>
   </div>
 
-  <div class="home-nearest">
+  <div class="home-nearest"><div class="aura-label">03 / 鉄道情報</div>
    <div class="home-nearest-head"><span class="home-nearest-label">最寄り駅・発車まで</span><button id="homeTrainNextPage" class="home-train-next" type="button" aria-label="次の方面を表示" hidden>方面切替 <span id="homeTrainPageIndicator"></span></button></div>
    <button class="home-nearest-value" id="homeNearestStation" type="button" title="駅の発車案内を開く">GPS待機中</button>
    <div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div>
@@ -667,7 +714,7 @@ body{background:var(--bg)}
   <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button>
  </div>
  <button class="btn" id="next" aria-label="次のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
-</nav>
+</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.4</span></div>
 
 </main>
 
