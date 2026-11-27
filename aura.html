@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>CommandHUB AURA Edition V0.9</title>
+<title>CommandHUB AURA Edition V1.0</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -731,7 +731,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 }
 @media(max-width:649px),(orientation:portrait){#mapPage.active,#scout.active{display:flex;flex-direction:column}.station-panel{flex:1 0 auto}.scout-top{flex-direction:row}.rail-body{flex:1 0 auto}.hud-map-canvas{min-height:240px}.aura3dBar .btn{min-height:32px;font-size:12px}}
 @media(max-height:450px) and (orientation:landscape){.app{gap:4px;padding:5px}.dock .btn,.dock .page-tab{min-height:30px}.header{padding:2px 0}.station-panel{padding:8px}.scout-top{padding:6px}.aura3dBar .btn{min-height:28px;padding:3px 6px}.aura3dFoot{font-size:10px}}
-</style></head>
+</style><style>.pageid{grid-template-columns:repeat(5,minmax(0,1fr))}.busHome{grid-column:1/-1;grid-row:auto;padding:10px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}.busHome .aura-label{margin:0}.home-refresh{grid-row:auto!important}.busTools{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.busTools input{background:var(--surface);color:var(--text);border:1px solid var(--line);padding:8px}.busTools label{flex:1;min-width:180px}.busTools input{width:100%}#busPage.active{overflow:auto}#busStops{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,265px),1fr));gap:8px;align-content:start;overflow:auto;flex:1 1 auto}.busStop{padding:10px;background:var(--surface);border:1px solid var(--line);border-radius:4px}.busStop h3{margin:0 0 5px;color:var(--accent);font-size:18px}.busDep{display:flex;gap:8px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:7px 0}.busDep strong{color:var(--gold);white-space:nowrap;font-size:18px}.busDep small{display:block;color:var(--muted)}#busStatus,#busHomeSummary{color:var(--muted);font-size:13px}@media(min-width:650px) and (orientation:landscape){.home-inner{grid-template-rows:minmax(min-content,1fr) auto auto}.busHome{grid-row:2}.home-refresh{grid-row:3!important}}</style></head>
 
 <body>
 
@@ -739,7 +739,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.9</small></div>
+ <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V1.0</small></div>
  <div class="aura-power" id="auraPower" data-level="unknown" role="status" aria-live="polite"><span class="aura-power-label">電力残量</span><div class="aura-power-row"><span class="aura-battery" aria-hidden="true"><span id="auraBatteryFill"></span></span><strong id="auraBatteryPercent">--%</strong></div><span id="auraBatteryStatus">確認中</span><span id="auraBatteryTime"></span></div><span class="state" id="state">READY</span>
 </header>
 
@@ -774,6 +774,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
    <div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div>
   </div>
 
+  <div class="card busHome"><div class="aura-label">05 / 市バス</div><button class="btn" id="busHomeOpen" type="button">周辺バス停・発車案内</button><div id="busHomeSummary">市バスデータ未取得</div></div>
   <button class="btn home-refresh" id="gpsBtn">
    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 6.1a8.3 8.3 0 0 1 13.4 4.4M17.9 17.9A8.3 8.3 0 0 1 4.5 13.5"/></svg>GPS / 天気を更新
   </button>
@@ -847,6 +848,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 </section>
 
 
+<section class="page" id="busPage"><div class="weekly-heading"><h2 class="sectiontitle">市バス・発車案内</h2><button class="btn" id="busRefresh">現在地更新</button></div><div id="busStatus" role="status" aria-live="polite">市バスデータ未取得</div><div class="busTools"><label>停留所検索 <input id="busSearch" type="search" placeholder="例：栄、高岳" /></label><button class="btn" id="busImport">公式GTFS ZIPを読み込む</button><input id="busFile" type="file" accept=".zip" hidden><a class="btn" href="https://data.bodik.jp/dataset/231002_7109030000_bus-gtfs-jp" target="_blank" rel="noopener">公式データ</a></div><div id="busStops"></div><small>名古屋市交通局 GTFS-JP（CC BY 4.0）を加工。予定時刻のみ。遅延・運休未反映。</small></section>
 </div>
 
 <nav class="dock" aria-label="ページ切替">
@@ -855,10 +857,10 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
   <button class="page-tab" type="button" data-page="0" aria-controls="home" aria-current="page">ホーム</button>
   <button class="page-tab" type="button" data-page="1" aria-controls="weekly">天気</button>
   <button class="page-tab" type="button" data-page="2" aria-controls="mapPage">地図</button>
-  <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button>
+  <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button><button class="page-tab" type="button" data-page="4" aria-controls="busPage">市バス</button>
  </div>
  <button class="btn" id="next" aria-label="次のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
-</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.9</span></div>
+</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V1.0</span></div>
 
 </main>
 
@@ -909,14 +911,16 @@ const ids=[
  "home",
  "weekly",
  "mapPage",
- "scout"
+ "scout",
+ "busPage"
 ];
 
 const titles=[
  "ホーム",
  "天気",
  "地図",
- "駅"
+ "駅",
+ "市バス"
 ];
 
 let page=0;
@@ -943,6 +947,7 @@ function show(n){
  if(ids[page]==="mapPage")openHUDMap();
  else stopHUDMapPan(false);
  if(ids[page]==="weekly")weather();
+ if(ids[page]==="busPage")window.dispatchEvent(new Event("auraBusOpen"));
  focusHUDPage();
 }
 
@@ -974,7 +979,7 @@ function moveHUDSelection(container,step){
 function focusHUDPage(){
  const container=$(ids[page]),remembered=hudFocusMemory.get(ids[page]);
  if(remembered&&container.contains(remembered)&&hudControls(container).includes(remembered))focusHUDControl(remembered);
- else focusHUDControl(page===0?$("condition"):page===1?$("weeklyRefresh"):page===2?$("mapLocate"):$("railDeparturesTab"));
+ else focusHUDControl(page===0?$("condition"):page===1?$("weeklyRefresh"):page===2?$("mapLocate"):page===4?$("busRefresh"):$("railDeparturesTab"));
 }
 function openHUDHelp(){
  hudReturnFocus=document.activeElement;renderHUDStatus();
@@ -991,6 +996,7 @@ $("hudRefreshAll").onclick=()=>{weather(true);gps();};
 $("condition").onclick=()=>show(1);
 $("homeNearestStation").onclick=()=>{show(3);setRailView(homeTrainStation?"departures":"stations");if(!homeTrainStation)showOfflineStations();};
 $("weeklyRefresh").onclick=()=>weather(true);
+$("busHomeOpen").onclick=()=>show(4);
 document.addEventListener("focusin",event=>{
  const target=event.target;
  if(target instanceof HTMLElement&&target.closest(".page.active")&&!target.closest("dialog"))hudFocusMemory.set(ids[page],target);
@@ -2467,7 +2473,7 @@ $("aura3dXR").onclick=async()=>{if(session){await session.end();return;}if(!read
  }catch(e){if(session)try{await session.end();}catch{}msg("空間表示開始不可："+e.message);}
 };
 dialog.addEventListener("close",()=>{if(session)session.end();});
-</script></body>
+</script><script type="module" src="./aura-bus.js?v=100"></script></body>
 </html>
 
 
