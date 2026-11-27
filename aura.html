@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>CommandHUB AURA Edition V0.8</title>
+<title>CommandHUB AURA Edition V0.9</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -686,6 +686,51 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 #homeTrainCountdown{grid-template-columns:repeat(auto-fit,minmax(min(100%,135px),1fr))}
 }
 @media(max-height:460px) and (min-width:650px){.app{padding:6px;gap:5px}.header{padding:2px 0}.home-inner{gap:6px}.home-overview,.home-weather,.aura-navigation,.home-nearest{padding:8px}.aura-label{margin-bottom:4px}.home-clock{font-size:clamp(28px,4.5vw,64px)}.aura-navigation .aura-reticle{max-height:115px}.home-refresh{min-height:30px}.dock .page-tab{min-height:30px}}
+</style><style id="aura-v09">
+:root{--focus:#b7f8ff;--surface:#0a1923;--raised:#102631;--line:#315966;--text:#e3f3f5;--muted:#a0bec8;--accent:#7ee7ed}
+.app{padding:clamp(6px,1vw,18px);gap:8px}
+.header{flex-wrap:wrap;gap:8px}.header>div:first-of-type{min-width:120px}.state{overflow-wrap:anywhere}
+.btn,.page-tab,.status-chip,.url,select{border-color:var(--line);border-radius:4px;background:var(--raised);color:var(--text);font-size:clamp(13px,1.1vw,19px)}
+.btn:focus-visible,.page-tab:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+.btn:hover,.page-tab:hover{background:#1b3d49}.page-tab[aria-current=page]{background:#173b48;color:var(--accent);border-color:var(--accent)}
+.dock{grid-template-columns:40px minmax(0,1fr) 40px;gap:8px}.dock .btn,.dock .page-tab{min-height:38px}
+.sectiontitle{font-size:clamp(20px,2vw,30px)}.note,.map-hint,.rail-disclaimer{font-size:12px;line-height:1.5}
+.home-date{white-space:normal}.home-clock{font-size:clamp(27px,4.5vw,80px)}.home-nearest-value{white-space:normal!important;overflow:visible!important}
+#weekly.active{overflow:auto;gap:8px}
+#weekrows{grid-template-rows:none;grid-auto-rows:minmax(60px,auto);overflow:auto;gap:8px;padding:8px;background:transparent;border:0}
+.weekrow{padding:10px;border:1px solid var(--line);border-radius:4px;background:var(--surface);min-width:0}
+.weekrow[data-today=true]{margin:0;padding:10px;border-color:var(--accent);background:#15333e}
+.weekrow>span{white-space:normal;overflow-wrap:anywhere}.weekrow>span:nth-child(2){overflow:visible}.forecast-label{overflow:visible;text-overflow:clip}
+.forecast-columns,.weekrow{grid-template-columns:minmax(48px,.8fr) minmax(0,1.5fr) minmax(65px,1fr) minmax(35px,.6fr);gap:6px}
+#mapPage.active{overflow:auto;gap:8px}.map-status{white-space:normal;overflow:visible;min-height:0}.hud-map-canvas{min-height:160px;border-radius:4px}
+.map-controls{grid-template-columns:repeat(auto-fit,minmax(min(100%,100px),1fr));gap:6px}.map-controls .btn{min-height:36px;font-size:14px}
+#aura3dOpen{border-color:var(--accent);color:var(--accent)}
+#scout.active{overflow:auto;gap:8px}.scout-top{padding:12px;border:1px solid var(--line);background:var(--surface);border-radius:4px}
+#scout #coords,#scout .rail-heading{display:block}.scout-info{overflow-wrap:anywhere}
+.station-panel{padding:12px;gap:8px;overflow:auto}.rail-body{min-height:120px;overflow:visible}.station-panel .rail-body{flex:1 1 auto}
+#nearTrainCard{overflow:visible;flex:1 1 auto}#nearTrainStation{white-space:normal;overflow:visible;font-size:clamp(16px,2vw,26px)}
+#nearTrainNext{flex:1 1 auto;overflow:visible;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:10px}
+.scouter-direction{background:var(--surface);padding:10px}.scouter-departure{background:var(--raised);border-color:var(--line);padding:8px}
+.scouter-departure strong{font-size:clamp(17px,1.8vw,28px)}.scouter-departure span{color:var(--gold);font-size:13px}.scouter-departure small{font-size:12px}
+#stationList:not([hidden]){display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px;overflow:visible}
+#stationList>input,#stationList>div{grid-column:1/-1}.station-row{padding:10px;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+#ttDialog,#mapSearchDialog,#hudHelpDialog{width:min(94vw,1100px);max-width:94vw;max-height:92dvh;padding:clamp(10px,1.5vw,22px);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:4px}
+#ttDialog .tt-header,#mapSearchDialog .map-search-heading,#hudHelpDialog .help-heading{top:0}
+#ttResults{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:8px}
+.tt-train{padding:12px;margin:0;background:var(--raised);border:1px solid var(--line)}.tt-train b{font-size:24px}
+#mapStationResults{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:8px}
+#aura3dDialog{width:96vw;max-width:96vw;height:94dvh;max-height:94dvh;padding:8px}.aura3dBar .btn{min-height:36px;font-size:14px}
+@media(min-width:650px) and (orientation:landscape){
+#weekly.active .forecast-columns{display:none}
+#weekrows:not([data-empty=true]){display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(150px,1fr);grid-template-rows:none}
+.weekrow{display:flex;flex-direction:column;justify-content:space-evenly;align-items:center;text-align:center;padding:8px 4px;gap:8px}
+.weekrow>span:nth-child(n){text-align:center}.forecast-condition{flex-direction:column;align-items:center}.forecast-condition>span:first-child{font-size:clamp(24px,3.5vw,56px)}.forecast-label{font-size:12px}
+.weekrow>span:nth-child(3){font-size:clamp(15px,1.8vw,27px)}.weekrow>span:nth-child(4){font-size:clamp(14px,1.5vw,23px)}
+#mapPage.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,20%);grid-template-rows:auto minmax(160px,1fr) auto}.map-controls{display:flex;flex-direction:column;justify-content:flex-start;overflow:auto}
+#scout.active{display:grid;grid-template-columns:minmax(150px,21%) minmax(0,1fr);grid-template-rows:minmax(130px,1fr) auto}.station-panel{grid-column:2;grid-row:1/3}.scout-top{grid-column:1;grid-row:1}.scoutbuttons{grid-column:1;grid-row:2}.scoutbuttons{grid-template-columns:1fr}.station-panel .rail-body{flex:1 1 auto}
+}
+@media(max-width:649px),(orientation:portrait){#mapPage.active,#scout.active{display:flex;flex-direction:column}.station-panel{flex:1 0 auto}.scout-top{flex-direction:row}.rail-body{flex:1 0 auto}.hud-map-canvas{min-height:240px}.aura3dBar .btn{min-height:32px;font-size:12px}}
+@media(max-height:450px) and (orientation:landscape){.app{gap:4px;padding:5px}.dock .btn,.dock .page-tab{min-height:30px}.header{padding:2px 0}.station-panel{padding:8px}.scout-top{padding:6px}.aura3dBar .btn{min-height:28px;padding:3px 6px}.aura3dFoot{font-size:10px}}
 </style></head>
 
 <body>
@@ -694,7 +739,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.8</small></div>
+ <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.9</small></div>
  <div class="aura-power" id="auraPower" data-level="unknown" role="status" aria-live="polite"><span class="aura-power-label">電力残量</span><div class="aura-power-row"><span class="aura-battery" aria-hidden="true"><span id="auraBatteryFill"></span></span><strong id="auraBatteryPercent">--%</strong></div><span id="auraBatteryStatus">確認中</span><span id="auraBatteryTime"></span></div><span class="state" id="state">READY</span>
 </header>
 
@@ -813,7 +858,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
   <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button>
  </div>
  <button class="btn" id="next" aria-label="次のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
-</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.8</span></div>
+</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.9</span></div>
 
 </main>
 
