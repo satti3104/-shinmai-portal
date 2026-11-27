@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>CommandHUB AURA Edition V0.6.1</title>
+<title>CommandHUB AURA Edition V0.6.2</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -618,6 +618,22 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 @media(max-height:500px) and (min-width:700px) and (orientation:landscape){
 .aura-nav .aura-reticle{max-height:100px}
 }
+</style><style id="aura-v062">
+@media(min-width:700px) and (orientation:landscape){
+.home-inner{grid-template-columns:minmax(0,.8fr) minmax(0,.9fr) minmax(0,1.7fr)}
+.home-nearest{padding:clamp(8px,1.2vw,18px)}
+.home-train-countdown{flex:1 1 0;min-height:0;overflow:auto;justify-content:flex-start}
+.home-train-row{min-height:32px;gap:8px}
+.home-train-row span{white-space:normal;overflow-wrap:anywhere;font-size:clamp(12px,1.35vw,18px)}
+.home-train-row strong{font-size:clamp(17px,2vw,28px)}
+#nearTrainNext{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:12px;padding:4px}
+.scouter-direction{border:1px solid var(--line);padding:8px;background:var(--surface)}
+.scouter-direction-name{display:block!important;color:var(--accent);font-size:14px;font-weight:700;margin-bottom:8px;overflow-wrap:anywhere}
+.scouter-departures{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.scouter-departure{min-width:0;padding:5px}
+.scouter-departure strong{font-size:clamp(16px,1.8vw,25px)}
+.scouter-departure small{overflow-wrap:anywhere}
+}
 </style></head>
 
 <body>
@@ -626,7 +642,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.6.1</small></div>
+ <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.6.2</small></div>
  <div class="aura-power" id="auraPower" data-level="unknown" role="status" aria-live="polite"><span class="aura-power-label">電力残量</span><div class="aura-power-row"><span class="aura-battery" aria-hidden="true"><span id="auraBatteryFill"></span></span><strong id="auraBatteryPercent">--%</strong></div><span id="auraBatteryStatus">確認中</span><span id="auraBatteryTime"></span></div><span class="state" id="state">READY</span>
 </header>
 
@@ -745,7 +761,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
   <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button>
  </div>
  <button class="btn" id="next" aria-label="次のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
-</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.6.1</span></div>
+</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.6.2</span></div>
 
 </main>
 
@@ -950,8 +966,9 @@ function renderRailDirection(){
  $("scout").dataset.departuresReady=String(groups.length>0);
  if(railDirectionStation!==homeTrainStation?.id){railDirectionIndex=0;railDirectionStation=homeTrainStation?.id;}
  railDirectionIndex=groups.length?railDirectionIndex%groups.length:0;
- groups.forEach((group,i)=>group.hidden=i!==railDirectionIndex);
- $("railDirectionControls").hidden=groups.length<2;
+ const wide=window.matchMedia("(min-width:700px) and (orientation:landscape)").matches;
+ groups.forEach((group,i)=>group.hidden=!wide&&i!==railDirectionIndex);
+ $("railDirectionControls").hidden=wide||groups.length<2;
  const name=groups[railDirectionIndex]?.querySelector(".scouter-direction-name")?.textContent||"方面未取得";
  $("railDirectionLabel").textContent=name;
  $("railDirectionLabel").title=name;
@@ -967,6 +984,7 @@ for(const [id,step] of [["railDirectionPrev",-1],["railDirectionNext",1]])$(id).
 };
 // Generated timetable content changes while the direction controls keep their focus.
 new MutationObserver(renderRailDirection).observe($("nearTrainNext"),{childList:true});
+window.addEventListener("resize",()=>{renderRailDirection();refreshHomeTrainCountdown();});
 
 /* Pointer dragging complements the same map controls on a phone or desktop. */
 let hudMapDrag=null;
@@ -1706,7 +1724,8 @@ function refreshHomeTrainCountdown(){
  if(!rows.length){box.textContent="本日の発車予定なし";$("homeTrainNextPage").hidden=true;return;}
  rows.sort((a,b)=>a.secondsLeft-b.secondsLeft);
  const rowHeight=Math.max(32,parseFloat(getComputedStyle(box).fontSize)*2.2);
- const rowsPerPage=box.clientHeight>=rowHeight*2+4?2:1;
+ const wide=window.matchMedia("(min-width:700px) and (orientation:landscape)").matches;
+ const rowsPerPage=wide?Math.max(2,Math.min(8,Math.floor((box.clientHeight+4)/(rowHeight+4)))):Math.max(1,Math.min(4,Math.floor((box.clientHeight+4)/(rowHeight+4))||2));
  const pageCount=Math.ceil(rows.length/rowsPerPage);
  if(Date.now()-homeTrainPageAt>=8000&&pageCount>1){homeTrainPage=(homeTrainPage+1)%pageCount;homeTrainPageAt=Date.now();}
  homeTrainPage%=pageCount;
@@ -1750,7 +1769,7 @@ function updateNearTrain(station,detail=""){
   const heading=document.createElement("div");heading.className="scouter-direction-name";
   heading.textContent=record.line+" / "+record.direction;
   group.append(heading);
-  const departures=upcomingTrains(record,clock.kind,clock.minutes);
+  const departures=upcomingTrains(record,clock.kind,clock.minutes,6);
   if(!departures.length){
    const empty=document.createElement("div");empty.textContent="本日の発車予定なし";group.append(empty);
   }else{
@@ -2055,7 +2074,7 @@ function timetableClock(now=new Date()){
  const kind=special||!TT_HOLIDAYS[year]?null:([0,6].includes(j.getUTCDay())||TT_HOLIDAYS[year].includes(md)?'holiday':'weekday');
  return {date,minutes:minutes<180?minutes+1440:minutes,kind};
 }
-function upcomingTrains(record,kind,minutes){return record[kind].filter(t=>t[0]>=minutes).slice(0,2);}
+function upcomingTrains(record,kind,minutes,limit=2){return record[kind].filter(t=>t[0]>=minutes).slice(0,limit);}
 function timetableDestination(record,flag){
  if(record.imported)return flag;
  const code=flag.replace('*',''),match=code&&record.notes.match(new RegExp(code+'…([^\\s/]+)'));
