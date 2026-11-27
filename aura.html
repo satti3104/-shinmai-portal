@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>CommandHUB AURA Edition V1.2</title>
+<title>CommandHUB AURA Edition V1.3</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -731,7 +731,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 }
 @media(max-width:649px),(orientation:portrait){#mapPage.active,#scout.active{display:flex;flex-direction:column}.station-panel{flex:1 0 auto}.scout-top{flex-direction:row}.rail-body{flex:1 0 auto}.hud-map-canvas{min-height:240px}.aura3dBar .btn{min-height:32px;font-size:12px}}
 @media(max-height:450px) and (orientation:landscape){.app{gap:4px;padding:5px}.dock .btn,.dock .page-tab{min-height:30px}.header{padding:2px 0}.station-panel{padding:8px}.scout-top{padding:6px}.aura3dBar .btn{min-height:28px;padding:3px 6px}.aura3dFoot{font-size:10px}}
-</style><style>.pageid{grid-template-columns:repeat(5,minmax(0,1fr))}.busHome{grid-column:1/-1;grid-row:auto;padding:10px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}.busHome .aura-label{margin:0}.home-refresh{grid-row:auto!important}.busTools{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.busTools input{background:var(--surface);color:var(--text);border:1px solid var(--line);padding:8px}.busTools label{flex:1;min-width:180px}.busTools input{width:100%}#busPage.active{overflow:auto}#busStops{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,265px),1fr));gap:8px;align-content:start;overflow:auto;flex:1 1 auto}.busStop{padding:10px;background:var(--surface);border:1px solid var(--line);border-radius:4px}.busStop h3{margin:0 0 5px;color:var(--accent);font-size:18px}.busDep{display:flex;gap:8px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:7px 0}.busDep strong{color:var(--gold);white-space:nowrap;font-size:18px}.busDep small{display:block;color:var(--muted)}#busStatus,#busHomeSummary{color:var(--muted);font-size:13px}@media(min-width:650px) and (orientation:landscape){.home-inner{grid-template-rows:minmax(min-content,1fr) auto auto}.busHome{grid-row:2}.home-refresh{grid-row:3!important}}</style><style>#lockyImportPanel{border:1px solid var(--line);padding:10px;margin:8px 0}#lockyImportPanel input,#lockyImportPanel textarea{width:100%;background:var(--surface);color:var(--text);border:1px solid var(--line);padding:8px}#lockyImportPanel .btn{margin:6px 4px 0 0}</style></head>
+</style><style>.pageid{grid-template-columns:repeat(5,minmax(0,1fr))}.busHome{grid-column:1/-1;grid-row:auto;padding:10px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}.busHome .aura-label{margin:0}.home-refresh{grid-row:auto!important}.busTools{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.busTools input{background:var(--surface);color:var(--text);border:1px solid var(--line);padding:8px}.busTools label{flex:1;min-width:180px}.busTools input{width:100%}#busPage.active{overflow:auto}#busStops{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,265px),1fr));gap:8px;align-content:start;overflow:auto;flex:1 1 auto}.busStop{padding:10px;background:var(--surface);border:1px solid var(--line);border-radius:4px}.busStop h3{margin:0 0 5px;color:var(--accent);font-size:18px}.busDep{display:flex;gap:8px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:7px 0}.busDep strong{color:var(--gold);white-space:nowrap;font-size:18px}.busDep small{display:block;color:var(--muted)}#busStatus,#busHomeSummary{color:var(--muted);font-size:13px}@media(min-width:650px) and (orientation:landscape){.home-inner{grid-template-rows:minmax(min-content,1fr) auto auto}.busHome{grid-row:2}.home-refresh{grid-row:3!important}}</style><style>#lockyImportPanel{border:1px solid var(--line);padding:10px;margin:8px 0}#lockyImportPanel input,#lockyImportPanel textarea{width:100%;background:var(--surface);color:var(--text);border:1px solid var(--line);padding:8px}#lockyImportPanel .btn{margin:6px 4px 0 0}</style><style>#busHomeDepartures{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:6px;width:100%}#busHomeDepartures .busDep{background:var(--surface);border:1px solid var(--line);padding:6px;min-width:0}#busHomeDepartures .busDep>div{overflow-wrap:anywhere}.busHome{align-items:center}#busHomeSummary{flex:1}</style></head>
 
 <body>
 
@@ -739,7 +739,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V1.2</small></div>
+ <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V1.3</small></div>
  <div class="aura-power" id="auraPower" data-level="unknown" role="status" aria-live="polite"><span class="aura-power-label">電力残量</span><div class="aura-power-row"><span class="aura-battery" aria-hidden="true"><span id="auraBatteryFill"></span></span><strong id="auraBatteryPercent">--%</strong></div><span id="auraBatteryStatus">確認中</span><span id="auraBatteryTime"></span></div><span class="state" id="state">READY</span>
 </header>
 
@@ -774,9 +774,9 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
    <div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div>
   </div>
 
-  <div class="card busHome"><div class="aura-label">05 / 市バス</div><button class="btn" id="busHomeOpen" type="button">周辺バス停・発車案内</button><div id="busHomeSummary">市バスデータ未取得</div></div>
+  <div class="card busHome"><div class="aura-label">05 / 市バス</div><button class="btn" id="busHomeOpen" type="button">周辺バス停・発車案内</button><div id="busHomeSummary">市バスデータ未取得</div><div id="busHomeDepartures" aria-label="最寄りバス停の発車予定"></div></div>
   <button class="btn home-refresh" id="gpsBtn">
-   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 6.1a8.3 8.3 0 0 1 13.4 4.4M17.9 17.9A8.3 8.3 0 0 1 4.5 13.5"/></svg>GPS / 天気を更新
+   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 6.1a8.3 8.3 0 0 1 13.4 4.4M17.9 17.9A8.3 8.3 0 0 1 4.5 13.5"/></svg>GPS / 天気・交通を更新
   </button>
 
  </div>
@@ -860,7 +860,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
   <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button><button class="page-tab" type="button" data-page="4" aria-controls="busPage">市バス</button>
  </div>
  <button class="btn" id="next" aria-label="次のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
-</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V1.2</span></div>
+</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V1.3</span></div>
 
 </main>
 
@@ -1627,6 +1627,7 @@ async function gps(){
   const p=await acquirePosition();
   if(!pos||!(p.timestamp<pos.timestamp))pos=p;
   updateHUDMapPosition(pos);
+  window.dispatchEvent(new CustomEvent("auraPosition",{detail:pos}));
   $("state").textContent="GPS LOCK";
   $("coords").textContent=
    "LAT "+pos.coords.latitude.toFixed(4)+" / LON "+pos.coords.longitude.toFixed(4);
@@ -1647,7 +1648,7 @@ async function gps(){
  }finally{gpsBusy=false;}
 }
 
-$("gpsBtn").onclick=()=>{weather(true);gps();};
+$("gpsBtn").onclick=()=>{stationSelectionMode="auto";weather(true);gps();window.dispatchEvent(new Event("auraBusOpen"));};
 $("homeTrainNextPage").onclick=()=>{homeTrainPage++;homeTrainPageAt=Date.now();refreshHomeTrainCountdown();};
 
 /* =====================
@@ -2363,7 +2364,7 @@ $("ttStationSearch").oninput=() => populateTimetableStations();
 $('timetableBtn').onclick=()=>openTimetable(homeTrainStation?.id);
 $("nearTrainTimetable").onclick=()=>openTimetable(homeTrainStation?.id);
 $('nearTrainReload').onclick=()=>scanStations();
-setInterval(()=>{if(homeTrainStation)updateNearTrain(homeTrainStation,nearTrainDetail);},30000);
+setInterval(()=>{if(homeTrainStation&&!document.hidden)updateNearTrain(homeTrainStation,nearTrainDetail);},10000);
 $('ttStation').onchange=populateDirections;
 $('ttDirection').onchange=()=>{renderTimetable();updateTTLabels();};
 $('ttStationPrev').onclick=()=>cycleTT('ttStation',-1,populateDirections);
@@ -2389,14 +2390,15 @@ function hudApplyTrackedPosition(p){
  if(!p?.coords||!Number.isFinite(p.coords.latitude)||!Number.isFinite(p.coords.longitude))return;
  if(pos&&p.timestamp<pos.timestamp)return;
  const current={lat:p.coords.latitude,lon:p.coords.longitude};
- const moved=!hudLastStationCoords||stationDistance(current,hudLastStationCoords)>180;
+ const moved=!hudLastStationCoords||stationDistance(current,hudLastStationCoords)>35;
  const elapsed=Date.now()-hudLastStationAt;
  pos=p;
  updateHUDMapPosition(p);
  $("state").textContent="GPS AUTO";
  $("coords").textContent="LAT "+current.lat.toFixed(4)+" / LON "+current.lon.toFixed(4);
  setWeatherPosition(p);
- if(moved||elapsed>180000){
+ window.dispatchEvent(new CustomEvent("auraPosition",{detail:p}));
+ if(moved||elapsed>30000){
   if(!stationBusy){
    hudLastStationCoords=current;hudLastStationAt=Date.now();
    scanStations(p);
@@ -2408,12 +2410,13 @@ function startHUDLocationWatch(){
  try{
   hudGeoWatch=navigator.geolocation.watchPosition(hudApplyTrackedPosition,e=>{
    if(e.code===1){
+    window.dispatchEvent(new Event("auraPositionLost"));
     stopHUDLocationWatch();
     weatherGpsAvailable=false;
     updateWeatherLabel();
     $("state").textContent="GPS 許可が必要";
    }
-  },{enableHighAccuracy:false,maximumAge:30000,timeout:20000});
+  },{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
  }catch(e){$("state").textContent="GPS AUTO ERROR";}
 }
 function stopHUDLocationWatch(){
@@ -2528,7 +2531,7 @@ $("aura3dXR").onclick=async()=>{if(session){await session.end();return;}if(!read
  }catch(e){if(session)try{await session.end();}catch{}msg("空間表示開始不可："+e.message);}
 };
 dialog.addEventListener("close",()=>{if(session)session.end();});
-</script><script type="module" src="./aura-bus.js?v=100"></script></body>
+</script><script type="module" src="./aura-bus.js?v=130"></script></body>
 </html>
 
 
