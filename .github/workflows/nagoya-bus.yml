@@ -1,4 +1,4 @@
-name: Refresh Nagoya bus GTFS
+name: Refresh Nagoya and Okazaki bus GTFS
 on:
   push:
     paths:
@@ -20,17 +20,18 @@ jobs:
           url='https://data.bodik.jp/api/3/action/package_show?id=231002_7109030000_bus-gtfs-jp'
           def get(url):
               return urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'CommandHUB/1.0 (GTFS refresh)'}),timeout=90).read()
-          resources=json.loads(get(url))['result']['resources']
-          feed=max((r for r in resources if r.get('format','').upper()=='ZIP'),key=lambda r:r['name'])
-          data=get(feed['url'])
-          z=zipfile.ZipFile(io.BytesIO(data))
-          names={pathlib.PurePosixPath(n).name for n in z.namelist()}
-          assert {'stops.txt','routes.txt','trips.txt','stop_times.txt'} <= names
-          assert 'calendar.txt' in names or 'calendar_dates.txt' in names
-          assert z.testzip() is None
           p=pathlib.Path('bus-data');p.mkdir(exist_ok=True)
-          (p/'nagoya.zip').write_bytes(data)
-          (p/'source.json').write_text(json.dumps({'source':feed['url'],'name':feed['name'],'license':'CC BY 4.0','publisher':'Nagoya City Transportation Bureau'},ensure_ascii=False,indent=2))
+          for region,pkg,publisher in [('nagoya','231002_7109030000_bus-gtfs-jp','Nagoya City Transportation Bureau'),('okazaki','232025_gtfs','Okazaki City')]:
+              resources=json.loads(get('https://data.bodik.jp/api/3/action/package_show?id='+pkg))['result']['resources']
+              feed=max((r for r in resources if r.get('format','').upper()=='ZIP'),key=lambda r:r['name'])
+              data=get(feed['url'])
+              z=zipfile.ZipFile(io.BytesIO(data))
+              names={pathlib.PurePosixPath(n).name for n in z.namelist()}
+              assert {'stops.txt','routes.txt','trips.txt','stop_times.txt'} <= names
+              assert 'calendar.txt' in names or 'calendar_dates.txt' in names
+              assert z.testzip() is None
+              (p/(region+'.zip')).write_bytes(data)
+              (p/(region+'-source.json')).write_text(json.dumps({'source':feed['url'],'name':feed['name'],'license':'CC BY 4.0','publisher':publisher},ensure_ascii=False,indent=2))
           PY
       - name: Save official feed
         run: |
