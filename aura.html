@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>CommandHUB AURA Edition V1.3</title>
+<title>CommandHUB AURA Edition V1.4</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -739,7 +739,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V1.3</small></div>
+ <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V1.4</small></div>
  <div class="aura-power" id="auraPower" data-level="unknown" role="status" aria-live="polite"><span class="aura-power-label">電力残量</span><div class="aura-power-row"><span class="aura-battery" aria-hidden="true"><span id="auraBatteryFill"></span></span><strong id="auraBatteryPercent">--%</strong></div><span id="auraBatteryStatus">確認中</span><span id="auraBatteryTime"></span></div><span class="state" id="state">READY</span>
 </header>
 
@@ -774,7 +774,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
    <div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div>
   </div>
 
-  <div class="card busHome"><div class="aura-label">05 / 市バス</div><button class="btn" id="busHomeOpen" type="button">周辺バス停・発車案内</button><div id="busHomeSummary">市バスデータ未取得</div><div id="busHomeDepartures" aria-label="最寄りバス停の発車予定"></div></div>
+  <div class="card busHome"><div class="aura-label">05 / 名古屋・岡崎バス</div><button class="btn" id="busHomeOpen" type="button">周辺バス停・発車案内</button><div id="busHomeSummary">市バスデータ未取得</div><div id="busHomeDepartures" aria-label="最寄りバス停の発車予定"></div></div>
   <button class="btn home-refresh" id="gpsBtn">
    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 6.1a8.3 8.3 0 0 1 13.4 4.4M17.9 17.9A8.3 8.3 0 0 1 4.5 13.5"/></svg>GPS / 天気・交通を更新
   </button>
@@ -848,7 +848,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 </section>
 
 
-<section class="page" id="busPage"><div class="weekly-heading"><h2 class="sectiontitle">市バス・発車案内</h2><button class="btn" id="busRefresh">現在地更新</button></div><div id="busStatus" role="status" aria-live="polite">市バスデータ未取得</div><div class="busTools"><label>停留所検索 <input id="busSearch" type="search" placeholder="例：栄、高岳" /></label><button class="btn" id="busImport">公式GTFS ZIPを読み込む</button><input id="busFile" type="file" accept=".zip" hidden><a class="btn" href="https://data.bodik.jp/dataset/231002_7109030000_bus-gtfs-jp" target="_blank" rel="noopener">公式データ</a></div><div id="busStops"></div><small>名古屋市交通局 GTFS-JP（CC BY 4.0）を加工。予定時刻のみ。遅延・運休未反映。</small></section>
+<section class="page" id="busPage"><div class="weekly-heading"><h2 class="sectiontitle">バス・発車案内（名古屋・岡崎）</h2><button class="btn" id="busRefresh">現在地更新</button></div><div id="busStatus" role="status" aria-live="polite">市バスデータ未取得</div><div class="busTools"><label>停留所検索 <input id="busSearch" type="search" placeholder="例：栄、高岳" /></label><button class="btn" id="busImport">公式GTFS ZIPを読み込む</button><input id="busFile" type="file" accept=".zip" hidden><a class="btn" href="https://data.bodik.jp/dataset/231002_7109030000_bus-gtfs-jp" target="_blank" rel="noopener">名古屋公式データ</a><a class="btn" href="https://data.bodik.jp/dataset/232025_gtfs" target="_blank" rel="noopener">岡崎公式データ</a></div><div id="busStops"></div><small>名古屋市交通局・岡崎市 GTFS-JP（CC BY 4.0）を加工。予定時刻のみ。遅延・運休未反映。</small></section>
 </div>
 
 <nav class="dock" aria-label="ページ切替">
@@ -857,10 +857,10 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
   <button class="page-tab" type="button" data-page="0" aria-controls="home" aria-current="page">ホーム</button>
   <button class="page-tab" type="button" data-page="1" aria-controls="weekly">天気</button>
   <button class="page-tab" type="button" data-page="2" aria-controls="mapPage">地図</button>
-  <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button><button class="page-tab" type="button" data-page="4" aria-controls="busPage">市バス</button>
+  <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button><button class="page-tab" type="button" data-page="4" aria-controls="busPage">バス</button>
  </div>
  <button class="btn" id="next" aria-label="次のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
-</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V1.3</span></div>
+</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V1.4</span></div>
 
 </main>
 
@@ -892,7 +892,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 <div id="ttDayControls" hidden><label for="ttDay">ダイヤ</label><select id="ttDay"><option value="auto">自動（日本時間・祝日対応）</option><option value="weekday">平日（手動）</option><option value="holiday">土曜・日曜・休日（手動）</option></select></div>
 <p id="ttNotes"></p><p id="ttRevision"></p>
 <p><a id="ttOfficial" target="_blank" rel="noopener" hidden></a></p>
-<div id="ttExternalData" hidden>
+<div id="ttExternalData" hidden><p>重点地域：名古屋市・岡崎市。JR・名鉄の時刻表は登録済みデータのみ表示します。<a href="https://eki.locky.jp/" target="_blank" rel="noopener">駅.Locky</a></p>
  <div class="tt-data-controls"><button class="btn" id="ttLoadData">ダイヤJSONを読み込む</button><button class="btn" id="ttClearData" hidden>読み込んだダイヤを消去</button></div>
  <input id="ttDataFile" type="file" accept=".json,application/json" hidden>
  <p id="ttDataStatus" role="status"></p><details id="lockyImportPanel"><summary>駅.Locky / NextTrain 時刻表を追加</summary><p>選択中のJR・名鉄駅に、利用許可のあるTBLを登録します。<a href="https://eki.locky.jp/" target="_blank" rel="noopener">駅.Lockyで探す</a></p><label for="lockyLine">路線</label><input id="lockyLine" class="url" placeholder="例：東海道本線"><label for="lockyDirection">方面</label><input id="lockyDirection" class="url" placeholder="例：豊橋方面"><div class="tt-filter"><div><label for="lockyFrom">適用開始日</label><input type="date" id="lockyFrom"></div><div><label for="lockyTo">適用終了日（確認済み）</label><input type="date" id="lockyTo"></div></div><label for="lockyUrl">駅.Locky 時刻表ページURL</label><input id="lockyUrl" class="url" type="url" placeholder="https://eki.locky.jp/timetables/…/"><label><input type="checkbox" id="lockyPermission" style="width:auto"> 外部利用が許可されたデータであることを確認済み</label><button class="btn" id="lockyFetch" type="button">URLから自動取得</button><button class="btn" id="lockyOpenSource" type="button">元ページを開く</button><p>取得先が外部ブラウザからの通信を許可していない場合は、手動貼り付けを使用してください。</p><label for="lockyText">NextTrain形式を貼り付け、またはTBLファイルを選択</label><textarea id="lockyText" rows="5" placeholder="[MON][TUE]…"></textarea><button class="btn" id="lockyFileBtn" type="button">TBLファイル選択</button><input id="lockyFile" type="file" accept=".tbl,.txt" hidden><button class="btn" id="lockySave" type="button">端末に登録</button><button class="btn" id="lockyDelete" type="button">選択駅のTBLを削除</button><p id="lockyStatus" role="status"></p></details>
@@ -2531,7 +2531,7 @@ $("aura3dXR").onclick=async()=>{if(session){await session.end();return;}if(!read
  }catch(e){if(session)try{await session.end();}catch{}msg("空間表示開始不可："+e.message);}
 };
 dialog.addEventListener("close",()=>{if(session)session.end();});
-</script><script type="module" src="./aura-bus.js?v=130"></script></body>
+</script><script type="module" src="./aura-bus.js?v=140"></script></body>
 </html>
 
 
