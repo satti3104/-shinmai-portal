@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>CommandHUB AURA Edition V1.6</title>
+<title>CommandHUB AURA Edition V1.7</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -739,7 +739,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V1.6</small></div>
+ <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V1.7</small></div>
  <div class="aura-power" id="auraPower" data-level="unknown" role="status" aria-live="polite"><span class="aura-power-label">電力残量</span><div class="aura-power-row"><span class="aura-battery" aria-hidden="true"><span id="auraBatteryFill"></span></span><strong id="auraBatteryPercent">--%</strong></div><span id="auraBatteryStatus">確認中</span><span id="auraBatteryTime"></span></div><span class="state" id="state">READY</span>
 </header>
 
@@ -2531,7 +2531,7 @@ $("aura3dXR").onclick=async()=>{if(session){await session.end();return;}if(!read
  }catch(e){if(session)try{await session.end();}catch{}msg("空間表示開始不可："+e.message);}
 };
 dialog.addEventListener("close",()=>{if(session)session.end();});
-</script><script type="module" src="./aura-bus.js?v=150"></script><dialog id="myDialog" aria-labelledby="myTitle"><div class="myHeader"><h2 id="myTitle">マイ時刻表データベース</h2><button class="btn" id="myClose">閉じる</button></div><p>利用可能な公式時刻表をコピーして登録。端末内保存。</p><div class="myForm"><label>交通機関<select id="myType"><option value="bus">バス</option><option value="rail">鉄道</option></select></label><label>駅・停留所名<input id="myName"></label><label>路線・系統<input id="myLine"></label><label>方面・行先<input id="myDir"></label><label>緯度<input id="myLat" type="number" step="any"></label><label>経度<input id="myLon" type="number" step="any"></label><label>適用開始日<input id="myFrom" type="date"></label><label>適用終了日<input id="myTo" type="date"></label><label>出典URL・名称<input id="mySource"></label><button class="btn" id="myGPS">現在地を座標に入力</button></div><p>例：07:05 07:25 または 7時 05 25。平日・土曜・日祝を別々に入力。空欄は未登録。</p><div class="myForm myTimes"><label>平日<textarea id="myWeek" rows="6"></textarea></label><label>土曜<textarea id="mySat" rows="6"></textarea></label><label>日曜・祝日<textarea id="mySun" rows="6"></textarea></label></div><label><input type="checkbox" id="myPermission"> 利用条件とダイヤの有効期間を確認済み</label><div class="myHeader"><button class="btn" id="mySave">登録・更新</button><button class="btn" id="myNew">新規入力</button><button class="btn" id="myExport">JSONバックアップ</button></div><p id="myStatus" role="status"></p><h3>登録済み時刻表</h3><div id="myList"></div></dialog><script src="./aura-my-transit.js?v=160"></script></body>
+</script><script type="module" src="./aura-bus.js?v=150"></script><dialog id="myDialog" aria-labelledby="myTitle"><div class="myHeader"><h2 id="myTitle">マイ時刻表データベース</h2><button class="btn" id="myClose">閉じる</button></div><p>利用可能な公式時刻表をコピーして登録。端末内保存。</p><div class="myForm"><label>交通機関<select id="myType"><option value="bus">バス</option><option value="rail">鉄道</option></select></label><label>駅・停留所名<input id="myName"></label><label>路線・系統<input id="myLine"></label><label>方面・行先<input id="myDir"></label><label>緯度<input id="myLat" type="number" step="any"></label><label>経度<input id="myLon" type="number" step="any"></label><label>適用開始日<input id="myFrom" type="date"></label><label>適用終了日<input id="myTo" type="date"></label><label>出典URL・名称<input id="mySource"></label><button class="btn" id="myGPS">現在地を座標に入力</button></div><p>例：07:05 07:25 または 7時 05 25。平日・土曜・日祝を別々に入力。空欄は未登録。</p><div class="myForm myTimes"><label>平日<textarea id="myWeek" rows="6"></textarea></label><label>土曜<textarea id="mySat" rows="6"></textarea></label><label>日曜・祝日<textarea id="mySun" rows="6"></textarea></label></div><label><input type="checkbox" id="myPermission"> 利用条件とダイヤの有効期間を確認済み</label><div class="myHeader"><button class="btn" id="mySave">登録・更新</button><button class="btn" id="myNew">新規入力</button><button class="btn" id="myExport">JSONバックアップ</button><button class="btn" id="myImport">JSON一括登録</button><input id="myImportFile" type="file" accept=".json,application/json" hidden></div><p id="myStatus" role="status"></p><h3>公式時刻表参照先</h3><p id="myRegistryStatus">台帳読込中</p><div id="mySources"></div><h3>登録済み時刻表</h3><div id="myList"></div></dialog><script src="./aura-my-transit.js?v=170"></script></body>
 </html>
 
 
