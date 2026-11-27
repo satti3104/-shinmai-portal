@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "schedules": [],
+  "sources": [
+    {
+      "name": "名鉄名古屋駅 / 東岡崎・豊橋方面",
+      "url": "https://trainbus.meitetsu.co.jp/meitetsu-transfer/pc/diagram/TrainDiagram?direction=up&linkId=00000885&rule=c&startId=00004372",
+      "status": "公式ページ参照先登録済み／発車時刻未登録（利用条件・現行ダイヤ要確認）"
+    },
+    {
+      "name": "JR名古屋駅 / JR東海",
+      "url": "https://railway.jr-central.co.jp/time-schedule/",
+      "status": "公式時刻表入口／発車時刻未登録"
+    }
+  ]
+}
