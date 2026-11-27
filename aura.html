@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>CommandHUB AURA Edition V0.7.1</title>
+<title>CommandHUB AURA Edition V0.8</title>
 
 <style>
 /* COMMAND HUD V5.5 — dark LCD, one responsive layout system. */
@@ -656,6 +656,36 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 .scouter-departure strong{font-size:18px}
 .scouter-departure small{overflow-wrap:anywhere}
 @media(min-width:700px) and (orientation:landscape){.home-inner{grid-template-columns:minmax(0,.8fr) minmax(0,.9fr) minmax(0,1.9fr);grid-template-rows:auto auto}.home-nearest{overflow:visible}}
+</style><style id="aura-dashboard-v08">
+.app{width:100%;max-width:none;height:100dvh;max-height:none;margin:0;border:0;border-radius:0;box-shadow:none;padding:clamp(6px,1.1vw,20px);gap:8px}
+.header{flex:0 0 auto;display:flex!important;gap:12px;justify-content:space-between;padding:4px 0}.header-clock{display:none}
+.header>div:first-of-type{flex:1}.aura-power{min-width:100px}.aura-footer{display:none}
+#home.active{overflow:auto;scrollbar-width:thin}
+.home-inner{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-auto-rows:auto;align-content:start;min-height:100%;height:auto;gap:8px}
+.home-overview,.home-weather,.home-nearest,.aura-navigation{grid-row:auto;grid-column:auto;min-width:0;min-height:0;padding:12px;overflow:visible;align-self:stretch}
+.aura-navigation{display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(135deg,#102631,#08151e);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:3px}
+.aura-label{display:block;font-size:11px;margin-bottom:8px}.aura-navigation .aura-nav{flex:1 0 auto;justify-content:center;margin:0}
+.aura-navigation .aura-reticle{width:min(100%,250px);max-height:clamp(100px,32vh,250px)}
+.home-overview{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+.home-clock{align-self:flex-start;font-size:clamp(32px,5vw,84px);line-height:1.05}
+.home-temperature{text-align:left;border:0;border-top:1px solid var(--line);padding:6px 0 0}
+.home-temp{font-size:clamp(26px,3.6vw,54px)}
+.home-weather{justify-content:flex-start;gap:10px}
+.weather-heading{flex-wrap:wrap}.weather-heading #place{max-width:100%;white-space:normal}
+#details,#rainnext{white-space:normal;line-height:1.5}
+.home-refresh{grid-column:1/-1;grid-row:auto;min-height:36px}
+#homeTrainCountdown{grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));gap:6px}
+.home-train-row{min-height:48px;gap:2px}.home-train-row strong{font-size:clamp(18px,2vw,30px)}
+.dock{flex:0 0 auto;padding-top:5px}
+@media(min-width:540px){.home-inner{grid-template-columns:repeat(2,minmax(0,1fr))}.home-nearest{grid-column:1/-1}.aura-navigation{grid-column:1/-1}.aura-navigation .aura-nav{flex-direction:row;flex-wrap:wrap}}
+@media(min-width:880px),(min-width:650px) and (orientation:landscape){
+.home-inner{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) minmax(0,1.15fr) minmax(0,2fr);grid-template-rows:minmax(min-content,1fr) auto;align-content:stretch}
+.home-overview,.home-weather,.aura-navigation,.home-nearest{grid-column:auto;grid-row:1;padding:clamp(8px,1.2vw,18px)}
+.aura-navigation .aura-nav{flex-direction:column;flex-wrap:nowrap}.aura-navigation .aura-reticle{max-height:30vh}
+.home-refresh{grid-row:2}.home-nearest{justify-content:flex-start}
+#homeTrainCountdown{grid-template-columns:repeat(auto-fit,minmax(min(100%,135px),1fr))}
+}
+@media(max-height:460px) and (min-width:650px){.app{padding:6px;gap:5px}.header{padding:2px 0}.home-inner{gap:6px}.home-overview,.home-weather,.aura-navigation,.home-nearest{padding:8px}.aura-label{margin-bottom:4px}.home-clock{font-size:clamp(28px,4.5vw,64px)}.aura-navigation .aura-reticle{max-height:115px}.home-refresh{min-height:30px}.dock .page-tab{min-height:30px}}
 </style></head>
 
 <body>
@@ -664,7 +694,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
 
 <header class="header">
  <time id="headerClock" class="header-clock" aria-label="現在時刻">--:--</time>
- <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.7.1</small></div>
+ <div><span id="title">軍曹 / ホーム</span><small>CommandHUB AURA Edition V0.8</small></div>
  <div class="aura-power" id="auraPower" data-level="unknown" role="status" aria-live="polite"><span class="aura-power-label">電力残量</span><div class="aura-power-row"><span class="aura-battery" aria-hidden="true"><span id="auraBatteryFill"></span></span><strong id="auraBatteryPercent">--%</strong></div><span id="auraBatteryStatus">確認中</span><span id="auraBatteryTime"></span></div><span class="state" id="state">READY</span>
 </header>
 
@@ -688,12 +718,12 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
    <div class="meta" id="details">
     体感 --° / 降水 --%
    </div>
-   <div class="aura-nav"><svg class="aura-reticle" viewBox="0 0 200 160" role="img" aria-label="最寄り駅の方角と直線距離"><g fill="none" stroke="#548e9b" stroke-width="1"><circle cx="100" cy="80" r="62"/><circle cx="100" cy="80" r="31" stroke-dasharray="3 4"/><path d="M100 14V146M34 80H166" opacity=".6"/></g><g fill="#a0bec8" font-size="10" text-anchor="middle"><text x="100" y="11">北</text><text x="177" y="84">東</text><text x="100" y="157">南</text><text x="23" y="84">西</text><text x="135" y="77" font-size="8">500m</text></g><circle cx="100" cy="80" r="3" fill="#7ee7ed"/><g id="auraStationMarker" visibility="hidden"><line id="auraStationLine" x1="100" y1="80" x2="100" y2="80" stroke="#ffda91" stroke-dasharray="3 3"/><circle id="auraStationDot" cx="100" cy="80" r="5" fill="#ffda91" stroke="#fff" stroke-width="1.4"/></g></svg><div id="auraStationName" class="aura-target-name">最寄り駅：測位待ち</div><div id="auraStationDistance" class="aura-target-distance" aria-live="polite">北基準 / 半径1km</div></div><div class="meta" id="rainnext">
+   <div class="meta" id="rainnext">
     次の雨：確認中
    </div>
   </div>
 
-  <div class="home-nearest"><div class="aura-label">03 / 鉄道情報</div>
+  <div class="card aura-navigation"><div class="aura-label">03 / 最寄り駅照準</div><div class="aura-nav"><svg class="aura-reticle" viewBox="0 0 200 160" role="img" aria-label="最寄り駅の方角と直線距離"><g fill="none" stroke="#548e9b" stroke-width="1"><circle cx="100" cy="80" r="62"/><circle cx="100" cy="80" r="31" stroke-dasharray="3 4"/><path d="M100 14V146M34 80H166" opacity=".6"/></g><g fill="#a0bec8" font-size="10" text-anchor="middle"><text x="100" y="11">北</text><text x="177" y="84">東</text><text x="100" y="157">南</text><text x="23" y="84">西</text><text x="135" y="77" font-size="8">500m</text></g><circle cx="100" cy="80" r="3" fill="#7ee7ed"/><g id="auraStationMarker" visibility="hidden"><line id="auraStationLine" x1="100" y1="80" x2="100" y2="80" stroke="#ffda91" stroke-dasharray="3 3"/><circle id="auraStationDot" cx="100" cy="80" r="5" fill="#ffda91" stroke="#fff" stroke-width="1.4"/></g></svg><div id="auraStationName" class="aura-target-name">最寄り駅：測位待ち</div><div id="auraStationDistance" class="aura-target-distance" aria-live="polite">北基準 / 半径1km</div></div></div><div class="home-nearest"><div class="aura-label">04 / 鉄道情報</div>
    <div class="home-nearest-head"><span class="home-nearest-label">最寄り駅・発車まで</span><button id="homeTrainNextPage" class="home-train-next" type="button" aria-label="次の方面を表示" hidden>方面切替 <span id="homeTrainPageIndicator"></span></button></div>
    <button class="home-nearest-value" id="homeNearestStation" type="button" title="駅の発車案内を開く">GPS待機中</button>
    <div id="homeTrainCountdown" class="home-train-countdown">発車時刻を取得中</div>
@@ -783,7 +813,7 @@ button.weather-name{font-size:clamp(16px,2.4vw,34px)}
   <button class="page-tab" type="button" data-page="3" aria-controls="scout">駅</button>
  </div>
  <button class="btn" id="next" aria-label="次のページ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
-</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.7.1</span></div>
+</nav><div class="aura-footer"><span>軍曹専用情報端末 / AURA</span><span>ブラウザモード ・ V0.8</span></div>
 
 </main>
 
